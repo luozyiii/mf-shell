@@ -44,28 +44,44 @@ const getIconComponent = (iconName: string) => {
   return iconMap[iconName] || <AppstoreOutlined />;
 };
 
-// 默认路由配置作为fallback
+// 默认路由配置作为fallback - 从配置系统动态生成
 const getDefaultRoutes = (appName: string) => {
-  const defaultConfigs = {
+  const microsystem = microsystemManager.getMicrosystem(appName);
+  if (!microsystem) return null;
+
+  // 从配置中获取默认路由结构
+  const defaultRouteConfigs: Record<string, any> = {
     marketing: {
-      appName: '营销系统',
       routes: [
-        { path: '/marketing', name: '营销概览', showBack: false },
-        { path: '/marketing/campaigns', name: '活动管理', showBack: false },
-        { path: '/marketing/analytics', name: '数据分析', showBack: false },
-        { path: '/marketing/customers', name: '客户管理', showBack: false }
+        { path: `${microsystem.route}`, name: '营销概览', showBack: false },
+        { path: `${microsystem.route}/campaigns`, name: '活动管理', showBack: false },
+        { path: `${microsystem.route}/analytics`, name: '数据分析', showBack: false },
+        { path: `${microsystem.route}/customers`, name: '客户管理', showBack: false }
       ]
     },
     finance: {
-      appName: '财务系统',
       routes: [
-        { path: '/finance', name: '财务概览', showBack: false },
-        { path: '/finance/accounts', name: '账户管理', showBack: false },
-        { path: '/finance/reports', name: '财务报表', showBack: false }
+        { path: `${microsystem.route}`, name: '财务概览', showBack: false },
+        { path: `${microsystem.route}/accounts`, name: '账户管理', showBack: false },
+        { path: `${microsystem.route}/reports`, name: '财务报表', showBack: false }
+      ]
+    },
+    template: {
+      routes: [
+        { path: `${microsystem.route}/dashboard`, name: '模板概览', showBack: false },
+        { path: `${microsystem.route}/feature1`, name: '功能模块1', showBack: true },
+        { path: `${microsystem.route}/feature2`, name: '功能模块2', showBack: true },
+        { path: `${microsystem.route}/settings`, name: '系统设置', showBack: true }
       ]
     }
   };
-  return defaultConfigs[appName as keyof typeof defaultConfigs] || null;
+
+  const config = defaultRouteConfigs[appName];
+  return config ? {
+    appName: microsystem.displayName,
+    appKey: microsystem.name,
+    ...config
+  } : null;
 };
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
@@ -73,15 +89,17 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const [contentLoading, setContentLoading] = useState(false);
   const [contentKey, setContentKey] = useState(0);
-  const [microFrontendRoutes, setMicroFrontendRoutes] = useState<{
-    marketing: any;
-    finance: any;
-  }>({
-    marketing: null,
-    finance: null
+  // 动态生成微前端路由状态类型
+  const [microFrontendRoutes, setMicroFrontendRoutes] = useState<Record<string, any>>(() => {
+    const enabledMicrosystems = microsystemManager.getEnabledMicrosystems();
+    const initialState: Record<string, any> = {};
+    enabledMicrosystems.forEach(microsystem => {
+      initialState[microsystem.name] = null;
+    });
+    return initialState;
   });
 
-  const { user, logout, isLoading: authLoading } = useAuth();
+  const { user, permissions, logout, isLoading: authLoading } = useAuth();
   const { hasAppAccess } = usePermissions();
   const navigate = useNavigate();
   const location = useLocation();
@@ -110,26 +128,20 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   // 预加载子应用路由配置
   useEffect(() => {
     const preloadRoutes = () => {
-      // 为有权限的应用创建隐藏iframe来预加载路由配置
-      const appsToPreload = [];
+      // 从配置系统获取用户可访问的微前端应用
+      const userPermissions: string[] = [];
+      if (permissions?.marketing) userPermissions.push('marketing:read', 'marketing:write');
+      if (permissions?.finance) userPermissions.push('finance:read', 'finance:write');
+      if (user?.roles.includes('admin' as any)) userPermissions.push('admin:read');
+      // 所有登录用户都可以访问模板系统（用于演示）
+      userPermissions.push('template:read');
 
-      if (hasAppAccess('marketing')) {
-        appsToPreload.push({
-          name: 'marketing',
-          host: process.env.NODE_ENV === 'production'
-            ? 'https://luozyiii.github.io/mf-marketing'
-            : 'http://localhost:3001'
-        });
-      }
+      const accessibleMicrosystems = microsystemManager.getAccessibleMicrosystems(userPermissions);
 
-      if (hasAppAccess('finance')) {
-        appsToPreload.push({
-          name: 'finance',
-          host: process.env.NODE_ENV === 'production'
-            ? 'https://luozyiii.github.io/mf-finance'
-            : 'http://localhost:3002'
-        });
-      }
+      const appsToPreload = accessibleMicrosystems.map(microsystem => ({
+        name: microsystem.name,
+        host: microsystem.host
+      }));
 
       // 首先设置默认路由，确保即使跨域失败也能正常工作
       appsToPreload.forEach(app => {
@@ -207,12 +219,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     const pathname = location.pathname;
     const openKeysToSet: string[] = [];
 
-    // 检查是否在微前端应用路由下
-    if (pathname.startsWith('/marketing')) {
-      openKeysToSet.push('marketing');
-    } else if (pathname.startsWith('/finance')) {
-      openKeysToSet.push('finance');
-    }
+    // 动态检查是否在微前端应用路由下
+    const enabledMicrosystems = microsystemManager.getEnabledMicrosystems();
+    enabledMicrosystems.forEach(microsystem => {
+      if (pathname.startsWith(microsystem.route)) {
+        openKeysToSet.push(microsystem.name);
+      }
+    });
 
     setOpenKeys(openKeysToSet);
   }, [location.pathname, collapsed]);
@@ -239,8 +252,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const menuItems = useMemo(() => {
     console.log('Building menu items...');
     console.log('authLoading:', authLoading);
-    console.log('hasAppAccess marketing:', hasAppAccess('marketing'));
-    console.log('hasAppAccess finance:', hasAppAccess('finance'));
     console.log('microFrontendRoutes:', microFrontendRoutes);
 
     // 如果还在加载权限，返回基础菜单
@@ -268,6 +279,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     if (permissions?.marketing) userPermissions.push('marketing:read', 'marketing:write');
     if (permissions?.finance) userPermissions.push('finance:read', 'finance:write');
     if (user?.roles.includes('admin' as any)) userPermissions.push('admin:read');
+    // 所有登录用户都可以访问模板系统（用于演示）
+    userPermissions.push('template:read');
 
     const accessibleMicrosystems = microsystemManager.getAccessibleMicrosystems(userPermissions);
 
@@ -297,7 +310,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     });
 
     return items;
-  }, [authLoading, user?.permissions, microFrontendRoutes]);
+  }, [authLoading, permissions, microFrontendRoutes]);
 
   const userMenuItems = [
     {
@@ -343,29 +356,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     // 尝试从子应用路由配置中获取
     try {
-      // 营销系统路由
-      if (pathname.startsWith('/marketing') && microFrontendRoutes.marketing) {
-        const routes = microFrontendRoutes.marketing.routes;
-        const route = routes.find((r: any) => r.path === pathname);
-        if (route) {
-          return {
-            title: route.name,
-            showBack: route.showBack || false,
-            backPath: route.backPath || null
-          };
-        }
-      }
-
-      // 财务系统路由
-      if (pathname.startsWith('/finance') && microFrontendRoutes.finance) {
-        const routes = microFrontendRoutes.finance.routes;
-        const route = routes.find((r: any) => r.path === pathname);
-        if (route) {
-          return {
-            title: route.name,
-            showBack: route.showBack || false,
-            backPath: route.backPath || null
-          };
+      // 动态检查所有微前端系统的路由
+      const enabledMicrosystems = microsystemManager.getEnabledMicrosystems();
+      for (const microsystem of enabledMicrosystems) {
+        if (pathname.startsWith(microsystem.route) && microFrontendRoutes[microsystem.name]) {
+          const routes = microFrontendRoutes[microsystem.name].routes;
+          const route = routes.find((r: any) => r.path === pathname);
+          if (route) {
+            return {
+              title: route.name,
+              showBack: route.showBack || false,
+              backPath: route.backPath || null
+            };
+          }
         }
       }
     } catch (error) {

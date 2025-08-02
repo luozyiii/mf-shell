@@ -8,7 +8,8 @@ export enum UserRole {
 // 应用权限枚举
 export enum AppPermission {
   MARKETING = 'marketing',
-  FINANCE = 'finance'
+  FINANCE = 'finance',
+  TEMPLATE = 'template'
 }
 
 // 登录表单接口
@@ -33,6 +34,7 @@ export interface User {
 export interface Permissions {
   [AppPermission.MARKETING]: boolean;
   [AppPermission.FINANCE]: boolean;
+  [AppPermission.TEMPLATE]?: boolean; // 可选，因为模板系统对所有用户开放
 }
 
 // 认证上下文接口

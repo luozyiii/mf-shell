@@ -12,6 +12,7 @@ import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { NotFound } from './pages/NotFound';
 import { microsystemManager } from './config/microsystems';
+import './utils/configValidator'; // 自动执行配置验证
 import './App.css';
 
 // GitHub Pages 路由基础路径

@@ -10,7 +10,7 @@ export const prodMicrosystems = {
     remoteEntry: 'https://luozyiii.github.io/mf-template/remoteEntry.js',
     route: '/template',
     enabled: true, // 生产环境也启用，用于展示
-    permissions: ['admin:read'],
+    permissions: ['template:read'], // 改为模板系统专用权限
     menuOrder: 1,
     category: 'development'
   },

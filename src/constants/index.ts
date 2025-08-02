@@ -13,40 +13,13 @@ export const APP_CONFIG = {
     LAYOUT_SETTINGS: 'layout_settings'
   },
   
-  // 微前端应用配置
-  MICRO_APPS: {
-    MARKETING: {
-      name: 'marketing',
-      displayName: '营销系统',
-      host: typeof process !== 'undefined' && process.env?.NODE_ENV === 'production'
-        ? 'https://luozyiii.github.io/mf-marketing'
-        : 'http://localhost:3001',
-      remoteEntry: typeof process !== 'undefined' && process.env?.NODE_ENV === 'production'
-        ? 'https://luozyiii.github.io/mf-marketing/remoteEntry.js'
-        : 'http://localhost:3001/remoteEntry.js',
-      icon: 'ShoppingOutlined',
-      description: '营销活动管理、客户管理、数据分析'
-    },
-    FINANCE: {
-      name: 'finance',
-      displayName: '财务系统',
-      host: typeof process !== 'undefined' && process.env?.NODE_ENV === 'production'
-        ? 'https://luozyiii.github.io/mf-finance'
-        : 'http://localhost:3002',
-      remoteEntry: typeof process !== 'undefined' && process.env?.NODE_ENV === 'production'
-        ? 'https://luozyiii.github.io/mf-finance/remoteEntry.js'
-        : 'http://localhost:3002/remoteEntry.js',
-      icon: 'DollarOutlined',
-      description: '财务报表、账务管理、成本分析'
-    }
-  },
-  
-  // 路由配置
+  // 注意：微前端应用配置已迁移到 src/config/microsystems.ts
+  // 请使用 microsystemManager 来获取微前端配置
+
+  // 基础路由配置
   ROUTES: {
     LOGIN: '/login',
     DASHBOARD: '/dashboard',
-    MARKETING: '/marketing',
-    FINANCE: '/finance',
     ROOT: '/'
   },
   

@@ -48,6 +48,8 @@ export const Dashboard: React.FC = () => {
   if (permissions?.marketing) userPermissions.push('marketing:read', 'marketing:write');
   if (permissions?.finance) userPermissions.push('finance:read', 'finance:write');
   if (user?.roles.includes('admin' as any)) userPermissions.push('admin:read');
+  // 所有登录用户都可以访问模板系统（用于演示）
+  userPermissions.push('template:read');
 
   const accessibleMicrosystems = microsystemManager.getAccessibleMicrosystems(userPermissions);
 

@@ -10,7 +10,7 @@ export const devMicrosystems = {
     remoteEntry: 'http://localhost:3003/remoteEntry.js',
     route: '/template',
     enabled: true, // 开发环境启用，用于测试
-    permissions: ['admin:read'],
+    permissions: ['template:read'], // 改为模板系统专用权限
     menuOrder: 1,
     category: 'development'
   },

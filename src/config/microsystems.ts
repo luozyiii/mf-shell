@@ -1,20 +1,11 @@
 import { devMicrosystems, devConfig } from './microsystems.dev';
 import { prodMicrosystems, prodConfig } from './microsystems.prod';
+import {
+  MicrosystemConfig as BaseMicrosystemConfig
+} from '../types/microsystem';
 
-// 微前端子系统配置类型定义
-export interface MicrosystemConfig {
-  name: string;
-  displayName: string;
-  description: string;
-  icon: string;
-  host: string;
-  remoteEntry: string;
-  route: string;
-  enabled: boolean;
-  permissions: string[];
-  menuOrder: number;
-  category: 'business' | 'system' | 'development';
-}
+// 重新导出类型以保持向后兼容
+export type MicrosystemConfig = BaseMicrosystemConfig;
 
 export interface EnvironmentConfig {
   [key: string]: any;
@@ -23,8 +14,8 @@ export interface EnvironmentConfig {
 // 配置管理器类
 class MicrosystemManager {
   private currentEnv: 'development' | 'production';
-  private microsystems: Record<string, MicrosystemConfig>;
-  private envConfig: EnvironmentConfig;
+  private microsystems: Record<string, MicrosystemConfig> = {};
+  private envConfig: EnvironmentConfig = {};
 
   constructor() {
     this.currentEnv = (process.env.NODE_ENV as 'development' | 'production') || 'development';
@@ -33,10 +24,10 @@ class MicrosystemManager {
 
   private loadConfiguration() {
     if (this.currentEnv === 'production') {
-      this.microsystems = prodMicrosystems;
+      this.microsystems = prodMicrosystems as unknown as Record<string, MicrosystemConfig>;
       this.envConfig = prodConfig;
     } else {
-      this.microsystems = devMicrosystems;
+      this.microsystems = devMicrosystems as unknown as Record<string, MicrosystemConfig>;
       this.envConfig = devConfig;
     }
   }
@@ -154,5 +145,4 @@ class MicrosystemManager {
 export const microsystemManager = new MicrosystemManager();
 
 // 导出类型和常用方法
-export type { MicrosystemConfig, EnvironmentConfig };
 export default microsystemManager;
