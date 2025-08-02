@@ -1,5 +1,5 @@
 import React from 'react';
-import { Row, Col, Card, Button, Space, List, Badge, Progress, Timeline } from 'antd';
+import { Row, Col, Card, Button, Space, List, Badge, Progress, Timeline, Typography } from 'antd';
 import {
   UserOutlined,
   DollarOutlined,
@@ -11,15 +11,45 @@ import {
   ExclamationCircleOutlined,
   RocketOutlined,
   CloudServerOutlined,
-  SafetyOutlined
+  SafetyOutlined,
+  AppstoreOutlined,
+  InboxOutlined
 } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
+import { microsystemManager } from '../config/microsystems';
 import styles from './Dashboard.module.css';
+
+const { Title, Text } = Typography;
 
 
 
 export const Dashboard: React.FC = () => {
+  const navigate = useNavigate();
+  const { user, permissions } = useAuth();
 
+  // 获取图标组件
+  const getIconComponent = (iconName: string) => {
+    const iconMap: Record<string, React.ReactNode> = {
+      'RocketOutlined': <RocketOutlined />,
+      'DollarOutlined': <DollarOutlined />,
+      'AppstoreOutlined': <AppstoreOutlined />,
+      'InboxOutlined': <InboxOutlined />,
+      'UserOutlined': <UserOutlined />,
+      'SettingOutlined': <UserOutlined />
+    };
 
+    return iconMap[iconName] || <AppstoreOutlined />;
+  };
+
+  // 获取用户可访问的微前端系统
+  // 将现有的权限系统映射到新的配置系统
+  const userPermissions: string[] = [];
+  if (permissions?.marketing) userPermissions.push('marketing:read', 'marketing:write');
+  if (permissions?.finance) userPermissions.push('finance:read', 'finance:write');
+  if (user?.roles.includes('admin' as any)) userPermissions.push('admin:read');
+
+  const accessibleMicrosystems = microsystemManager.getAccessibleMicrosystems(userPermissions);
 
   const quickStats = [
     { title: '今日访问', value: '1,234', icon: <BarChartOutlined />, color: '#722ed1' },
@@ -64,7 +94,59 @@ export const Dashboard: React.FC = () => {
         ))}
       </Row>
 
-      {/* 应用入口 */}
+      {/* 微前端系统入口 */}
+      <Card
+        title={
+          <span className={styles.cardTitle}>
+            <AppstoreOutlined style={{ marginRight: '8px', color: '#1890ff' }} />
+            系统应用
+          </span>
+        }
+        className={styles.appsCard}
+        styles={{ body: { padding: '24px' } }}
+      >
+        <Row gutter={[16, 16]}>
+          {accessibleMicrosystems.map((microsystem) => (
+            <Col xs={24} sm={12} md={8} lg={6} key={microsystem.name}>
+              <Card
+                hoverable
+                className={styles.appCard}
+                onClick={() => navigate(microsystem.route)}
+                styles={{ body: { padding: '20px', textAlign: 'center' } }}
+              >
+                <div className={styles.appIcon}>
+                  {getIconComponent(microsystem.icon)}
+                </div>
+                <Title level={5} style={{ margin: '12px 0 8px 0' }}>
+                  {microsystem.displayName}
+                </Title>
+                <Text type="secondary" style={{ fontSize: '12px' }}>
+                  {microsystem.description}
+                </Text>
+                <div style={{ marginTop: '12px' }}>
+                  <Badge
+                    status={microsystem.enabled ? 'success' : 'default'}
+                    text={microsystem.enabled ? '运行中' : '已停用'}
+                  />
+                </div>
+              </Card>
+            </Col>
+          ))}
+
+          {/* 如果没有可访问的系统，显示提示 */}
+          {accessibleMicrosystems.length === 0 && (
+            <Col span={24}>
+              <div style={{ textAlign: 'center', padding: '40px 0', color: '#999' }}>
+                <AppstoreOutlined style={{ fontSize: '48px', marginBottom: '16px' }} />
+                <div>暂无可访问的系统应用</div>
+                <div style={{ fontSize: '12px', marginTop: '8px' }}>
+                  请联系管理员分配相应权限
+                </div>
+              </div>
+            </Col>
+          )}
+        </Row>
+      </Card>
 
 
       {/* 快捷操作 */}

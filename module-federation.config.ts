@@ -1,15 +1,12 @@
 import { createModuleFederationConfig } from '@module-federation/rsbuild-plugin';
+import { microsystemManager } from './src/config/microsystems';
+
+// 动态生成 remotes 配置
+const remotes = microsystemManager.generateModuleFederationRemotes();
 
 export default createModuleFederationConfig({
   name: 'shell',
-  remotes: {
-    marketing: process.env.NODE_ENV === 'production'
-      ? 'marketing@https://luozyiii.github.io/mf-marketing/remoteEntry.js'
-      : 'marketing@http://localhost:3001/remoteEntry.js',
-    finance: process.env.NODE_ENV === 'production'
-      ? 'finance@https://luozyiii.github.io/mf-finance/remoteEntry.js'
-      : 'finance@http://localhost:3002/remoteEntry.js',
-  },
+  remotes,
   shareStrategy: 'loaded-first',
   shared: {
     react: {

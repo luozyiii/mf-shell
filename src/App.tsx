@@ -11,6 +11,7 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { NotFound } from './pages/NotFound';
+import { microsystemManager } from './config/microsystems';
 import './App.css';
 
 // GitHub Pages 路由基础路径
@@ -39,6 +40,28 @@ const AppContent: React.FC = () => {
     return <LayoutSkeleton />;
   }
 
+  // 动态生成微前端路由
+  const generateMicrosystemRoutes = () => {
+    const enabledMicrosystems = microsystemManager.getEnabledMicrosystems();
+
+    return enabledMicrosystems.map(microsystem => (
+      <Route
+        key={microsystem.name}
+        path={`${microsystem.route}/*`}
+        element={
+          <ProtectedRoute requiredApp={microsystem.name}>
+            <Layout>
+              <MicroFrontendLoader
+                name={microsystem.name}
+                host={microsystem.host}
+              />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+    ));
+  };
+
   return (
     <Router basename={basename}>
         <Routes>
@@ -53,38 +76,10 @@ const AppContent: React.FC = () => {
               </ProtectedRoute>
             }
           />
-          <Route
-            path="/marketing/*"
-            element={
-              <ProtectedRoute requiredApp="marketing">
-                <Layout>
-                  <MicroFrontendLoader
-                    name="marketing"
-                    host={process.env.NODE_ENV === 'production'
-                      ? 'https://luozyiii.github.io/mf-marketing'
-                      : 'http://localhost:3001'
-                    }
-                  />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/finance/*"
-            element={
-              <ProtectedRoute requiredApp="finance">
-                <Layout>
-                  <MicroFrontendLoader
-                    name="finance"
-                    host={process.env.NODE_ENV === 'production'
-                      ? 'https://luozyiii.github.io/mf-finance'
-                      : 'http://localhost:3002'
-                    }
-                  />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
+
+          {/* 动态生成的微前端路由 */}
+          {generateMicrosystemRoutes()}
+
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           {/* 404 页面 - 必须放在最后 */}
           <Route

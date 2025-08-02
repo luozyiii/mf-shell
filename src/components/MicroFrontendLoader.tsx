@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { AppstoreOutlined, CloudServerOutlined, RocketOutlined } from '@ant-design/icons';
-import { APP_CONFIG } from '../constants';
+import { AppstoreOutlined, CloudServerOutlined, RocketOutlined, DollarOutlined, InboxOutlined, UserOutlined } from '@ant-design/icons';
+import { microsystemManager } from '../config/microsystems';
 import styles from './MicroFrontendLoader.module.css';
 
 interface MicroFrontendLoaderProps {
@@ -51,12 +51,35 @@ export const MicroFrontendLoader: React.FC<MicroFrontendLoaderProps> = ({
   }, [location.pathname, name, host, loading]);
 
   const getAppInfo = () => {
-    const appKey = name.toUpperCase() as keyof typeof APP_CONFIG.MICRO_APPS;
-    const appConfig = APP_CONFIG.MICRO_APPS[appKey];
+    const microsystem = microsystemManager.getMicrosystem(name);
+
+    if (microsystem) {
+      // 图标映射
+      const getIconComponent = (iconName: string) => {
+        const iconMap: Record<string, React.ReactNode> = {
+          'RocketOutlined': <RocketOutlined />,
+          'DollarOutlined': <DollarOutlined />,
+          'AppstoreOutlined': <AppstoreOutlined />,
+          'InboxOutlined': <InboxOutlined />,
+          'UserOutlined': <UserOutlined />,
+          'CloudServerOutlined': <CloudServerOutlined />
+        };
+
+        return iconMap[iconName] || <AppstoreOutlined />;
+      };
+
+      return {
+        displayName: microsystem.displayName,
+        description: microsystem.description,
+        icon: getIconComponent(microsystem.icon)
+      };
+    }
+
+    // 兜底配置
     return {
-      displayName: appConfig?.displayName || name,
-      description: appConfig?.description || '正在加载应用...',
-      icon: name === 'marketing' ? <RocketOutlined /> : <CloudServerOutlined />
+      displayName: name,
+      description: '正在加载应用...',
+      icon: <CloudServerOutlined />
     };
   };
 

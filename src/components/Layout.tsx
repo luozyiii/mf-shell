@@ -9,6 +9,9 @@ import {
   SettingOutlined,
   ShoppingOutlined,
   DollarOutlined,
+  RocketOutlined,
+  AppstoreOutlined,
+  InboxOutlined,
   LeftOutlined
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -16,6 +19,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../hooks/usePermissions';
 import { APP_CONFIG } from '../constants';
 import { DateUtil } from '../utils';
+import { microsystemManager } from '../config/microsystems';
 import styles from './Layout.module.css';
 
 const { Header, Sider, Content } = AntLayout;
@@ -23,6 +27,22 @@ const { Header, Sider, Content } = AntLayout;
 interface LayoutProps {
   children: React.ReactNode;
 }
+
+// 图标映射函数
+const getIconComponent = (iconName: string) => {
+  const iconMap: Record<string, React.ReactNode> = {
+    'DashboardOutlined': <DashboardOutlined />,
+    'ShoppingOutlined': <ShoppingOutlined />,
+    'RocketOutlined': <RocketOutlined />,
+    'DollarOutlined': <DollarOutlined />,
+    'AppstoreOutlined': <AppstoreOutlined />,
+    'InboxOutlined': <InboxOutlined />,
+    'UserOutlined': <UserOutlined />,
+    'SettingOutlined': <SettingOutlined />
+  };
+
+  return iconMap[iconName] || <AppstoreOutlined />;
+};
 
 // 默认路由配置作为fallback
 const getDefaultRoutes = (appName: string) => {
@@ -242,35 +262,42 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       }
     ];
 
-    // 从子应用路由配置动态生成菜单
-    if (hasAppAccess('marketing') && microFrontendRoutes.marketing) {
-      const marketingConfig = microFrontendRoutes.marketing;
-      items.push({
-        key: 'marketing',
-        icon: <ShoppingOutlined />,
-        label: marketingConfig.appName,
-        children: marketingConfig.routes.map((route: any) => ({
-          key: route.path,
-          label: route.name
-        }))
-      });
-    }
+    // 使用配置化管理动态生成菜单
+    // 将现有的权限系统映射到新的配置系统
+    const userPermissions: string[] = [];
+    if (permissions?.marketing) userPermissions.push('marketing:read', 'marketing:write');
+    if (permissions?.finance) userPermissions.push('finance:read', 'finance:write');
+    if (user?.roles.includes('admin' as any)) userPermissions.push('admin:read');
 
-    if (hasAppAccess('finance') && microFrontendRoutes.finance) {
-      const financeConfig = microFrontendRoutes.finance;
-      items.push({
-        key: 'finance',
-        icon: <DollarOutlined />,
-        label: financeConfig.appName,
-        children: financeConfig.routes.map((route: any) => ({
-          key: route.path,
-          label: route.name
-        }))
-      });
-    }
+    const accessibleMicrosystems = microsystemManager.getAccessibleMicrosystems(userPermissions);
+
+    accessibleMicrosystems.forEach(microsystem => {
+      // 检查是否有路由配置
+      const routeConfig = microFrontendRoutes[microsystem.name as keyof typeof microFrontendRoutes];
+
+      if (routeConfig) {
+        // 有详细路由配置，显示子菜单
+        items.push({
+          key: microsystem.name,
+          icon: getIconComponent(microsystem.icon),
+          label: microsystem.displayName,
+          children: routeConfig.routes.map((route: any) => ({
+            key: route.path,
+            label: route.name
+          }))
+        });
+      } else {
+        // 没有详细路由配置，显示单一菜单项
+        items.push({
+          key: microsystem.route,
+          icon: getIconComponent(microsystem.icon),
+          label: microsystem.displayName
+        });
+      }
+    });
 
     return items;
-  }, [authLoading, hasAppAccess, microFrontendRoutes]);
+  }, [authLoading, user?.permissions, microFrontendRoutes]);
 
   const userMenuItems = [
     {
