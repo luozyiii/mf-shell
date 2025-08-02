@@ -3,8 +3,12 @@ import { createModuleFederationConfig } from '@module-federation/rsbuild-plugin'
 export default createModuleFederationConfig({
   name: 'shell',
   remotes: {
-    marketing: 'marketing@http://localhost:3001/remoteEntry.js',
-    finance: 'finance@http://localhost:3002/remoteEntry.js',
+    marketing: process.env.NODE_ENV === 'production'
+      ? 'marketing@https://luozyiii.github.io/mf-marketing/remoteEntry.js'
+      : 'marketing@http://localhost:3001/remoteEntry.js',
+    finance: process.env.NODE_ENV === 'production'
+      ? 'finance@https://luozyiii.github.io/mf-finance/remoteEntry.js'
+      : 'finance@http://localhost:3002/remoteEntry.js',
   },
   shareStrategy: 'loaded-first',
   shared: {
