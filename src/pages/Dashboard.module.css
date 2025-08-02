@@ -1,0 +1,295 @@
+/* Dashboard容器 */
+.container {
+  background: transparent;
+  padding: 16px;
+  animation: pageEnter 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 统计卡片区域 */
+.statsSection {
+  margin-bottom: 24px;
+  animation: sectionEnter 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
+}
+
+@keyframes sectionEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.statsTitle {
+  margin-bottom: 20px;
+  color: #262626;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.statsGrid {
+  gap: 24px;
+}
+
+/* 统计卡片 */
+.statCard {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e8e8e8;
+  transition: all 0.3s ease;
+}
+
+.statCard:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.statCardBody {
+  padding: 24px;
+}
+
+.statCardContent {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.statCardInfo {
+  flex: 1;
+}
+
+.statCardTitle {
+  color: #8c8c8c;
+  font-size: 14px;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.statCardValue {
+  color: #262626;
+  font-size: 24px;
+  font-weight: 700;
+  margin: 0;
+  line-height: 1.2;
+}
+
+.statCardTextContainer {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+}
+
+.statCardChange {
+  font-size: 12px;
+}
+
+.statCardChangePositive {
+  color: #52c41a;
+}
+
+.statCardChangeNegative {
+  color: #ff4d4f;
+}
+
+.statCardIcon {
+  font-size: 28px;
+  margin-right: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.statCardIconBlue {
+  color: #1890ff;
+}
+
+.statCardIconGreen {
+  color: #52c41a;
+}
+
+.statCardIconOrange {
+  color: #fa8c16;
+}
+
+.statCardIconPurple {
+  color: #722ed1;
+}
+
+
+
+/* 新增内容区域样式 */
+.cardTitle {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: #262626;
+}
+
+/* 系统状态卡片 */
+.statusCard {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  animation: sectionEnter 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+}
+
+.systemStatus {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.statusItem {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  background: #fafafa;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.statusItem:hover {
+  background: #f0f0f0;
+  transform: translateX(4px);
+}
+
+.statusIcon {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: white;
+  border-radius: 8px;
+  margin-right: 12px;
+  font-size: 18px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.statusInfo {
+  flex: 1;
+}
+
+.statusName {
+  font-weight: 500;
+  color: #262626;
+  margin-bottom: 4px;
+}
+
+.statusValue {
+  font-size: 12px;
+}
+
+.statusProgress {
+  width: 80px;
+  margin-left: 12px;
+}
+
+/* 活动卡片 */
+.activityCard {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  animation: sectionEnter 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.4s both;
+}
+
+.activityTitle {
+  font-weight: 500;
+  color: #262626;
+  margin-bottom: 4px;
+}
+
+.activityTime {
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+/* 待办事项卡片 */
+.todoCard {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  animation: sectionEnter 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.5s both;
+}
+
+.todoItem {
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.todoItem:last-child {
+  border-bottom: none;
+}
+
+.todoContent {
+  width: 100%;
+}
+
+.todoTitle {
+  display: flex;
+  align-items: center;
+  font-weight: 500;
+  color: #262626;
+  margin-bottom: 4px;
+}
+
+.todoDeadline {
+  font-size: 12px;
+  color: #8c8c8c;
+}
+
+
+
+/* 快捷操作区域 */
+.actionsCard {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e8e8e8;
+}
+
+.actionsTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #262626;
+}
+
+.actionsBody {
+  padding: 24px;
+}
+
+.actionsButtons {
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.actionButton {
+  border-radius: 8px;
+  height: 44px;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+.actionButtonPrimary {
+  background: #1890ff;
+  border-color: #1890ff;
+}
+
+.actionButtonSecondary {
+  border-color: #d9d9d9;
+  color: #595959;
+}

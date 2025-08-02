@@ -1,0 +1,24 @@
+body {
+  margin: 0;
+  color: #fff;
+  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+}
+
+.content {
+  display: flex;
+  min-height: 100vh;
+  line-height: 1.1;
+  text-align: center;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* 只对图表Card移除padding，保留数据概览Card的padding */
+.chart-card .ant-card-body {
+  padding: 0 !important;
+}
+
+/* 确保数据概览Card保持默认padding */
+.ant-card:not(.chart-card) .ant-card-body {
+  padding: 24px !important;
+}

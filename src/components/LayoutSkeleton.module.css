@@ -1,0 +1,337 @@
+/* 基础布局 */
+.layout {
+  min-height: 100vh;
+}
+
+.sider {
+  background: linear-gradient(180deg, #001529 0%, #002140 100%);
+  position: relative;
+}
+
+.header {
+  background: #fff;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.content {
+  padding: 0;
+  background: #f5f5f5;
+  min-height: calc(100vh - 64px);
+}
+
+/* 骨架屏动画 */
+@keyframes skeletonPulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.6;
+  }
+}
+
+.skeletonBase {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+/* Logo区域骨架屏 */
+.logoSkeleton {
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 16px;
+}
+
+.logoIcon {
+  width: 32px;
+  height: 32px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.logoText {
+  width: 120px;
+  height: 20px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+/* 菜单骨架屏 */
+.menuSkeleton {
+  padding: 0 16px;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 0;
+  margin-bottom: 8px;
+}
+
+.menuIcon {
+  width: 16px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.menuLabel {
+  flex: 1;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.menuArrow {
+  width: 12px;
+  height: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.menuGroup {
+  margin-bottom: 16px;
+}
+
+.subMenuItems {
+  margin-left: 28px;
+  margin-top: 8px;
+}
+
+.subMenuItem {
+  height: 14px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+  margin-bottom: 8px;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.subMenuItem:nth-child(1) { width: 80%; }
+.subMenuItem:nth-child(2) { width: 90%; }
+.subMenuItem:nth-child(3) { width: 75%; }
+.subMenuItem:nth-child(4) { width: 85%; }
+
+/* 折叠按钮骨架屏 */
+.collapseButtonSkeleton {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.1);
+}
+
+.collapseIcon {
+  width: 16px;
+  height: 16px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 3px;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+/* 头部骨架屏 */
+.headerLeft {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.pageTitleSkeleton {
+  width: 120px;
+  height: 20px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.welcomeTextSkeleton {
+  width: 200px;
+  height: 16px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.userInfoSkeleton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.userAvatar {
+  width: 32px;
+  height: 32px;
+  background: #f0f0f0;
+  border-radius: 50%;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.userName {
+  width: 60px;
+  height: 16px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+/* 内容区域骨架屏 */
+.contentSkeleton {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px;
+  background: transparent;
+}
+
+.pageHeaderSkeleton {
+  margin-bottom: 32px;
+}
+
+.pageTitle {
+  width: 200px;
+  height: 32px;
+  background: #e8e8e8;
+  border-radius: 6px;
+  margin-bottom: 12px;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.pageSubtitle {
+  width: 300px;
+  height: 20px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+/* 卡片网格骨架屏 */
+.cardsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+}
+
+.cardSkeleton {
+  background: #fff;
+  border-radius: 8px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.cardHeader {
+  width: 60%;
+  height: 20px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  margin-bottom: 16px;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.cardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.cardLine {
+  height: 16px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.cardLine:nth-child(1) { width: 100%; }
+.cardLine:nth-child(2) { width: 80%; }
+.cardLine:nth-child(3) { width: 60%; }
+
+/* 表格骨架屏 */
+.tableSkeleton {
+  background: #fff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.tableHeader {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding: 16px 20px;
+  background: #fafafa;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.tableHeaderCell {
+  height: 16px;
+  background: #e8e8e8;
+  border-radius: 4px;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.tableBody {
+  padding: 0 20px;
+}
+
+.tableRow {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid #f5f5f5;
+}
+
+.tableRow:last-child {
+  border-bottom: none;
+}
+
+.tableCell {
+  height: 16px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.tableCell:nth-child(1) { width: 80%; }
+.tableCell:nth-child(2) { width: 60%; }
+.tableCell:nth-child(3) { width: 90%; }
+.tableCell:nth-child(4) { width: 70%; }
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .cardsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .tableHeader,
+  .tableRow {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .tableHeaderCell:nth-child(n+3),
+  .tableCell:nth-child(n+3) {
+    display: none;
+  }
+}
