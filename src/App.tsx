@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
@@ -13,8 +13,21 @@ import { Dashboard } from './pages/Dashboard';
 import { NotFound } from './pages/NotFound';
 import './App.css';
 
+// GitHub Pages 路由基础路径
+const basename = process.env.NODE_ENV === 'production' ? '/mf-shell' : '';
+
 const AppContent: React.FC = () => {
   const { isInitializing, isAuthenticated, isLoading } = useAuth();
+
+  // GitHub Pages SPA 路由支持
+  useEffect(() => {
+    // 检查是否有从 404.html 重定向的路径
+    const search = window.location.search;
+    if (search.includes('/?/')) {
+      const redirectPath = search.replace('/?/', '/').replace(/&/g, '&');
+      window.history.replaceState(null, '', redirectPath);
+    }
+  }, []);
 
   // 在初始化阶段显示骨架屏
   if (isInitializing) {
@@ -27,7 +40,7 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <Router>
+    <Router basename={basename}>
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route
@@ -47,7 +60,10 @@ const AppContent: React.FC = () => {
                 <Layout>
                   <MicroFrontendLoader
                     name="marketing"
-                    host="http://localhost:3001"
+                    host={process.env.NODE_ENV === 'production'
+                      ? 'https://luozyiii.github.io/mf-marketing'
+                      : 'http://localhost:3001'
+                    }
                   />
                 </Layout>
               </ProtectedRoute>
@@ -60,7 +76,10 @@ const AppContent: React.FC = () => {
                 <Layout>
                   <MicroFrontendLoader
                     name="finance"
-                    host="http://localhost:3002"
+                    host={process.env.NODE_ENV === 'production'
+                      ? 'https://luozyiii.github.io/mf-finance'
+                      : 'http://localhost:3002'
+                    }
                   />
                 </Layout>
               </ProtectedRoute>

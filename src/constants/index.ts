@@ -18,16 +18,24 @@ export const APP_CONFIG = {
     MARKETING: {
       name: 'marketing',
       displayName: '营销系统',
-      host: 'http://localhost:3001',
-      remoteEntry: 'http://localhost:3001/remoteEntry.js',
+      host: typeof process !== 'undefined' && process.env?.NODE_ENV === 'production'
+        ? 'https://luozyiii.github.io/mf-marketing'
+        : 'http://localhost:3001',
+      remoteEntry: typeof process !== 'undefined' && process.env?.NODE_ENV === 'production'
+        ? 'https://luozyiii.github.io/mf-marketing/remoteEntry.js'
+        : 'http://localhost:3001/remoteEntry.js',
       icon: 'ShoppingOutlined',
       description: '营销活动管理、客户管理、数据分析'
     },
     FINANCE: {
       name: 'finance',
-      displayName: '财务系统', 
-      host: 'http://localhost:3002',
-      remoteEntry: 'http://localhost:3002/remoteEntry.js',
+      displayName: '财务系统',
+      host: typeof process !== 'undefined' && process.env?.NODE_ENV === 'production'
+        ? 'https://luozyiii.github.io/mf-finance'
+        : 'http://localhost:3002',
+      remoteEntry: typeof process !== 'undefined' && process.env?.NODE_ENV === 'production'
+        ? 'https://luozyiii.github.io/mf-finance/remoteEntry.js'
+        : 'http://localhost:3002/remoteEntry.js',
       icon: 'DollarOutlined',
       description: '财务报表、账务管理、成本分析'
     }

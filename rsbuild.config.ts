@@ -13,8 +13,18 @@ export default defineConfig({
     assetPrefix: process.env.NODE_ENV === 'production'
       ? '/mf-shell/' // 仓库名
       : '/',
+    // 复制 public 目录下的文件
+    copy: [
+      { from: 'public', to: '.', globOptions: { ignore: ['**/index.html'] } }
+    ],
   },
   html: {
+    template: './public/index.html',
     title: '微前端主应用',
+  },
+  source: {
+    entry: {
+      index: './src/index.tsx',
+    },
   },
 });

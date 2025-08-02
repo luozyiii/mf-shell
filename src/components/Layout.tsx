@@ -94,11 +94,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       const appsToPreload = [];
 
       if (hasAppAccess('marketing')) {
-        appsToPreload.push({ name: 'marketing', host: 'http://localhost:3001' });
+        appsToPreload.push({
+          name: 'marketing',
+          host: process.env.NODE_ENV === 'production'
+            ? 'https://luozyiii.github.io/mf-marketing'
+            : 'http://localhost:3001'
+        });
       }
 
       if (hasAppAccess('finance')) {
-        appsToPreload.push({ name: 'finance', host: 'http://localhost:3002' });
+        appsToPreload.push({
+          name: 'finance',
+          host: process.env.NODE_ENV === 'production'
+            ? 'https://luozyiii.github.io/mf-finance'
+            : 'http://localhost:3002'
+        });
       }
 
       // 首先设置默认路由，确保即使跨域失败也能正常工作
