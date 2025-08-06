@@ -16,7 +16,7 @@ export class ConfigValidator {
     const result: ValidationResult = {
       isValid: true,
       errors: [],
-      warnings: []
+      warnings: [],
     };
 
     try {
@@ -48,7 +48,6 @@ export class ConfigValidator {
 
       // 检查菜单顺序
       this.checkMenuOrder(enabledMicrosystems, result);
-
     } catch (error) {
       result.errors.push(`配置验证过程中发生错误: ${error}`);
       result.isValid = false;
@@ -61,14 +60,20 @@ export class ConfigValidator {
    * 验证单个微前端配置
    */
   private static validateSingleMicrosystem(
-    microsystem: MicrosystemConfig, 
-    index: number, 
+    microsystem: MicrosystemConfig,
+    index: number,
     result: ValidationResult
   ): void {
     const prefix = `微前端 ${microsystem.name || `[${index}]`}`;
 
     // 必填字段检查
-    const requiredFields = ['name', 'displayName', 'host', 'remoteEntry', 'route'];
+    const requiredFields = [
+      'name',
+      'displayName',
+      'host',
+      'remoteEntry',
+      'route',
+    ];
     requiredFields.forEach(field => {
       if (!microsystem[field as keyof MicrosystemConfig]) {
         result.errors.push(`${prefix}: 缺少必填字段 '${field}'`);
@@ -83,13 +88,17 @@ export class ConfigValidator {
     }
 
     if (microsystem.remoteEntry && !this.isValidUrl(microsystem.remoteEntry)) {
-      result.errors.push(`${prefix}: remoteEntry URL 格式无效: ${microsystem.remoteEntry}`);
+      result.errors.push(
+        `${prefix}: remoteEntry URL 格式无效: ${microsystem.remoteEntry}`
+      );
       result.isValid = false;
     }
 
     // 路由格式检查
     if (microsystem.route && !microsystem.route.startsWith('/')) {
-      result.errors.push(`${prefix}: route 必须以 '/' 开头: ${microsystem.route}`);
+      result.errors.push(
+        `${prefix}: route 必须以 '/' 开头: ${microsystem.route}`
+      );
       result.isValid = false;
     }
 
@@ -104,7 +113,10 @@ export class ConfigValidator {
     }
 
     // 菜单顺序检查
-    if (typeof microsystem.menuOrder !== 'number' || microsystem.menuOrder < 0) {
+    if (
+      typeof microsystem.menuOrder !== 'number' ||
+      microsystem.menuOrder < 0
+    ) {
       result.warnings.push(`${prefix}: menuOrder 应该是非负数`);
     }
   }
@@ -112,7 +124,10 @@ export class ConfigValidator {
   /**
    * 检查路由冲突
    */
-  private static checkRouteConflicts(microsystems: MicrosystemConfig[], result: ValidationResult): void {
+  private static checkRouteConflicts(
+    microsystems: MicrosystemConfig[],
+    result: ValidationResult
+  ): void {
     const routes = new Set<string>();
     const duplicates = new Set<string>();
 
@@ -132,8 +147,11 @@ export class ConfigValidator {
   /**
    * 检查端口冲突（仅开发环境）
    */
-  private static checkPortConflicts(microsystems: MicrosystemConfig[], result: ValidationResult): void {
-    if (process.env.NODE_ENV === 'production') return;
+  private static checkPortConflicts(
+    microsystems: MicrosystemConfig[],
+    result: ValidationResult
+  ): void {
+    if (process.env['NODE_ENV'] === 'production') return;
 
     const ports = new Set<string>();
     const duplicates = new Set<string>();
@@ -142,10 +160,12 @@ export class ConfigValidator {
       const match = microsystem.host.match(/:(\d+)/);
       if (match) {
         const port = match[1];
-        if (ports.has(port)) {
-          duplicates.add(port);
+        if (port) {
+          if (ports.has(port)) {
+            duplicates.add(port);
+          }
+          ports.add(port);
         }
-        ports.add(port);
       }
     });
 
@@ -157,8 +177,13 @@ export class ConfigValidator {
   /**
    * 检查菜单顺序
    */
-  private static checkMenuOrder(microsystems: MicrosystemConfig[], result: ValidationResult): void {
-    const orders = microsystems.map(m => m.menuOrder).filter(o => typeof o === 'number');
+  private static checkMenuOrder(
+    microsystems: MicrosystemConfig[],
+    result: ValidationResult
+  ): void {
+    const orders = microsystems
+      .map(m => m.menuOrder)
+      .filter(o => typeof o === 'number');
     const uniqueOrders = new Set(orders);
 
     if (orders.length !== uniqueOrders.size) {
@@ -179,39 +204,27 @@ export class ConfigValidator {
   }
 
   /**
-   * 打印验证结果
+   * 获取验证结果摘要
    */
-  static printValidationResult(result: ValidationResult): void {
-    console.group('🔍 微前端配置验证结果');
-    
-    if (result.isValid) {
-      console.log('✅ 配置验证通过');
-    } else {
-      console.log('❌ 配置验证失败');
-    }
-
-    if (result.errors.length > 0) {
-      console.group('❌ 错误:');
-      result.errors.forEach(error => console.error(`  • ${error}`));
-      console.groupEnd();
-    }
-
-    if (result.warnings.length > 0) {
-      console.group('⚠️ 警告:');
-      result.warnings.forEach(warning => console.warn(`  • ${warning}`));
-      console.groupEnd();
-    }
-
-    console.groupEnd();
+  static getValidationSummary(result: ValidationResult): string {
+    const status = result.isValid ? '✅ 配置验证通过' : '❌ 配置验证失败';
+    const errors =
+      result.errors.length > 0 ? `\n错误: ${result.errors.join(', ')}` : '';
+    const warnings =
+      result.warnings.length > 0 ? `\n警告: ${result.warnings.join(', ')}` : '';
+    return `${status}${errors}${warnings}`;
   }
 
   /**
    * 开发环境自动验证
    */
   static autoValidateInDev(): void {
-    if (process.env.NODE_ENV === 'development') {
+    if (process.env['NODE_ENV'] === 'development') {
       const result = this.validateMicrosystemConfig();
-      this.printValidationResult(result);
+      // 在开发环境中静默验证，不输出到控制台
+      if (!result.isValid) {
+        // 可以在这里添加其他错误处理逻辑
+      }
     }
   }
 }

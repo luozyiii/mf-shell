@@ -1,23 +1,28 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import { LayoutSkeleton } from './components/LayoutSkeleton';
-import { MicroFrontendLoader } from './components/MicroFrontendLoader';
 import { ModuleFederationLoader } from './components/ModuleFederationLoader';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { NotFound } from './pages/NotFound';
-import { microsystemManager } from './config/microsystems';
+
 import './utils/configValidator'; // 自动执行配置验证
 import './App.css';
 
 // GitHub Pages 路由基础路径
-const basename = process.env.NODE_ENV === 'production' ? '/mf-shell' : '';
+const basename: string =
+  process.env['NODE_ENV'] === 'production' ? '/mf-shell' : '';
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, isLoading, isInitializing } = useAuth();
@@ -28,7 +33,7 @@ const AppContent: React.FC = () => {
     const search = window.location.search;
     if (search.includes('/?/')) {
       const redirectPath = search.replace('/?/', '/').replace(/&/g, '&');
-      window.history.replaceState(null, '', redirectPath);
+      window.history.replaceState(null, '', redirectPath as string);
     }
   }, []);
 
@@ -40,112 +45,87 @@ const AppContent: React.FC = () => {
     return <LayoutSkeleton />;
   }
 
-  // 动态生成微前端路由（仅为非模块联邦系统）
-  const generateMicrosystemRoutes = () => {
-    const enabledMicrosystems = microsystemManager.getEnabledMicrosystems();
-
-    return enabledMicrosystems
-      .filter(microsystem => !microsystem.useModuleFederation) // 只为非模块联邦系统生成路由
-      .map(microsystem => (
+  return (
+    <Router basename={basename}>
+      <Routes>
+        <Route path="/login" element={<Login />} />
         <Route
-          key={microsystem.name}
-          path={`${microsystem.route}/*`}
+          path="/dashboard"
           element={
-            <ProtectedRoute requiredApp={microsystem.name}>
+            <ProtectedRoute>
               <Layout>
-                <MicroFrontendLoader
-                  name={microsystem.name}
-                  host={microsystem.host}
+                <Dashboard />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        {/* Template 模块联邦路由 */}
+        <Route
+          path="/template/dashboard"
+          element={
+            <ProtectedRoute requiredApp="template">
+              <Layout>
+                <ModuleFederationLoader
+                  name="template"
+                  componentName="Dashboard"
                 />
               </Layout>
             </ProtectedRoute>
           }
         />
-      ));
-  };
-
-  return (
-    <Router basename={basename}>
-        <Routes>
-          <Route path="/login" element={<Login />} />
-          <Route
-            path="/dashboard"
-            element={
-              <ProtectedRoute>
-                <Layout>
-                  <Dashboard />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Template 模块联邦路由 */}
-          <Route
-            path="/template/dashboard"
-            element={
-              <ProtectedRoute requiredApp="template">
-                <Layout>
-                  <ModuleFederationLoader
-                    name="template"
-                    componentName="Dashboard"
-                  />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/template/feature1"
-            element={
-              <ProtectedRoute requiredApp="template">
-                <Layout>
-                  <ModuleFederationLoader
-                    name="template"
-                    componentName="Feature1"
-                  />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/template/feature2"
-            element={
-              <ProtectedRoute requiredApp="template">
-                <Layout>
-                  <ModuleFederationLoader
-                    name="template"
-                    componentName="Feature2"
-                  />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/template/settings"
-            element={
-              <ProtectedRoute requiredApp="template">
-                <Layout>
-                  <ModuleFederationLoader
-                    name="template"
-                    componentName="Settings"
-                  />
-                </Layout>
-              </ProtectedRoute>
-            }
-          />
-
-
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
-          {/* 404 页面 - 必须放在最后 */}
-          <Route
-            path="*"
-            element={
+        <Route
+          path="/template/feature1"
+          element={
+            <ProtectedRoute requiredApp="template">
               <Layout>
-                <NotFound />
+                <ModuleFederationLoader
+                  name="template"
+                  componentName="Feature1"
+                />
               </Layout>
-            }
-          />
-        </Routes>
-      </Router>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/template/feature2"
+          element={
+            <ProtectedRoute requiredApp="template">
+              <Layout>
+                <ModuleFederationLoader
+                  name="template"
+                  componentName="Feature2"
+                />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/template/settings"
+          element={
+            <ProtectedRoute requiredApp="template">
+              <Layout>
+                <ModuleFederationLoader
+                  name="template"
+                  componentName="Settings"
+                />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
+        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        {/* 404 页面 - 必须放在最后 */}
+        <Route
+          path="*"
+          element={
+            <Layout>
+              <NotFound />
+            </Layout>
+          }
+        />
+      </Routes>
+    </Router>
   );
 };
 

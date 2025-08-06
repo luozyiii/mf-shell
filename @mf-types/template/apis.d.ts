@@ -1,3 +1,0 @@
-
-    export type RemoteKeys = 'template/App' | 'template/Dashboard' | 'template/Feature1' | 'template/Feature2' | 'template/Settings' | 'template/routes';
-    type PackageType<T> = T extends 'template/routes' ? typeof import('template/routes') :T extends 'template/Settings' ? typeof import('template/Settings') :T extends 'template/Feature2' ? typeof import('template/Feature2') :T extends 'template/Feature1' ? typeof import('template/Feature1') :T extends 'template/Dashboard' ? typeof import('template/Dashboard') :T extends 'template/App' ? typeof import('template/App') :any;

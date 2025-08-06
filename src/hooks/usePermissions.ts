@@ -1,13 +1,20 @@
 import { useAuth } from '../contexts/AuthContext';
 import { AppPermissionType, UserRoleType } from '../types/microsystem';
-import { AppPermission } from '../types/auth';
+import { Permissions, UserRole } from '../types/auth';
 
-export const usePermissions = () => {
+export const usePermissions = (): {
+  // eslint-disable-next-line no-unused-vars
+  hasAppAccess: (_app: AppPermissionType) => boolean;
+  isAdmin: () => boolean;
+  // eslint-disable-next-line no-unused-vars
+  hasRole: (_role: UserRoleType) => boolean;
+  permissions: Permissions | null;
+} => {
   const { permissions, user } = useAuth();
 
-  const hasAppAccess = (app: AppPermissionType): boolean => {
+  const hasAppAccess = (_app: AppPermissionType): boolean => {
     // 特殊处理模板系统 - 所有登录用户都可以访问
-    if (app === 'template') {
+    if (_app === 'template') {
       return true;
     }
 
@@ -16,17 +23,17 @@ export const usePermissions = () => {
   };
 
   const isAdmin = (): boolean => {
-    return user?.roles.includes('admin') || false;
+    return user?.roles.includes(UserRole.ADMIN) || false;
   };
 
   const hasRole = (role: UserRoleType): boolean => {
-    return user?.roles.includes(role as any) || false;
+    return user?.roles.includes(role as UserRole) || false;
   };
 
   return {
     hasAppAccess,
     isAdmin,
     hasRole,
-    permissions
+    permissions,
   };
 };

@@ -25,7 +25,8 @@
 
 /* 骨架屏动画 */
 @keyframes skeletonPulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -119,10 +120,18 @@
   animation: skeletonPulse 1.5s ease-in-out infinite;
 }
 
-.subMenuItem:nth-child(1) { width: 80%; }
-.subMenuItem:nth-child(2) { width: 90%; }
-.subMenuItem:nth-child(3) { width: 75%; }
-.subMenuItem:nth-child(4) { width: 85%; }
+.subMenuItem:nth-child(1) {
+  width: 80%;
+}
+.subMenuItem:nth-child(2) {
+  width: 90%;
+}
+.subMenuItem:nth-child(3) {
+  width: 75%;
+}
+.subMenuItem:nth-child(4) {
+  width: 85%;
+}
 
 /* 折叠按钮骨架屏 */
 .collapseButtonSkeleton {
@@ -263,9 +272,15 @@
   animation: skeletonPulse 1.5s ease-in-out infinite;
 }
 
-.cardLine:nth-child(1) { width: 100%; }
-.cardLine:nth-child(2) { width: 80%; }
-.cardLine:nth-child(3) { width: 60%; }
+.cardLine:nth-child(1) {
+  width: 100%;
+}
+.cardLine:nth-child(2) {
+  width: 80%;
+}
+.cardLine:nth-child(3) {
+  width: 60%;
+}
 
 /* 表格骨架屏 */
 .tableSkeleton {
@@ -314,24 +329,32 @@
   animation: skeletonPulse 1.5s ease-in-out infinite;
 }
 
-.tableCell:nth-child(1) { width: 80%; }
-.tableCell:nth-child(2) { width: 60%; }
-.tableCell:nth-child(3) { width: 90%; }
-.tableCell:nth-child(4) { width: 70%; }
+.tableCell:nth-child(1) {
+  width: 80%;
+}
+.tableCell:nth-child(2) {
+  width: 60%;
+}
+.tableCell:nth-child(3) {
+  width: 90%;
+}
+.tableCell:nth-child(4) {
+  width: 70%;
+}
 
 /* 响应式设计 */
 @media (max-width: 768px) {
   .cardsGrid {
     grid-template-columns: 1fr;
   }
-  
+
   .tableHeader,
   .tableRow {
     grid-template-columns: repeat(2, 1fr);
   }
-  
-  .tableHeaderCell:nth-child(n+3),
-  .tableCell:nth-child(n+3) {
+
+  .tableHeaderCell:nth-child(n + 3),
+  .tableCell:nth-child(n + 3) {
     display: none;
   }
 }

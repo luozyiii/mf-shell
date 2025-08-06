@@ -11,8 +11,8 @@ export class AuthUtils {
   static getToken(): string | null {
     try {
       return sessionStorage.getItem(this.TOKEN_KEY);
-    } catch (error) {
-      console.warn('Failed to get token:', error);
+    } catch {
+      // 静默处理错误，避免控制台输出
       return null;
     }
   }
@@ -23,8 +23,8 @@ export class AuthUtils {
   static setToken(token: string): void {
     try {
       sessionStorage.setItem(this.TOKEN_KEY, token);
-    } catch (error) {
-      console.warn('Failed to set token:', error);
+    } catch {
+      // 静默处理错误，避免控制台输出
     }
   }
 
@@ -36,8 +36,8 @@ export class AuthUtils {
       sessionStorage.removeItem(this.TOKEN_KEY);
       sessionStorage.removeItem(this.USER_KEY);
       sessionStorage.removeItem(this.PERMISSIONS_KEY);
-    } catch (error) {
-      console.warn('Failed to remove token:', error);
+    } catch {
+      // 静默处理错误，避免控制台输出
     }
   }
 
@@ -52,12 +52,12 @@ export class AuthUtils {
   /**
    * 获取用户数据
    */
-  static getUserData(): any {
+  static getUserData(): Record<string, unknown> | null {
     try {
       const userData = sessionStorage.getItem(this.USER_KEY);
       return userData ? JSON.parse(userData) : null;
-    } catch (error) {
-      console.warn('Failed to get user data:', error);
+    } catch {
+      // 静默处理错误，避免控制台输出
       return null;
     }
   }
@@ -65,23 +65,23 @@ export class AuthUtils {
   /**
    * 设置用户数据
    */
-  static setUserData(userData: any): void {
+  static setUserData(userData: Record<string, unknown>): void {
     try {
       sessionStorage.setItem(this.USER_KEY, JSON.stringify(userData));
-    } catch (error) {
-      console.warn('Failed to set user data:', error);
+    } catch {
+      // 静默处理错误，避免控制台输出
     }
   }
 
   /**
    * 获取权限数据
    */
-  static getPermissions(): any {
+  static getPermissions(): Record<string, unknown> | null {
     try {
       const permissions = sessionStorage.getItem(this.PERMISSIONS_KEY);
       return permissions ? JSON.parse(permissions) : null;
-    } catch (error) {
-      console.warn('Failed to get permissions:', error);
+    } catch {
+      // 静默处理错误，避免控制台输出
       return null;
     }
   }
@@ -89,15 +89,13 @@ export class AuthUtils {
   /**
    * 设置权限数据
    */
-  static setPermissions(permissions: any): void {
+  static setPermissions(permissions: Record<string, unknown>): void {
     try {
       sessionStorage.setItem(this.PERMISSIONS_KEY, JSON.stringify(permissions));
-    } catch (error) {
-      console.warn('Failed to set permissions:', error);
+    } catch {
+      // 静默处理错误，避免控制台输出
     }
   }
-
-
 
   /**
    * 跳转到登录页面

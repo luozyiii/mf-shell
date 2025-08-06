@@ -15,13 +15,16 @@ export const Login: React.FC = () => {
   const location = useLocation();
 
   // 获取回调地址：优先使用URL参数，其次使用state，最后默认到dashboard
-  const getReturnUrl = () => {
+  const getReturnUrl = (): string => {
     const urlParams = new URLSearchParams(location.search);
     const returnUrl = urlParams.get('returnUrl');
     if (returnUrl) {
       return decodeURIComponent(returnUrl);
     }
-    return (location.state as any)?.from?.pathname || '/dashboard';
+    return (
+      (location.state as { from?: { pathname: string } })?.from?.pathname ||
+      '/dashboard'
+    );
   };
 
   const returnUrl = getReturnUrl();
@@ -33,7 +36,7 @@ export const Login: React.FC = () => {
     }
   }, [isAuthenticated, returnUrl, navigate]);
 
-  const handleSubmit = async (values: LoginForm) => {
+  const handleSubmit = async (values: LoginForm): Promise<void> => {
     setLoading(true);
     setError(null);
 
@@ -57,13 +60,15 @@ export const Login: React.FC = () => {
   };
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
-    }}>
+    <div
+      style={{
+        minHeight: '100vh',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      }}
+    >
       <Card style={{ width: 400, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <Title level={2} style={{ color: '#1890ff', marginBottom: 8 }}>
@@ -100,20 +105,14 @@ export const Login: React.FC = () => {
             name="username"
             rules={[{ required: true, message: '请输入用户名!' }]}
           >
-            <Input
-              prefix={<UserOutlined />}
-              placeholder="用户名"
-            />
+            <Input prefix={<UserOutlined />} placeholder="用户名" />
           </Form.Item>
 
           <Form.Item
             name="password"
             rules={[{ required: true, message: '请输入密码!' }]}
           >
-            <Input.Password
-              prefix={<LockOutlined />}
-              placeholder="密码"
-            />
+            <Input.Password prefix={<LockOutlined />} placeholder="密码" />
           </Form.Item>
 
           <Form.Item>
@@ -128,8 +127,17 @@ export const Login: React.FC = () => {
           </Form.Item>
         </Form>
 
-        <div style={{ marginTop: 16, padding: 16, background: '#f5f5f5', borderRadius: 6 }}>
-          <Text strong style={{ display: 'block', marginBottom: 8 }}>测试账户：</Text>
+        <div
+          style={{
+            marginTop: 16,
+            padding: 16,
+            background: '#f5f5f5',
+            borderRadius: 6,
+          }}
+        >
+          <Text strong style={{ display: 'block', marginBottom: 8 }}>
+            测试账户：
+          </Text>
           <Space direction="vertical" size="small">
             <Text>管理员: admin / admin123</Text>
             <Text>开发人员: developer / dev123</Text>

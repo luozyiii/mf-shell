@@ -93,7 +93,8 @@
 }
 
 @keyframes skeletonPulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -124,7 +125,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: background 0.2s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s ease;
+  transition:
+    background 0.2s cubic-bezier(0.4, 0, 0.2, 1),
+    box-shadow 0.2s ease;
   font-size: 16px;
   background: transparent;
 }
@@ -220,8 +223,6 @@
   color: #262626;
   margin-left: 4px;
 }
-
-
 
 /* 欢迎信息 */
 .welcomeText {

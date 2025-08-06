@@ -1,6 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
-import { AppstoreOutlined, CloudServerOutlined, RocketOutlined, DollarOutlined, InboxOutlined, UserOutlined } from '@ant-design/icons';
+import {
+  AppstoreOutlined,
+  CloudServerOutlined,
+  RocketOutlined,
+  DollarOutlined,
+  InboxOutlined,
+  UserOutlined,
+} from '@ant-design/icons';
 import { microsystemManager } from '../config/microsystems';
 import styles from './MicroFrontendLoader.module.css';
 
@@ -13,17 +20,16 @@ interface MicroFrontendLoaderProps {
 export const MicroFrontendLoader: React.FC<MicroFrontendLoaderProps> = ({
   name,
   host,
-  path = '/'
 }) => {
   const [loading, setLoading] = useState(true);
-  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const location = useLocation();
 
-  const handleLoad = () => {
+  const handleLoad = (): void => {
     setLoading(false);
   };
 
-  const handleError = () => {
+  const handleError = (): void => {
     setLoading(false);
   };
 
@@ -39,30 +45,37 @@ export const MicroFrontendLoader: React.FC<MicroFrontendLoaderProps> = ({
 
         // 向iframe发送路由变化消息
         try {
-          iframeRef.current.contentWindow?.postMessage({
-            type: 'ROUTE_CHANGE',
-            path: subPath
-          }, host);
-        } catch (error) {
-          console.warn('Failed to send route change message:', error);
+          iframeRef.current.contentWindow?.postMessage(
+            {
+              type: 'ROUTE_CHANGE',
+              path: subPath,
+            },
+            host
+          );
+        } catch {
+          // 发送路由变更消息失败
         }
       }
     }
   }, [location.pathname, name, host, loading]);
 
-  const getAppInfo = () => {
+  const getAppInfo = (): {
+    displayName: string;
+    icon: React.ReactNode;
+    description: string;
+  } | null => {
     const microsystem = microsystemManager.getMicrosystem(name);
 
     if (microsystem) {
       // 图标映射
-      const getIconComponent = (iconName: string) => {
+      const getIconComponent = (iconName: string): React.ReactNode => {
         const iconMap: Record<string, React.ReactNode> = {
-          'RocketOutlined': <RocketOutlined />,
-          'DollarOutlined': <DollarOutlined />,
-          'AppstoreOutlined': <AppstoreOutlined />,
-          'InboxOutlined': <InboxOutlined />,
-          'UserOutlined': <UserOutlined />,
-          'CloudServerOutlined': <CloudServerOutlined />
+          RocketOutlined: <RocketOutlined />,
+          DollarOutlined: <DollarOutlined />,
+          AppstoreOutlined: <AppstoreOutlined />,
+          InboxOutlined: <InboxOutlined />,
+          UserOutlined: <UserOutlined />,
+          CloudServerOutlined: <CloudServerOutlined />,
         };
 
         return iconMap[iconName] || <AppstoreOutlined />;
@@ -71,7 +84,7 @@ export const MicroFrontendLoader: React.FC<MicroFrontendLoaderProps> = ({
       return {
         displayName: microsystem.displayName,
         description: microsystem.description,
-        icon: getIconComponent(microsystem.icon)
+        icon: getIconComponent(microsystem.icon),
       };
     }
 
@@ -79,30 +92,26 @@ export const MicroFrontendLoader: React.FC<MicroFrontendLoaderProps> = ({
     return {
       displayName: name,
       description: '正在加载应用...',
-      icon: <CloudServerOutlined />
+      icon: <CloudServerOutlined />,
     };
   };
 
   const appInfo = getAppInfo();
 
   return (
-    <div className={styles.container}>
+    <div className={styles['container']}>
       {loading && (
-        <div className={styles.loading}>
-          <div className={styles.loadingCard}>
-            <div className={styles.loadingIcon}>
-              {appInfo.icon}
+        <div className={styles['loading']}>
+          <div className={styles['loadingCard']}>
+            <div className={styles['loadingIcon']}>{appInfo?.icon}</div>
+            <div className={styles['loadingTitle']}>
+              正在启动{appInfo?.displayName || name}
             </div>
-            <div className={styles.loadingTitle}>
-              正在启动{appInfo.displayName}
+            <div className={styles['loadingText']}>{appInfo?.description}</div>
+            <div className={styles['loadingProgress']}>
+              <div className={styles['loadingProgressBar']}></div>
             </div>
-            <div className={styles.loadingText}>
-              {appInfo.description}
-            </div>
-            <div className={styles.loadingProgress}>
-              <div className={styles.loadingProgressBar}></div>
-            </div>
-            <div className={styles.loadingTips}>
+            <div className={styles['loadingTips']}>
               首次加载可能需要几秒钟，请耐心等待...
             </div>
           </div>
@@ -111,7 +120,7 @@ export const MicroFrontendLoader: React.FC<MicroFrontendLoaderProps> = ({
       <iframe
         ref={iframeRef}
         src={host}
-        className={`${styles.iframe} ${loading ? styles.iframeLoading : styles.iframeLoaded}`}
+        className={`${styles['iframe']} ${loading ? styles['iframeLoading'] : styles['iframeLoaded']}`}
         onLoad={handleLoad}
         onError={handleError}
         title={`${name} 微前端应用`}

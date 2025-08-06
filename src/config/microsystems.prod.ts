@@ -15,7 +15,7 @@ export const prodMicrosystems = {
     category: 'development',
     // 使用模块联邦配置
     useMicroFrontend: false, // 不使用 iframe
-    useModuleFederation: true // 使用模块联邦
+    useModuleFederation: true, // 使用模块联邦
   },
 
   // 库存系统（示例 - 未来扩展）
@@ -30,7 +30,7 @@ export const prodMicrosystems = {
     enabled: false, // 暂未部署，设为禁用
     permissions: ['inventory:read', 'inventory:write'],
     menuOrder: 4,
-    category: 'business'
+    category: 'business',
   },
 
   // 用户管理系统（示例 - 未来扩展）
@@ -45,8 +45,8 @@ export const prodMicrosystems = {
     enabled: false, // 暂未部署，设为禁用
     permissions: ['user:read', 'user:write', 'admin:read'],
     menuOrder: 5,
-    category: 'system'
-  }
+    category: 'system',
+  },
 } as const;
 
 // 生产环境特定配置
@@ -56,7 +56,7 @@ export const prodConfig = {
     enableLazyLoading: true,
     enableCodeSplitting: true,
     enableCaching: true,
-    preloadCriticalApps: ['template']
+    preloadCriticalApps: ['template'],
   },
 
   // 监控配置
@@ -64,23 +64,20 @@ export const prodConfig = {
     enableErrorTracking: true,
     enablePerformanceTracking: true,
     enableUserAnalytics: true,
-    reportingEndpoint: '/api/monitoring'
+    reportingEndpoint: '/api/monitoring',
   },
 
   // 安全配置
   security: {
     enableCSP: true,
     enableSRI: true,
-    trustedHosts: [
-      'luozyiii.github.io',
-      'cdn.jsdelivr.net'
-    ]
+    trustedHosts: ['luozyiii.github.io', 'cdn.jsdelivr.net'],
   },
 
   // CDN 配置
   cdn: {
     enabled: true,
     baseUrl: 'https://cdn.jsdelivr.net',
-    fallbackEnabled: true
-  }
+    fallbackEnabled: true,
+  },
 } as const;

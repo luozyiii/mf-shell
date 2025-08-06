@@ -11,8 +11,8 @@ export class StorageUtil {
     try {
       const serializedValue = JSON.stringify(value);
       localStorage.setItem(key, serializedValue);
-    } catch (error) {
-      console.error('Failed to set localStorage item:', error);
+    } catch {
+      // 设置 localStorage 失败，静默处理
     }
   }
 
@@ -23,8 +23,8 @@ export class StorageUtil {
     try {
       const item = localStorage.getItem(key);
       return item ? JSON.parse(item) : null;
-    } catch (error) {
-      console.error('Failed to get localStorage item:', error);
+    } catch {
+      // 获取 localStorage 失败，静默处理
       return null;
     }
   }
@@ -35,11 +35,10 @@ export class StorageUtil {
   static removeItem(key: string): void {
     try {
       localStorage.removeItem(key);
-    } catch (error) {
-      console.error('Failed to remove localStorage item:', error);
+    } catch {
+      // 删除 localStorage 失败，静默处理
     }
   }
-
 }
 
 /**
@@ -53,7 +52,7 @@ export class DateUtil {
     return date.toLocaleDateString('zh-CN', {
       month: 'long',
       day: 'numeric',
-      weekday: 'long'
+      weekday: 'long',
     });
   }
 }

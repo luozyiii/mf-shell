@@ -7,7 +7,8 @@ const generateRemotes = () => {
   const remotes: Record<string, string> = {};
 
   enabledMicrosystems.forEach(microsystem => {
-    remotes[microsystem.name] = `${microsystem.name}@${microsystem.remoteEntry}`;
+    remotes[microsystem.name] =
+      `${microsystem.name}@${microsystem.remoteEntry}`;
   });
 
   return remotes;
@@ -19,26 +20,30 @@ export default createModuleFederationConfig({
   name: 'shell',
   remotes,
   shareStrategy: 'loaded-first',
+  dts: {
+    generateTypes: false,
+    consumeTypes: false,
+  },
   shared: {
     react: {
       singleton: true,
       requiredVersion: false,
-      eager: true
+      eager: true,
     },
     'react-dom': {
       singleton: true,
       requiredVersion: false,
-      eager: true
+      eager: true,
     },
     'react-router-dom': {
       singleton: true,
       requiredVersion: false,
-      eager: true
+      eager: true,
     },
     antd: {
       singleton: true,
       requiredVersion: false,
-      eager: true
+      eager: true,
     },
   },
 });

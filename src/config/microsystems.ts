@@ -1,14 +1,12 @@
 import { devMicrosystems, devConfig } from './microsystems.dev';
 import { prodMicrosystems, prodConfig } from './microsystems.prod';
-import {
-  MicrosystemConfig as BaseMicrosystemConfig
-} from '../types/microsystem';
+import { MicrosystemConfig as BaseMicrosystemConfig } from '../types/microsystem';
 
 // 重新导出类型以保持向后兼容
 export type MicrosystemConfig = BaseMicrosystemConfig;
 
 export interface EnvironmentConfig {
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 // 配置管理器类
@@ -18,16 +16,24 @@ class MicrosystemManager {
   private envConfig: EnvironmentConfig = {};
 
   constructor() {
-    this.currentEnv = (process.env.NODE_ENV as 'development' | 'production') || 'development';
+    this.currentEnv =
+      (process.env['NODE_ENV'] as 'development' | 'production') ||
+      'development';
     this.loadConfiguration();
   }
 
-  private loadConfiguration() {
+  private loadConfiguration(): void {
     if (this.currentEnv === 'production') {
-      this.microsystems = prodMicrosystems as unknown as Record<string, MicrosystemConfig>;
+      this.microsystems = prodMicrosystems as unknown as Record<
+        string,
+        MicrosystemConfig
+      >;
       this.envConfig = prodConfig;
     } else {
-      this.microsystems = devMicrosystems as unknown as Record<string, MicrosystemConfig>;
+      this.microsystems = devMicrosystems as unknown as Record<
+        string,
+        MicrosystemConfig
+      >;
       this.envConfig = devConfig;
     }
   }
@@ -52,14 +58,17 @@ class MicrosystemManager {
    * 获取所有微前端系统（包括禁用的）
    */
   getAllMicrosystems(): MicrosystemConfig[] {
-    return Object.values(this.microsystems)
-      .sort((a, b) => a.menuOrder - b.menuOrder);
+    return Object.values(this.microsystems).sort(
+      (a, b) => a.menuOrder - b.menuOrder
+    );
   }
 
   /**
    * 根据分类获取微前端系统
    */
-  getMicrosystemsByCategory(category: MicrosystemConfig['category']): MicrosystemConfig[] {
+  getMicrosystemsByCategory(
+    category: MicrosystemConfig['category']
+  ): MicrosystemConfig[] {
     return Object.values(this.microsystems)
       .filter(app => app.category === category && app.enabled)
       .sort((a, b) => a.menuOrder - b.menuOrder);
@@ -72,7 +81,7 @@ class MicrosystemManager {
     const microsystem = this.getMicrosystem(microsystemName);
     if (!microsystem) return false;
 
-    return microsystem.permissions.some(permission => 
+    return microsystem.permissions.some(permission =>
       userPermissions.includes(permission)
     );
   }
@@ -81,8 +90,9 @@ class MicrosystemManager {
    * 获取用户可访问的微前端系统
    */
   getAccessibleMicrosystems(userPermissions: string[]): MicrosystemConfig[] {
-    return this.getEnabledMicrosystems()
-      .filter(app => this.hasPermission(app.name, userPermissions));
+    return this.getEnabledMicrosystems().filter(app =>
+      this.hasPermission(app.name, userPermissions)
+    );
   }
 
   /**
@@ -90,7 +100,7 @@ class MicrosystemManager {
    */
   generateModuleFederationRemotes(): Record<string, string> {
     const remotes: Record<string, string> = {};
-    
+
     this.getEnabledMicrosystems().forEach(app => {
       remotes[app.name] = `${app.name}@${app.remoteEntry}`;
     });
@@ -126,18 +136,17 @@ class MicrosystemManager {
   getMenuConfig(userPermissions: string[] = []): Array<{
     key: string;
     label: string;
-    icon: string;
+    icon?: string;
     path: string;
     category: string;
   }> {
-    return this.getAccessibleMicrosystems(userPermissions)
-      .map(app => ({
-        key: app.name,
-        label: app.displayName,
-        icon: app.icon,
-        path: app.route,
-        category: app.category
-      }));
+    return this.getAccessibleMicrosystems(userPermissions).map(app => ({
+      key: app.name,
+      label: app.displayName,
+      icon: app.icon,
+      path: app.route,
+      category: app.category as unknown as string,
+    }));
   }
 }
 

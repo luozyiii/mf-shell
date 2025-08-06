@@ -133,8 +133,6 @@
   color: #722ed1;
 }
 
-
-
 /* 新增内容区域样式 */
 .cardTitle {
   display: flex;
@@ -252,8 +250,6 @@
   font-size: 12px;
   color: #8c8c8c;
 }
-
-
 
 /* 快捷操作区域 */
 .actionsCard {

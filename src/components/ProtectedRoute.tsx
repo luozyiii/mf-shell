@@ -14,7 +14,7 @@ interface ProtectedRouteProps {
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   children,
   requiredApp,
-  requiredRole
+  requiredRole,
 }) => {
   const { isAuthenticated, isLoading } = useAuth();
   const { hasAppAccess, hasRole } = usePermissions();
@@ -22,14 +22,16 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // 如果还在加载认证状态，显示加载指示器
   if (isLoading) {
     return (
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center',
-        alignItems: 'center',
-        minHeight: '100vh',
-        gap: '16px'
-      }}>
+      <div
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          minHeight: '100vh',
+          gap: '16px',
+        }}
+      >
         <Spin size="large" />
         <div style={{ color: '#666', fontSize: '14px' }}>正在验证身份...</div>
       </div>

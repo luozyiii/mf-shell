@@ -15,32 +15,32 @@ export const devMicrosystems = {
     category: 'development',
     // 新增模块联邦配置
     useMicroFrontend: false, // 不使用 iframe
-    useModuleFederation: true // 使用模块联邦
-  }
+    useModuleFederation: true, // 使用模块联邦
+  },
 } as const;
 
 // 开发环境特定配置
 export const devConfig = {
   // 是否启用热重载
   hotReload: true,
-  
+
   // 是否显示开发工具
   showDevTools: true,
-  
+
   // 是否启用模拟数据
   enableMockData: true,
-  
+
   // 开发服务器配置
   devServer: {
     port: 3000,
     host: 'localhost',
-    cors: true
+    cors: true,
   },
 
   // 调试配置
   debug: {
     showLoadingTime: true,
     logMicrofrontendEvents: true,
-    enablePerformanceMonitor: true
-  }
+    enablePerformanceMonitor: true,
+  },
 } as const;

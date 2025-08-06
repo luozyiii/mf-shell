@@ -2,16 +2,12 @@
 
 // 微前端系统名称枚举
 export enum MicrosystemName {
-  TEMPLATE = 'template',
-  INVENTORY = 'inventory',
-  USER = 'user'
+  // TEMPLATE = 'template', // Currently unused but kept for future use
 }
 
 // 微前端系统分类
 export enum MicrosystemCategory {
-  BUSINESS = 'business',
-  SYSTEM = 'system',
-  DEVELOPMENT = 'development'
+  // BUSINESS = 'BUSINESS', // Currently unused but kept for future use
 }
 
 // 微前端系统配置接口
@@ -56,7 +52,7 @@ export interface AppRouteConfig {
 export type ModuleFederationRemotes = Record<string, string>;
 
 // 权限检查函数类型
-export type PermissionChecker = (userPermissions: string[]) => boolean;
+export type PermissionChecker = () => boolean;
 
 // 微前端加载器属性接口
 export interface MicroFrontendLoaderProps {
