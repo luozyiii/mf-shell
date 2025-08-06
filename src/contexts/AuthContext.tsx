@@ -61,6 +61,42 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   useEffect(() => {
     const initializeAuth = async (): Promise<void> => {
       try {
+        // 检查是否跳过认证
+        const skipAuth = process.env.REACT_APP_SKIP_AUTH === 'true';
+
+        if (skipAuth) {
+          // 开发模式下跳过认证，自动登录为管理员
+          const defaultUser = mockUsers[0]; // 使用管理员账户
+          const userData: User = {
+            id: defaultUser.id,
+            username: defaultUser.username,
+            name: defaultUser.name,
+            role: defaultUser.role,
+            roles: defaultUser.roles,
+            permissions: defaultUser.permissions,
+          };
+
+          const permissionsData: Permissions = {
+            apps: defaultUser.permissions,
+            features: [],
+          };
+
+          setUser(userData);
+          setPermissions(permissionsData);
+
+          // 保存到本地存储
+          AuthUtils.setToken('dev-token');
+          AuthUtils.setUserData(userData);
+          AuthUtils.setPermissions(permissionsData);
+
+          // 跳过认证时显示较短的加载时间
+          await new Promise(resolve =>
+            window.setTimeout(resolve as () => void, 500)
+          );
+          return;
+        }
+
+        // 正常认证流程
         // 使用AuthUtils统一获取数据
         const token = AuthUtils.getToken();
         const userData = AuthUtils.getUserData();

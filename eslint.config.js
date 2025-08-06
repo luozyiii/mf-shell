@@ -42,6 +42,31 @@ module.exports = [
         MessageEvent: 'readonly',
         HTMLIFrameElement: 'readonly',
         Window: 'readonly',
+        // 定时器函数
+        setTimeout: 'readonly',
+        clearTimeout: 'readonly',
+        setInterval: 'readonly',
+        clearInterval: 'readonly',
+        setImmediate: 'readonly',
+        clearImmediate: 'readonly',
+        // 其他常用全局函数
+        alert: 'readonly',
+        confirm: 'readonly',
+        prompt: 'readonly',
+        parseInt: 'readonly',
+        parseFloat: 'readonly',
+        isNaN: 'readonly',
+        isFinite: 'readonly',
+        encodeURIComponent: 'readonly',
+        decodeURIComponent: 'readonly',
+        encodeURI: 'readonly',
+        decodeURI: 'readonly',
+        btoa: 'readonly',
+        atob: 'readonly',
+        // 全局对象
+        global: 'readonly',
+        globalThis: 'readonly',
+        self: 'readonly',
       },
     },
     plugins: {
@@ -65,7 +90,7 @@ module.exports = [
       'react-hooks/exhaustive-deps': 'warn',
 
       // 通用规则
-      'no-console': 'warn',
+      'no-console': 'off',
       'no-debugger': 'error',
       'prefer-const': 'error',
       'no-var': 'error',

@@ -1,26 +1,26 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Layout as AntLayout, Menu, Button, Dropdown, Avatar } from 'antd';
 import {
-  MenuFoldOutlined,
-  MenuUnfoldOutlined,
-  DashboardOutlined,
-  UserOutlined,
-  LogoutOutlined,
-  SettingOutlined,
-  ShoppingOutlined,
-  DollarOutlined,
-  RocketOutlined,
   AppstoreOutlined,
+  ControlOutlined,
+  DashboardOutlined,
+  DollarOutlined,
   InboxOutlined,
   LeftOutlined,
-  ControlOutlined,
+  LogoutOutlined,
+  MenuFoldOutlined,
+  MenuUnfoldOutlined,
+  RocketOutlined,
+  SettingOutlined,
+  ShoppingOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { Layout as AntLayout, Avatar, Button, Dropdown, Menu } from 'antd';
+import React, { useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { microsystemManager } from '../config/microsystems';
+import { APP_CONFIG } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
 import { UserRole } from '../types/auth';
-import { APP_CONFIG } from '../constants';
 import { DateUtil } from '../utils';
-import { microsystemManager } from '../config/microsystems';
 import styles from './Layout.module.css';
 
 const { Header, Sider, Content } = AntLayout;
@@ -66,54 +66,7 @@ const getIconComponent = (iconName: string): React.ReactNode => {
   return iconMap[iconName] || <AppstoreOutlined />;
 };
 
-// 默认路由配置作为fallback - 从配置系统动态生成
-const getDefaultRoutes = (appName: string): AppRouteConfig | null => {
-  const microsystem = microsystemManager.getMicrosystem(appName);
-  if (!microsystem) return null;
-
-  // 从配置中获取默认路由结构
-  const defaultRouteConfigs: Record<string, { routes: RouteConfig[] }> = {
-    template: {
-      routes: [
-        {
-          path: '/template/dashboard',
-          name: '模板概览',
-          icon: 'DashboardOutlined',
-          showBack: false,
-        },
-        {
-          path: '/template/feature1',
-          name: '功能模块1',
-          icon: 'AppstoreOutlined',
-          showBack: true,
-          backPath: '/template/dashboard',
-        },
-        {
-          path: '/template/feature2',
-          name: '功能模块2',
-          icon: 'SettingOutlined',
-          showBack: true,
-          backPath: '/template/dashboard',
-        },
-        {
-          path: '/template/settings',
-          name: '系统设置',
-          icon: 'ControlOutlined',
-          showBack: true,
-        },
-      ],
-    },
-  };
-
-  const config = defaultRouteConfigs[appName];
-  return config
-    ? {
-        appName: microsystem.displayName,
-        appKey: microsystem.name,
-        ...config,
-      }
-    : null;
-};
+// 路由配置完全由子应用提供，不再使用默认配置
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -132,7 +85,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return initialState;
   });
 
-  const { user, permissions, logout, isLoading: authLoading } = useAuth();
+  const { user, logout, isLoading: authLoading } = useAuth();
   // const { hasAppAccess } = usePermissions(); // Removed unused variable
   const navigate = useNavigate();
   const location = useLocation();
@@ -140,13 +93,19 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   // 监听来自子应用的路由配置消息
   useEffect(() => {
     const handleMessage = (event: MessageEvent<MicroFrontendMessage>) => {
+      console.log('Received message:', event.data);
       if (event.data.type === 'MICRO_FRONTEND_ROUTES') {
         const { appKey, routes } = event.data;
+        console.log('Received routes from', appKey, ':', routes);
 
-        setMicroFrontendRoutes(prev => ({
-          ...prev,
-          [appKey]: routes,
-        }));
+        setMicroFrontendRoutes(prev => {
+          const newRoutes = {
+            ...prev,
+            [appKey]: routes,
+          };
+          console.log('Updated microFrontendRoutes:', newRoutes);
+          return newRoutes;
+        });
       }
     };
 
@@ -157,161 +116,75 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     };
   }, []);
 
-  // 预加载子应用路由配置
+  // 预加载子应用路由配置 - 使用简单的模块联邦导入
   useEffect(() => {
-    const preloadRoutes = () => {
-      // 从配置系统获取用户可访问的微前端应用
+    const loadMicroFrontendRoutes = async () => {
+      if (authLoading) return;
+
+      // 等待模块联邦运行时初始化
+      await new Promise(resolve => window.setTimeout(resolve, 1000));
+
+      // 获取用户权限
       const permissions: string[] = [];
       if (user?.roles.includes(UserRole.ADMIN)) permissions.push('admin:read');
-      // 所有登录用户都可以访问模板系统（用于演示）
-      permissions.push('template:read');
+      permissions.push('template:read'); // 所有登录用户都可以访问模板系统
 
       const accessibleMicrosystems =
         microsystemManager.getAccessibleMicrosystems(permissions);
 
-      const appsToPreload = accessibleMicrosystems.map(microsystem => ({
-        name: microsystem.name,
-        host: microsystem.host,
-      }));
+      // 最简单的模块联邦导入
+      for (const microsystem of accessibleMicrosystems) {
+        if (microsystem.useModuleFederation) {
+          // 避免重复加载
+          if (microFrontendRoutes[microsystem.name]) {
+            continue;
+          }
 
-      // 动态导入路由配置
-      const loadRoutes = async () => {
-        for (const app of appsToPreload) {
-          // 检查是否已经有路由配置
-          if (
-            !microFrontendRoutes[app.name as keyof typeof microFrontendRoutes]
-          ) {
+          // 重试机制
+          let retryCount = 0;
+          const maxRetries = 3;
+
+          while (retryCount < maxRetries) {
             try {
-              // 尝试动态导入路由配置
-              if (app.name === 'template') {
-                try {
-                  // 使用动态导入加载路由配置
-                  interface WebpackWindow extends Window {
-                    __webpack_require__?: {
-                      cache?: Record<string, unknown>;
-                    };
-                    template?: {
-                      // eslint-disable-next-line no-unused-vars
-                      get: (_module: string) => () => Promise<unknown>;
-                    };
-                  }
-                  const routeModule =
-                    (await (window as WebpackWindow).__webpack_require__
-                      ?.cache?.['template/routes']) ||
-                    (await import(
-                      /* webpackIgnore: true */ `${app.host}/remoteEntry.js`
-                    ).then(() => {
-                      const templateModule = (window as WebpackWindow).template;
-                      if (templateModule?.get) {
-                        return templateModule
-                          .get('./routes')()
-                          .then((m: unknown) => m);
-                      }
-                      return null;
-                    }));
-                  const routes =
-                    (
-                      routeModule as {
-                        templateRoutes?: AppRouteConfig;
-                        default?: AppRouteConfig;
-                      }
-                    )?.templateRoutes ||
-                    (routeModule as { default?: AppRouteConfig })?.default;
-                  if (routes) {
-                    setMicroFrontendRoutes(prev => ({
-                      ...prev,
-                      [app.name]: routes,
-                    }));
-                  } else {
-                    throw new Error('No routes found');
-                  }
-                } catch {
-                  // 静默处理路由加载失败，使用默认配置
-                  // 使用默认路由配置作为fallback
-                  const defaultRoutes = getDefaultRoutes(app.name);
-                  if (defaultRoutes) {
-                    setMicroFrontendRoutes(prev => ({
-                      ...prev,
-                      [app.name]: defaultRoutes,
-                    }));
-                  }
-                }
-              } else {
-                // 对于其他应用，使用iframe方式作为fallback
-                const iframe = document.createElement('iframe');
-                iframe.style.display = 'none';
-                iframe.src = app.host;
-                iframe.onload = () => {
-                  // iframe加载完成后，尝试获取路由配置
-                  window.setTimeout(() => {
-                    try {
-                      const iframeWindow = iframe.contentWindow;
-                      interface IframeWindow extends Window {
-                        getRoutes?: () => AppRouteConfig;
-                      }
-                      if (
-                        iframeWindow &&
-                        (iframeWindow as IframeWindow).getRoutes
-                      ) {
-                        const routes = (
-                          iframeWindow as IframeWindow
-                        ).getRoutes?.();
-                        // 获取到路由配置
-                        if (routes) {
-                          setMicroFrontendRoutes(prev => ({
-                            ...prev,
-                            [app.name]: routes,
-                          }));
-                        }
-                      }
-                    } catch {
-                      // 获取路由配置失败
-                      // 使用默认路由配置作为fallback
-                      const defaultRoutes = getDefaultRoutes(app.name);
-                      if (defaultRoutes) {
-                        // 使用默认路由配置
-                        setMicroFrontendRoutes(prev => ({
-                          ...prev,
-                          [app.name]: defaultRoutes,
-                        }));
-                      }
-                    }
+              // 使用静态导入路径 - 参考 ModuleFederationLoader 的成功实现
+              let remoteModule: any;
 
-                    // 移除iframe
-                    window.setTimeout(() => {
-                      if (iframe.parentNode) {
-                        iframe.parentNode.removeChild(iframe);
-                      }
-                    }, 1000);
-                  }, 2000); // 等待2秒确保子应用完全加载
-                };
-                document.body.appendChild(iframe);
-                // 预加载路由
+              if (microsystem.name === 'template') {
+                remoteModule = await import('template/routes');
+              } else {
+                throw new Error(`Unknown remote: ${microsystem.name}`);
               }
-            } catch {
-              // 动态导入路由失败
-              // 使用默认路由配置作为fallback
-              const defaultRoutes = getDefaultRoutes(app.name);
-              if (defaultRoutes) {
+
+              const routeConfig =
+                remoteModule.default || remoteModule.templateRoutes;
+
+              if (routeConfig) {
                 setMicroFrontendRoutes(prev => ({
                   ...prev,
-                  [app.name]: defaultRoutes,
+                  [microsystem.name]: routeConfig,
                 }));
+                break; // 成功加载，跳出重试循环
+              }
+            } catch (error: any) {
+              retryCount++;
+              if (retryCount >= maxRetries) {
+                console.error(
+                  `加载 ${microsystem.name} 路由失败 (重试${maxRetries}次):`,
+                  error.message
+                );
+                // 静默处理失败，等待子应用通过postMessage发送路由配置
+              } else {
+                // 等待一段时间后重试
+                await new Promise(resolve => window.setTimeout(resolve, 1000));
               }
             }
           }
         }
-      };
-
-      // 调用异步函数
-      loadRoutes();
+      }
     };
 
-    // 延迟一点执行，确保权限检查完成
-    if (!authLoading) {
-      window.setTimeout(preloadRoutes, 1000);
-    }
-  }, [authLoading, permissions, user, microFrontendRoutes]); // 依赖权限和用户信息的变化
+    loadMicroFrontendRoutes();
+  }, [authLoading, user]); // 只依赖权限和用户信息的变化，避免无限循环
 
   // 根据当前路由自动设置展开的菜单
   useEffect(() => {
@@ -355,8 +228,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // 构建菜单项 - 使用useMemo避免不必要的重新计算
   const menuItems = useMemo(() => {
+    console.log('=== 菜单构建调试信息 ===');
+    console.log('authLoading:', authLoading);
+    console.log('user:', user);
+    console.log('microFrontendRoutes:', microFrontendRoutes);
+
     // 如果还在加载权限，返回基础菜单
     if (authLoading) {
+      console.log('权限加载中，返回基础菜单');
       return [
         {
           key: '/dashboard',
@@ -390,19 +269,28 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     // 所有登录用户都可以访问模板系统（用于演示）
     userPermissions.push('template:read');
 
+    console.log('用户权限:', userPermissions);
+
     const accessibleMicrosystems =
       microsystemManager.getAccessibleMicrosystems(userPermissions);
 
+    console.log('可访问的微系统:', accessibleMicrosystems);
+
     accessibleMicrosystems.forEach(microsystem => {
+      console.log(`处理微系统: ${microsystem.name}`);
+
       // 检查是否有路由配置
       const routeConfig =
         microFrontendRoutes[
           microsystem.name as keyof typeof microFrontendRoutes
         ];
 
+      console.log(`${microsystem.name} 的路由配置:`, routeConfig);
+
       if (routeConfig) {
+        console.log(`${microsystem.name} 有详细路由配置，生成子菜单`);
         // 有详细路由配置，显示子菜单
-        items.push({
+        const menuItem = {
           key: microsystem.name,
           icon: getIconComponent(microsystem.icon),
           label: microsystem.displayName,
@@ -412,16 +300,24 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               label: route.name,
             })
           ),
-        });
+        };
+        console.log(`生成的菜单项:`, menuItem);
+        items.push(menuItem);
       } else {
+        console.log(`${microsystem.name} 没有详细路由配置，生成单一菜单项`);
         // 没有详细路由配置，显示单一菜单项
-        items.push({
+        const menuItem = {
           key: microsystem.route,
           icon: getIconComponent(microsystem.icon),
           label: microsystem.displayName,
-        });
+        };
+        console.log(`生成的菜单项:`, menuItem);
+        items.push(menuItem);
       }
     });
+
+    console.log('最终菜单项:', items);
+    console.log('=== 菜单构建调试信息结束 ===');
 
     return items;
   }, [authLoading, microFrontendRoutes, user]);
@@ -494,9 +390,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       // 获取微前端路由配置失败
     }
 
+    // 如果没有找到具体路由配置，尝试根据路径推断页面信息
+    const enabledMicrosystems = microsystemManager.getEnabledMicrosystems();
+    for (const microsystem of enabledMicrosystems) {
+      if (pathname.startsWith(microsystem.route)) {
+        return {
+          title: microsystem.displayName,
+          showBack: true,
+          backPath: '/dashboard',
+        };
+      }
+    }
+
     // 默认配置
     return {
-      title: '未知页面',
+      title: '页面',
       showBack: false,
       backPath: null,
     };

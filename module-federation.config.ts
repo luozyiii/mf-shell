@@ -2,19 +2,7 @@ import { createModuleFederationConfig } from '@module-federation/rsbuild-plugin'
 import { microsystemManager } from './src/config/microsystems';
 
 // 从配置系统动态生成 remotes 配置
-const generateRemotes = () => {
-  const enabledMicrosystems = microsystemManager.getEnabledMicrosystems();
-  const remotes: Record<string, string> = {};
-
-  enabledMicrosystems.forEach(microsystem => {
-    remotes[microsystem.name] =
-      `${microsystem.name}@${microsystem.remoteEntry}`;
-  });
-
-  return remotes;
-};
-
-const remotes = generateRemotes();
+const remotes = microsystemManager.generateModuleFederationRemotes();
 
 export default createModuleFederationConfig({
   name: 'shell',

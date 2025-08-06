@@ -1,4 +1,2 @@
-// 异步导入bootstrap以创建异步边界
-import('./bootstrap').catch(() => {
-  // 启动失败
-});
+// 直接导入bootstrap
+import './bootstrap';
