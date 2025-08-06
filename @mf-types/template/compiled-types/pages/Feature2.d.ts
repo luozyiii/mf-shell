@@ -1,2 +1,3 @@
 import React from 'react';
-export declare const Feature2: React.FC;
+declare const Feature2: React.FC;
+export default Feature2;

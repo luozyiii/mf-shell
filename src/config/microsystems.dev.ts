@@ -1,6 +1,6 @@
 // 开发环境微前端子系统配置
 export const devMicrosystems = {
-  // 模板系统（开发测试用）
+  // 模板系统（开发测试用）- 使用模块联邦
   template: {
     name: 'template',
     displayName: '模板系统',
@@ -8,11 +8,14 @@ export const devMicrosystems = {
     icon: 'AppstoreOutlined',
     host: 'http://localhost:3003',
     remoteEntry: 'http://localhost:3003/remoteEntry.js',
-    route: '/template',
-    enabled: true, // 开发环境启用，用于测试
+    route: '/template', // 保持基础路由，但具体页面使用模块联邦
+    enabled: true, // 启用模块联邦方式
     permissions: ['template:read'], // 改为模板系统专用权限
     menuOrder: 1,
-    category: 'development'
+    category: 'development',
+    // 新增模块联邦配置
+    useMicroFrontend: false, // 不使用 iframe
+    useModuleFederation: true // 使用模块联邦
   },
 
   // 营销系统

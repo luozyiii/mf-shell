@@ -7,6 +7,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import { LayoutSkeleton } from './components/LayoutSkeleton';
 import { MicroFrontendLoader } from './components/MicroFrontendLoader';
+import { ModuleFederationLoader } from './components/ModuleFederationLoader';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
@@ -19,7 +20,7 @@ import './App.css';
 const basename = process.env.NODE_ENV === 'production' ? '/mf-shell' : '';
 
 const AppContent: React.FC = () => {
-  const { isInitializing, isAuthenticated, isLoading } = useAuth();
+  const { isAuthenticated, isLoading, isInitializing } = useAuth();
 
   // GitHub Pages SPA 路由支持
   useEffect(() => {
@@ -31,36 +32,36 @@ const AppContent: React.FC = () => {
     }
   }, []);
 
-  // 在初始化阶段显示骨架屏
   if (isInitializing) {
     return <LayoutSkeleton />;
   }
 
-  // 如果还在加载中且用户已认证，继续显示骨架屏（静默验证）
   if (isLoading && isAuthenticated) {
     return <LayoutSkeleton />;
   }
 
-  // 动态生成微前端路由
+  // 动态生成微前端路由（仅为非模块联邦系统）
   const generateMicrosystemRoutes = () => {
     const enabledMicrosystems = microsystemManager.getEnabledMicrosystems();
 
-    return enabledMicrosystems.map(microsystem => (
-      <Route
-        key={microsystem.name}
-        path={`${microsystem.route}/*`}
-        element={
-          <ProtectedRoute requiredApp={microsystem.name}>
-            <Layout>
-              <MicroFrontendLoader
-                name={microsystem.name}
-                host={microsystem.host}
-              />
-            </Layout>
-          </ProtectedRoute>
-        }
-      />
-    ));
+    return enabledMicrosystems
+      .filter(microsystem => !microsystem.useModuleFederation) // 只为非模块联邦系统生成路由
+      .map(microsystem => (
+        <Route
+          key={microsystem.name}
+          path={`${microsystem.route}/*`}
+          element={
+            <ProtectedRoute requiredApp={microsystem.name}>
+              <Layout>
+                <MicroFrontendLoader
+                  name={microsystem.name}
+                  host={microsystem.host}
+                />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+      ));
   };
 
   return (
@@ -73,6 +74,60 @@ const AppContent: React.FC = () => {
               <ProtectedRoute>
                 <Layout>
                   <Dashboard />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+
+          {/* Template 模块联邦路由 */}
+          <Route
+            path="/template/dashboard"
+            element={
+              <ProtectedRoute requiredApp="template">
+                <Layout>
+                  <ModuleFederationLoader
+                    name="template"
+                    componentName="Dashboard"
+                  />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/template/feature1"
+            element={
+              <ProtectedRoute requiredApp="template">
+                <Layout>
+                  <ModuleFederationLoader
+                    name="template"
+                    componentName="Feature1"
+                  />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/template/feature2"
+            element={
+              <ProtectedRoute requiredApp="template">
+                <Layout>
+                  <ModuleFederationLoader
+                    name="template"
+                    componentName="Feature2"
+                  />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/template/settings"
+            element={
+              <ProtectedRoute requiredApp="template">
+                <Layout>
+                  <ModuleFederationLoader
+                    name="template"
+                    componentName="Settings"
+                  />
                 </Layout>
               </ProtectedRoute>
             }

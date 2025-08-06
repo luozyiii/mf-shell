@@ -12,7 +12,8 @@ import {
   RocketOutlined,
   AppstoreOutlined,
   InboxOutlined,
-  LeftOutlined
+  LeftOutlined,
+  ControlOutlined,
 } from '@ant-design/icons';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
@@ -38,7 +39,8 @@ const getIconComponent = (iconName: string) => {
     'AppstoreOutlined': <AppstoreOutlined />,
     'InboxOutlined': <InboxOutlined />,
     'UserOutlined': <UserOutlined />,
-    'SettingOutlined': <SettingOutlined />
+    'SettingOutlined': <SettingOutlined />,
+    'ControlOutlined': <ControlOutlined />
   };
 
   return iconMap[iconName] || <AppstoreOutlined />;
@@ -67,12 +69,7 @@ const getDefaultRoutes = (appName: string) => {
       ]
     },
     template: {
-      routes: [
-        { path: `${microsystem.route}/dashboard`, name: '模板概览', showBack: false },
-        { path: `${microsystem.route}/feature1`, name: '功能模块1', showBack: true },
-        { path: `${microsystem.route}/feature2`, name: '功能模块2', showBack: true },
-        { path: `${microsystem.route}/settings`, name: '系统设置', showBack: true }
-      ]
+      routes: []
     }
   };
 
@@ -109,7 +106,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     const handleMessage = (event: MessageEvent) => {
       if (event.data.type === 'MICRO_FRONTEND_ROUTES') {
         const { appKey, routes } = event.data;
-        console.log(`Received routes from ${appKey}:`, routes);
 
         setMicroFrontendRoutes(prev => ({
           ...prev,
@@ -143,68 +139,88 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         host: microsystem.host
       }));
 
-      // 首先设置默认路由，确保即使跨域失败也能正常工作
-      appsToPreload.forEach(app => {
-        const defaultRoutes = getDefaultRoutes(app.name);
-        if (defaultRoutes && !microFrontendRoutes[app.name as keyof typeof microFrontendRoutes]) {
-          setMicroFrontendRoutes(prev => ({
-            ...prev,
-            [app.name]: defaultRoutes
-          }));
-        }
-      });
-
-      appsToPreload.forEach(app => {
-        // 检查是否已经有路由配置
-        if (!microFrontendRoutes[app.name as keyof typeof microFrontendRoutes]) {
-          const iframe = document.createElement('iframe');
-          iframe.style.display = 'none';
-          iframe.src = app.host;
-          iframe.onload = () => {
-            // iframe加载完成后，尝试获取路由配置
-            setTimeout(() => {
-              try {
-                const iframeWindow = iframe.contentWindow;
-                if (iframeWindow && (iframeWindow as any).getRoutes) {
-                  const routes = (iframeWindow as any).getRoutes();
-                  console.log(`Got routes from ${app.name}:`, routes);
-                  setMicroFrontendRoutes(prev => ({
+      // 动态导入路由配置
+      const loadRoutes = async () => {
+        for (const app of appsToPreload) {
+          // 检查是否已经有路由配置
+          if (!microFrontendRoutes[app.name as keyof typeof microFrontendRoutes]) {
+            try {
+              // 尝试动态导入路由配置
+              if (app.name === 'template') {
+                const routeModule = await import('template/routes');
+                const routes = routeModule.default || routeModule.templateRoutes;
+                setMicroFrontendRoutes(prev => {
+                  return {
                     ...prev,
                     [app.name]: routes
-                  }));
-                }
-              } catch (error) {
-                console.warn(`Failed to get routes from ${app.name}:`, error);
-                // 使用默认路由配置作为fallback
-                const defaultRoutes = getDefaultRoutes(app.name);
-                if (defaultRoutes) {
-                  console.log(`Using default routes for ${app.name}:`, defaultRoutes);
-                  setMicroFrontendRoutes(prev => ({
-                    ...prev,
-                    [app.name]: defaultRoutes
-                  }));
-                }
-              }
+                  };
+                });
+              } else {
+                // 对于其他应用，使用iframe方式作为fallback
+                const iframe = document.createElement('iframe');
+                iframe.style.display = 'none';
+                iframe.src = app.host;
+                iframe.onload = () => {
+                  // iframe加载完成后，尝试获取路由配置
+                  setTimeout(() => {
+                    try {
+                      const iframeWindow = iframe.contentWindow;
+                      if (iframeWindow && (iframeWindow as any).getRoutes) {
+                        const routes = (iframeWindow as any).getRoutes();
+                        console.log(`Got routes from ${app.name}:`, routes);
+                        setMicroFrontendRoutes(prev => ({
+                          ...prev,
+                          [app.name]: routes
+                        }));
+                      }
+                    } catch (error) {
+                      console.warn(`Failed to get routes from ${app.name}:`, error);
+                      // 使用默认路由配置作为fallback
+                      const defaultRoutes = getDefaultRoutes(app.name);
+                      if (defaultRoutes) {
+                        console.log(`Using default routes for ${app.name}:`, defaultRoutes);
+                        setMicroFrontendRoutes(prev => ({
+                          ...prev,
+                          [app.name]: defaultRoutes
+                        }));
+                      }
+                    }
 
-              // 移除iframe
-              setTimeout(() => {
-                if (iframe.parentNode) {
-                  iframe.parentNode.removeChild(iframe);
-                }
-              }, 1000);
-            }, 2000); // 等待2秒确保子应用完全加载
-          };
-          document.body.appendChild(iframe);
-          console.log(`Preloading routes for ${app.name}`);
+                    // 移除iframe
+                    setTimeout(() => {
+                      if (iframe.parentNode) {
+                        iframe.parentNode.removeChild(iframe);
+                      }
+                    }, 1000);
+                  }, 2000); // 等待2秒确保子应用完全加载
+                };
+                document.body.appendChild(iframe);
+                console.log(`Preloading routes for ${app.name}`);
+              }
+            } catch (error) {
+              console.warn(`Failed to dynamically import routes from ${app.name}:`, error);
+              // 使用默认路由配置作为fallback
+              const defaultRoutes = getDefaultRoutes(app.name);
+              if (defaultRoutes) {
+                setMicroFrontendRoutes(prev => ({
+                  ...prev,
+                  [app.name]: defaultRoutes
+                }));
+              }
+            }
+          }
         }
-      });
+      };
+      
+      // 调用异步函数
+      loadRoutes();
     };
 
     // 延迟一点执行，确保权限检查完成
     if (!authLoading) {
       setTimeout(preloadRoutes, 1000);
     }
-  }, [authLoading, hasAppAccess, microFrontendRoutes]);
+  }, [authLoading, permissions, user]); // 依赖权限和用户信息的变化
 
 
 
@@ -250,9 +266,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // 构建菜单项 - 使用useMemo避免不必要的重新计算
   const menuItems = useMemo(() => {
-    console.log('Building menu items...');
-    console.log('authLoading:', authLoading);
-    console.log('microFrontendRoutes:', microFrontendRoutes);
 
     // 如果还在加载权限，返回基础菜单
     if (authLoading) {

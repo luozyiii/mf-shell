@@ -29,6 +29,9 @@ export interface MicrosystemConfig {
   permissions: string[];
   menuOrder: number;
   category: MicrosystemCategory;
+  // 模块联邦相关配置
+  useMicroFrontend?: boolean; // 是否使用 iframe 方式
+  useModuleFederation?: boolean; // 是否使用模块联邦
 }
 
 // 微前端系统集合类型

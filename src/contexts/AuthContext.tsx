@@ -42,7 +42,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   ];
 
-  // 检查本地存储中的认证状态
   useEffect(() => {
     const initializeAuth = async () => {
       try {

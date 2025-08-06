@@ -33,12 +33,12 @@ export default createModuleFederationConfig({
     'react-router-dom': {
       singleton: true,
       requiredVersion: false,
-      eager: false
+      eager: true
     },
     antd: {
       singleton: true,
       requiredVersion: false,
-      eager: false
+      eager: true
     },
   },
 });
