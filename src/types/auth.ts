@@ -1,14 +1,11 @@
 // 用户角色枚举
 export enum UserRole {
   ADMIN = 'admin',
-  MARKETING = 'marketing',
-  FINANCE = 'finance'
+  DEVELOPER = 'developer'
 }
 
 // 应用权限枚举
 export enum AppPermission {
-  MARKETING = 'marketing',
-  FINANCE = 'finance',
   TEMPLATE = 'template'
 }
 
@@ -32,8 +29,6 @@ export interface User {
 
 // 权限信息接口
 export interface Permissions {
-  [AppPermission.MARKETING]: boolean;
-  [AppPermission.FINANCE]: boolean;
   [AppPermission.TEMPLATE]?: boolean; // 可选，因为模板系统对所有用户开放
 }
 

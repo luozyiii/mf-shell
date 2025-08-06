@@ -132,8 +132,7 @@ export const Login: React.FC = () => {
           <Text strong style={{ display: 'block', marginBottom: 8 }}>测试账户：</Text>
           <Space direction="vertical" size="small">
             <Text>管理员: admin / admin123</Text>
-            <Text>营销人员: marketing / marketing123</Text>
-            <Text>财务人员: finance / finance123</Text>
+            <Text>开发人员: developer / dev123</Text>
           </Space>
         </div>
       </Card>

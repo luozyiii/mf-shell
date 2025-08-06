@@ -11,11 +11,6 @@ export const usePermissions = () => {
       return true;
     }
 
-    // 原有的权限检查逻辑
-    if (app === 'marketing' || app === 'finance') {
-      return permissions?.[app as keyof typeof permissions] || false;
-    }
-
     // 其他应用默认拒绝访问
     return false;
   };

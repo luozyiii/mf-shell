@@ -3,8 +3,6 @@
 // 微前端系统名称枚举
 export enum MicrosystemName {
   TEMPLATE = 'template',
-  MARKETING = 'marketing',
-  FINANCE = 'finance',
   INVENTORY = 'inventory',
   USER = 'user'
 }
@@ -68,7 +66,7 @@ export interface MicroFrontendLoaderProps {
 }
 
 // 应用权限类型（扩展版本，支持字符串）
-export type AppPermissionType = 'marketing' | 'finance' | 'template' | string;
+export type AppPermissionType = 'template' | string;
 
 // 用户角色类型（扩展版本，支持字符串）
-export type UserRoleType = 'admin' | 'marketing' | 'finance' | string;
+export type UserRoleType = 'admin' | 'developer' | string;

@@ -16,36 +16,6 @@ export const devMicrosystems = {
     // 新增模块联邦配置
     useMicroFrontend: false, // 不使用 iframe
     useModuleFederation: true // 使用模块联邦
-  },
-
-  // 营销系统
-  marketing: {
-    name: 'marketing',
-    displayName: '营销系统',
-    description: '营销活动管理、客户管理、数据分析',
-    icon: 'RocketOutlined',
-    host: 'http://localhost:3001',
-    remoteEntry: 'http://localhost:3001/remoteEntry.js',
-    route: '/marketing',
-    enabled: true,
-    permissions: ['marketing:read', 'marketing:write'],
-    menuOrder: 2,
-    category: 'business'
-  },
-
-  // 财务系统
-  finance: {
-    name: 'finance',
-    displayName: '财务系统',
-    description: '财务报表、账务管理、成本分析',
-    icon: 'DollarOutlined',
-    host: 'http://localhost:3002',
-    remoteEntry: 'http://localhost:3002/remoteEntry.js',
-    route: '/finance',
-    enabled: true,
-    permissions: ['finance:read', 'finance:write'],
-    menuOrder: 3,
-    category: 'business'
   }
 } as const;
 

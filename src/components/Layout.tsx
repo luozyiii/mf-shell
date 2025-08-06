@@ -53,21 +53,6 @@ const getDefaultRoutes = (appName: string) => {
 
   // 从配置中获取默认路由结构
   const defaultRouteConfigs: Record<string, any> = {
-    marketing: {
-      routes: [
-        { path: `${microsystem.route}`, name: '营销概览', showBack: false },
-        { path: `${microsystem.route}/campaigns`, name: '活动管理', showBack: false },
-        { path: `${microsystem.route}/analytics`, name: '数据分析', showBack: false },
-        { path: `${microsystem.route}/customers`, name: '客户管理', showBack: false }
-      ]
-    },
-    finance: {
-      routes: [
-        { path: `${microsystem.route}`, name: '财务概览', showBack: false },
-        { path: `${microsystem.route}/accounts`, name: '账户管理', showBack: false },
-        { path: `${microsystem.route}/reports`, name: '财务报表', showBack: false }
-      ]
-    },
     template: {
       routes: []
     }
@@ -126,8 +111,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     const preloadRoutes = () => {
       // 从配置系统获取用户可访问的微前端应用
       const userPermissions: string[] = [];
-      if (permissions?.marketing) userPermissions.push('marketing:read', 'marketing:write');
-      if (permissions?.finance) userPermissions.push('finance:read', 'finance:write');
       if (user?.roles.includes('admin' as any)) userPermissions.push('admin:read');
       // 所有登录用户都可以访问模板系统（用于演示）
       userPermissions.push('template:read');
@@ -289,8 +272,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     // 使用配置化管理动态生成菜单
     // 将现有的权限系统映射到新的配置系统
     const userPermissions: string[] = [];
-    if (permissions?.marketing) userPermissions.push('marketing:read', 'marketing:write');
-    if (permissions?.finance) userPermissions.push('finance:read', 'finance:write');
     if (user?.roles.includes('admin' as any)) userPermissions.push('admin:read');
     // 所有登录用户都可以访问模板系统（用于演示）
     userPermissions.push('template:read');

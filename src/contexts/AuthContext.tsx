@@ -22,23 +22,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       password: 'admin123',
       name: '管理员',
       roles: [UserRole.ADMIN],
-      permissions: { [AppPermission.MARKETING]: true, [AppPermission.FINANCE]: true }
+      permissions: { [AppPermission.TEMPLATE]: true }
     },
     {
       id: '2',
-      username: 'marketing',
-      password: 'marketing123',
-      name: '营销人员',
-      roles: [UserRole.MARKETING],
-      permissions: { [AppPermission.MARKETING]: true, [AppPermission.FINANCE]: false }
-    },
-    {
-      id: '3',
-      username: 'finance',
-      password: 'finance123',
-      name: '财务人员',
-      roles: [UserRole.FINANCE],
-      permissions: { [AppPermission.MARKETING]: false, [AppPermission.FINANCE]: true }
+      username: 'developer',
+      password: 'dev123',
+      name: '开发人员',
+      roles: [UserRole.DEVELOPER],
+      permissions: { [AppPermission.TEMPLATE]: true }
     }
   ];
 

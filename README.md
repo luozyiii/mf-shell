@@ -44,13 +44,11 @@ npm run build
 ## 微前端集成
 
 ### 支持的微前端应用
-- **营销系统** (mf-marketing): http://localhost:3001
-- **财务系统** (mf-finance): http://localhost:3002
+- **模板系统** (mf-template): http://localhost:3003
 
 ### 路由规则
 - `/dashboard` - 主应用仪表盘
-- `/marketing/*` - 营销系统路由
-- `/finance/*` - 财务系统路由
+- `/template/*` - 模板系统路由
 
 ## 开发说明
 

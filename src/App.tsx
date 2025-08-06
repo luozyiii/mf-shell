@@ -133,8 +133,6 @@ const AppContent: React.FC = () => {
             }
           />
 
-          {/* 动态生成的微前端路由 */}
-          {generateMicrosystemRoutes()}
 
           <Route path="/" element={<Navigate to="/dashboard" replace />} />
           {/* 404 页面 - 必须放在最后 */}
