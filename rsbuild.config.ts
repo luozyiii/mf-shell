@@ -13,15 +13,6 @@ export default defineConfig({
       'process.env.REACT_APP_SKIP_AUTH': JSON.stringify(
         process.env.REACT_APP_SKIP_AUTH
       ),
-      'process.env.REACT_APP_API_BASE_URL': JSON.stringify(
-        process.env.REACT_APP_API_BASE_URL
-      ),
-      'process.env.REACT_APP_ENABLE_MOCK': JSON.stringify(
-        process.env.REACT_APP_ENABLE_MOCK
-      ),
-      'process.env.REACT_APP_DEBUG': JSON.stringify(
-        process.env.REACT_APP_DEBUG
-      ),
     },
     entry: {
       index: './src/index.tsx',

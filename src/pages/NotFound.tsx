@@ -1,10 +1,19 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Result, Button } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { HomeOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { useAuth } from '../contexts/AuthContext';
 
 export const NotFound: React.FC = () => {
   const navigate = useNavigate();
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // 如果用户未登录，跳转到登录页面
+  useEffect(() => {
+    if (!isLoading && !isAuthenticated) {
+      navigate('/login', { replace: true });
+    }
+  }, [isAuthenticated, isLoading, navigate]);
 
   const handleGoHome = (): void => {
     navigate('/dashboard');
@@ -13,6 +22,11 @@ export const NotFound: React.FC = () => {
   const handleGoBack = (): void => {
     navigate(-1);
   };
+
+  // 如果正在加载或未登录，不显示404页面
+  if (isLoading || !isAuthenticated) {
+    return null;
+  }
 
   return (
     <div

@@ -50,11 +50,6 @@ export const ENV_CONFIG = {
   isProduction:
     typeof process !== 'undefined' &&
     process.env?.['NODE_ENV'] === 'production',
-  apiBaseUrl: ((typeof process !== 'undefined' &&
-    process.env?.['REACT_APP_API_BASE_URL']) ||
-    'http://localhost:8080/api') as string,
-  enableMockData: (typeof process !== 'undefined' &&
-    process.env?.['REACT_APP_ENABLE_MOCK'] === 'true') as boolean,
 } as const;
 
 // 错误消息常量

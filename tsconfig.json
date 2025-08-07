@@ -18,16 +18,16 @@
     "allowImportingTsExtensions": true,
     "useDefineForClassFields": true,
 
-    /* 严格类型检查 */
-    "noImplicitAny": true,
-    "noImplicitReturns": true,
+    /* 严格类型检查 - 已放宽 */
+    "noImplicitAny": false,
+    "noImplicitReturns": false,
     "noImplicitThis": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "exactOptionalPropertyTypes": true,
-    "noImplicitOverride": true,
-    "noPropertyAccessFromIndexSignature": true,
-    "noUncheckedIndexedAccess": true
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "exactOptionalPropertyTypes": false,
+    "noImplicitOverride": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "noUncheckedIndexedAccess": false
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "build"]

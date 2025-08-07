@@ -1,5 +1,5 @@
-import React, { Suspense, useState, useEffect } from 'react';
-import { Spin, Alert } from 'antd';
+import React, { Suspense, useState, useEffect, useCallback } from 'react';
+import { Spin, Alert, Card, Button, Typography } from 'antd';
 import {
   AppstoreOutlined,
   CloudServerOutlined,
@@ -7,9 +7,15 @@ import {
   DollarOutlined,
   InboxOutlined,
   UserOutlined,
+  ReloadOutlined,
+  HomeOutlined,
 } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
 import { microsystemManager } from '../config/microsystems';
+// import { Microsystem } from '../types/microsystem';
 import styles from './MicroFrontendLoader.module.css';
+
+const { Paragraph } = Typography;
 
 // 声明 webpack 模块联邦相关的全局变量
 // declare const __webpack_share_scopes__: any; // Unused
@@ -72,30 +78,41 @@ export const ModuleFederationLoader: React.FC<ModuleFederationLoaderProps> = ({
   name,
   componentName,
 }) => {
+  const navigate = useNavigate();
   const [RemoteComponent, setRemoteComponent] =
     useState<React.ComponentType | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
+
+  const loadComponent = useCallback(async (): Promise<void> => {
+    try {
+      setLoading(true);
+      setError(null);
+      const Component = loadRemoteComponent(name, componentName);
+      setRemoteComponent(() => Component);
+    } catch (err) {
+      // 加载远程组件时发生错误
+      setError(
+        `加载组件失败: ${err instanceof Error ? err.message : '未知错误'}`
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [name, componentName]);
+
+  const handleRetry = useCallback(() => {
+    setRetryCount(prev => prev + 1);
+    loadComponent();
+  }, [loadComponent]);
+
+  const handleGoHome = useCallback(() => {
+    navigate('/');
+  }, [navigate]);
 
   useEffect(() => {
-    const loadComponent = async (): Promise<void> => {
-      try {
-        setLoading(true);
-        setError(null);
-        const Component = loadRemoteComponent(name, componentName);
-        setRemoteComponent(() => Component);
-      } catch (err) {
-        // 加载远程组件时发生错误
-        setError(
-          `加载组件失败: ${err instanceof Error ? err.message : '未知错误'}`
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
-
     loadComponent();
-  }, [name, componentName]);
+  }, [loadComponent]);
 
   const getAppInfo = (): {
     name: string;
@@ -139,12 +156,36 @@ export const ModuleFederationLoader: React.FC<ModuleFederationLoaderProps> = ({
   if (error) {
     return (
       <div className={styles['container']}>
-        <Alert
-          message="模块加载失败"
-          description={error}
-          type="error"
-          showIcon
-        />
+        <Card className={styles['errorCard']}>
+          <div className={styles['errorContent']}>
+            <Alert
+              message="模块加载失败"
+              description={error}
+              type="error"
+              showIcon
+            />
+            <div className={styles['errorActions']}>
+              <Button
+                type="primary"
+                icon={<ReloadOutlined />}
+                onClick={handleRetry}
+                style={{ marginRight: 8 }}
+              >
+                重试 {retryCount > 0 && `(${retryCount})`}
+              </Button>
+              <Button icon={<HomeOutlined />} onClick={handleGoHome}>
+                返回首页
+              </Button>
+            </div>
+            {appInfo && (
+              <div className={styles['errorInfo']}>
+                <Paragraph type="secondary">
+                  应用: {appInfo.name} | 组件: {componentName}
+                </Paragraph>
+              </div>
+            )}
+          </div>
+        </Card>
       </div>
     );
   }

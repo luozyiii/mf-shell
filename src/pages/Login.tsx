@@ -15,16 +15,30 @@ export const Login: React.FC = () => {
   const location = useLocation();
 
   // 获取回调地址：优先使用URL参数，其次使用state，最后默认到dashboard
+  // 注意：从404页面跳转过来的用户应该回到首页而不是原404路径
   const getReturnUrl = (): string => {
     const urlParams = new URLSearchParams(location.search);
     const returnUrl = urlParams.get('returnUrl');
     if (returnUrl) {
-      return decodeURIComponent(returnUrl);
+      const decodedUrl = decodeURIComponent(returnUrl);
+      // 如果是外部URL，保持原样
+      if (decodedUrl.startsWith('http')) {
+        return decodedUrl;
+      }
+      // 如果是内部路径但不是有效路由，跳转到首页
+      const validPaths = ['/dashboard', '/template'];
+      const isValidPath = validPaths.some(path => decodedUrl.startsWith(path));
+      return isValidPath ? decodedUrl : '/dashboard';
     }
-    return (
-      (location.state as { from?: { pathname: string } })?.from?.pathname ||
-      '/dashboard'
-    );
+    const fromPath = (location.state as { from?: { pathname: string } })?.from
+      ?.pathname;
+    if (fromPath) {
+      // 如果来源路径是有效路由，使用它；否则跳转到首页
+      const validPaths = ['/dashboard', '/template'];
+      const isValidPath = validPaths.some(path => fromPath.startsWith(path));
+      return isValidPath ? fromPath : '/dashboard';
+    }
+    return '/dashboard';
   };
 
   const returnUrl = getReturnUrl();

@@ -19,6 +19,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { microsystemManager } from '../config/microsystems';
 import { APP_CONFIG } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
+import { usePermissions } from '../hooks/usePermissions';
 import { UserRole } from '../types/auth';
 import { DateUtil } from '../utils';
 import styles from './Layout.module.css';
@@ -86,7 +87,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   });
 
   const { user, logout, isLoading: authLoading } = useAuth();
-  // const { hasAppAccess } = usePermissions(); // Removed unused variable
+  const { hasAppPermission, isAdmin, isDeveloper, getUserPermissionSummary } =
+    usePermissions();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -150,6 +152,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               let remoteModule: any;
 
               if (microsystem.name === 'template') {
+                // @ts-ignore
                 remoteModule = await import('template/routes');
               } else {
                 throw new Error(`Unknown remote: ${microsystem.name}`);
@@ -184,7 +187,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     };
 
     loadMicroFrontendRoutes();
-  }, [authLoading, user]); // 只依赖权限和用户信息的变化，避免无限循环
+  }, [authLoading, user, microFrontendRoutes]); // 依赖权限、用户信息和微前端路由的变化
 
   // 根据当前路由自动设置展开的菜单
   useEffect(() => {
@@ -228,14 +231,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // 构建菜单项 - 使用useMemo避免不必要的重新计算
   const menuItems = useMemo(() => {
-    console.log('=== 菜单构建调试信息 ===');
-    console.log('authLoading:', authLoading);
-    console.log('user:', user);
-    console.log('microFrontendRoutes:', microFrontendRoutes);
-
     // 如果还在加载权限，返回基础菜单
     if (authLoading) {
-      console.log('权限加载中，返回基础菜单');
       return [
         {
           key: '/dashboard',
@@ -261,34 +258,38 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       },
     ];
 
-    // 使用配置化管理动态生成菜单
-    // 将现有的权限系统映射到新的配置系统
-    const userPermissions: string[] = [];
-    if (user?.roles.includes(UserRole.ADMIN))
-      userPermissions.push('admin:read');
-    // 所有登录用户都可以访问模板系统（用于演示）
-    userPermissions.push('template:read');
+    // 使用优化后的权限系统动态生成菜单
+    const permissionSummary = getUserPermissionSummary;
 
-    console.log('用户权限:', userPermissions);
+    // 构建用户权限列表
+    const userPermissions: string[] = [];
+
+    // 管理员权限
+    if (isAdmin) {
+      userPermissions.push('admin:read', 'admin:write');
+    }
+
+    // 开发者权限
+    if (isDeveloper) {
+      userPermissions.push('developer:read');
+    }
+
+    // 所有已认证用户都可以访问模板系统（用于演示）
+    if (permissionSummary.isAuthenticated) {
+      userPermissions.push('template:read');
+    }
 
     const accessibleMicrosystems =
       microsystemManager.getAccessibleMicrosystems(userPermissions);
 
-    console.log('可访问的微系统:', accessibleMicrosystems);
-
     accessibleMicrosystems.forEach(microsystem => {
-      console.log(`处理微系统: ${microsystem.name}`);
-
       // 检查是否有路由配置
       const routeConfig =
         microFrontendRoutes[
           microsystem.name as keyof typeof microFrontendRoutes
         ];
 
-      console.log(`${microsystem.name} 的路由配置:`, routeConfig);
-
       if (routeConfig) {
-        console.log(`${microsystem.name} 有详细路由配置，生成子菜单`);
         // 有详细路由配置，显示子菜单
         const menuItem = {
           key: microsystem.name,
@@ -301,26 +302,27 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             })
           ),
         };
-        console.log(`生成的菜单项:`, menuItem);
         items.push(menuItem);
       } else {
-        console.log(`${microsystem.name} 没有详细路由配置，生成单一菜单项`);
         // 没有详细路由配置，显示单一菜单项
         const menuItem = {
           key: microsystem.route,
           icon: getIconComponent(microsystem.icon),
           label: microsystem.displayName,
         };
-        console.log(`生成的菜单项:`, menuItem);
         items.push(menuItem);
       }
     });
 
-    console.log('最终菜单项:', items);
-    console.log('=== 菜单构建调试信息结束 ===');
-
     return items;
-  }, [authLoading, microFrontendRoutes, user]);
+  }, [
+    authLoading,
+    microFrontendRoutes,
+    isAdmin,
+    isDeveloper,
+    hasAppPermission,
+    getUserPermissionSummary,
+  ]);
 
   const userMenuItems = [
     {

@@ -3,6 +3,7 @@ import React, {
   useContext,
   useState,
   useEffect,
+  useCallback,
   ReactNode,
 } from 'react';
 import {
@@ -21,42 +22,42 @@ interface AuthProviderProps {
   children: ReactNode;
 }
 
+// 模拟用户数据（移到组件外部避免依赖问题）
+const mockUsers = [
+  {
+    id: '1',
+    username: 'admin',
+    password: 'admin123',
+    name: '管理员',
+    role: UserRole.ADMIN,
+    roles: [UserRole.ADMIN],
+    permissions: [AppPermission.TEMPLATE],
+  },
+  {
+    id: '2',
+    username: 'developer',
+    password: 'dev123',
+    name: '开发者',
+    role: UserRole.DEVELOPER,
+    roles: [UserRole.DEVELOPER],
+    permissions: [AppPermission.TEMPLATE],
+  },
+  {
+    id: '3',
+    username: 'user',
+    password: 'user123',
+    name: '普通用户',
+    role: UserRole.USER,
+    roles: [UserRole.USER],
+    permissions: [AppPermission.DASHBOARD],
+  },
+];
+
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [permissions, setPermissions] = useState<Permissions | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitializing, setIsInitializing] = useState(true);
-
-  // 模拟用户数据
-  const mockUsers = [
-    {
-      id: '1',
-      username: 'admin',
-      password: 'admin123',
-      name: '管理员',
-      role: UserRole.ADMIN,
-      roles: [UserRole.ADMIN],
-      permissions: [AppPermission.TEMPLATE],
-    },
-    {
-      id: '2',
-      username: 'developer',
-      password: 'dev123',
-      name: '开发者',
-      role: UserRole.DEVELOPER,
-      roles: [UserRole.DEVELOPER],
-      permissions: [AppPermission.TEMPLATE],
-    },
-    {
-      id: '3',
-      username: 'user',
-      password: 'user123',
-      name: '普通用户',
-      role: UserRole.USER,
-      roles: [UserRole.USER],
-      permissions: [AppPermission.DASHBOARD],
-    },
-  ];
 
   useEffect(() => {
     const initializeAuth = async (): Promise<void> => {
@@ -138,7 +139,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     initializeAuth();
   }, []);
 
-  const login = async (credentials: LoginForm): Promise<void> => {
+  const login = useCallback(async (credentials: LoginForm): Promise<void> => {
     // 模拟API调用
     return new Promise((resolve, reject) => {
       window.setTimeout(() => {
@@ -177,48 +178,57 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
       }, 1000); // 模拟网络延迟
     });
-  };
+  }, []);
 
   // 只验证凭据并返回token，不存储到主应用
-  const loginAndGetToken = async (credentials: LoginForm): Promise<string> => {
-    return new Promise((resolve, reject) => {
-      window.setTimeout(() => {
-        const foundUser = mockUsers.find(
-          u =>
-            u.username === credentials.username &&
-            u.password === credentials.password
-        );
+  const loginAndGetToken = useCallback(
+    async (credentials: LoginForm): Promise<string> => {
+      return new Promise((resolve, reject) => {
+        window.setTimeout(() => {
+          const foundUser = mockUsers.find(
+            u =>
+              u.username === credentials.username &&
+              u.password === credentials.password
+          );
 
-        if (foundUser) {
-          // 生成模拟JWT token
-          const token = `mock_jwt_token_${foundUser.id}_${Date.now()}`;
-          resolve(token);
-        } else {
-          reject(new Error('用户名或密码错误'));
-        }
-      }, 1000); // 模拟网络延迟
-    });
-  };
+          if (foundUser) {
+            // 生成模拟JWT token
+            const token = `mock_jwt_token_${foundUser.id}_${Date.now()}`;
+            resolve(token);
+          } else {
+            reject(new Error('用户名或密码错误'));
+          }
+        }, 1000); // 模拟网络延迟
+      });
+    },
+    []
+  );
 
-  const logout = (): void => {
+  const logout = useCallback((): void => {
     // 使用AuthUtils统一清理
     AuthUtils.removeToken();
     setUser(null);
     setPermissions(null);
     setIsLoading(false);
-  };
+  }, []);
 
   const isAuthenticated = !!user;
 
   // 检查用户是否有特定应用权限
-  const hasPermission = (permission: AppPermission): boolean => {
-    return permissions?.apps?.includes(permission) || false;
-  };
+  const hasPermission = useCallback(
+    (permission: AppPermission): boolean => {
+      return permissions?.apps?.includes(permission) || false;
+    },
+    [permissions]
+  );
 
   // 检查用户是否有特定角色
-  const hasRole = (role: UserRole): boolean => {
-    return user?.roles?.includes(role) || false;
-  };
+  const hasRole = useCallback(
+    (role: UserRole): boolean => {
+      return user?.roles?.includes(role) || false;
+    },
+    [user]
+  );
 
   const value: AuthContextType = {
     user,

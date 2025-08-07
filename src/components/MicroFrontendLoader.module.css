@@ -147,3 +147,103 @@
   opacity: 1;
   transform: translateY(0);
 }
+
+/* 错误状态样式 */
+.errorCard {
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+}
+
+.errorContent {
+  text-align: center;
+  padding: 24px;
+}
+
+.errorActions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.errorInfo {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.appInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 16px;
+  background: #fafafa;
+  border-radius: 6px;
+}
+
+.appIcon {
+  font-size: 24px;
+  color: #1890ff;
+  flex-shrink: 0;
+}
+
+.appDetails h3 {
+  margin: 0 0 4px 0;
+  font-size: 18px;
+  font-weight: 600;
+  color: #262626;
+}
+
+.appDetails p {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .container {
+    height: calc(100vh - 56px);
+  }
+
+  .loadingCard {
+    padding: 32px 24px;
+    margin: 0 16px;
+  }
+
+  .loadingIcon {
+    font-size: 48px;
+  }
+
+  .loadingTitle {
+    font-size: 20px;
+  }
+
+  .errorCard {
+    margin: 0 16px;
+  }
+
+  .errorActions {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .errorActions button {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  .appInfo {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .appDetails h3 {
+    font-size: 16px;
+  }
+}

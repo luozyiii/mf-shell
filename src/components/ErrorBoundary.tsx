@@ -1,6 +1,8 @@
-import { Component, ErrorInfo, ReactNode } from 'react';
-import { Result, Button } from 'antd';
-import { ReloadOutlined, HomeOutlined } from '@ant-design/icons';
+import React, { Component, ReactNode } from 'react';
+import { Result, Button, Typography } from 'antd';
+import { ReloadOutlined, HomeOutlined, BugOutlined } from '@ant-design/icons';
+
+const { Paragraph, Text } = Typography;
 
 interface Props {
   children: ReactNode;
@@ -10,7 +12,8 @@ interface Props {
 interface State {
   hasError: boolean;
   error?: Error;
-  errorInfo?: ErrorInfo;
+  errorInfo?: string;
+  errorId?: string;
 }
 
 export class ErrorBoundary extends Component<Props, State> {
@@ -20,36 +23,71 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   static getDerivedStateFromError(error: Error): Partial<State> {
-    return { hasError: true, error };
+    const errorId = `error_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    return {
+      hasError: true,
+      error,
+      errorId,
+    };
   }
 
-  override componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
-    // 错误已被捕获，可以在这里添加错误上报逻辑
+  override componentDidCatch(error: Error, errorInfo: any): void {
+    const errorDetails = {
+      message: error.message,
+      stack: error.stack,
+      componentStack: errorInfo.componentStack,
+      timestamp: new Date().toISOString(),
+      userAgent: navigator.userAgent,
+      url: window.location.href,
+    };
+
+    console.error('ErrorBoundary caught an error:', errorDetails);
+
+    // 更新状态以包含错误信息
     this.setState({
-      error,
-      errorInfo,
+      errorInfo: JSON.stringify(errorDetails, null, 2),
     });
 
     // 这里可以添加错误上报逻辑
-    // reportError(error, errorInfo);
+    // reportError(errorDetails);
   }
 
-  handleReload = (): void => {
+  private handleReload = (): void => {
+    this.setState({
+      hasError: false,
+      error: undefined,
+      errorInfo: undefined,
+      errorId: undefined,
+    });
     window.location.reload();
   };
 
-  handleGoHome = (): void => {
-    window.location.href = '/dashboard';
+  private handleGoHome = (): void => {
+    this.setState({
+      hasError: false,
+      error: undefined,
+      errorInfo: undefined,
+      errorId: undefined,
+    });
+    window.location.href = '/';
+  };
+
+  private toggleErrorDetails = (): void => {
+    const details = document.getElementById('error-details');
+    if (details) {
+      details.style.display =
+        details.style.display === 'none' ? 'block' : 'none';
+    }
   };
 
   override render(): ReactNode {
     if (this.state.hasError) {
-      // 如果提供了自定义fallback，使用它
       if (this.props.fallback) {
         return this.props.fallback;
       }
 
-      // 默认错误页面
+      const { error, errorInfo, errorId } = this.state;
+
       return (
         <div
           style={{
@@ -62,53 +100,80 @@ export class ErrorBoundary extends Component<Props, State> {
           }}
         >
           <Result
-            status="500"
+            status="error"
+            icon={<BugOutlined />}
             title="页面出现错误"
-            subTitle="抱歉，页面遇到了一些问题。您可以尝试刷新页面或返回首页。"
+            subTitle={
+              <div>
+                <Paragraph>
+                  抱歉，页面遇到了一些问题。您可以尝试刷新页面或返回首页。
+                </Paragraph>
+                {errorId && (
+                  <Paragraph>
+                    <Text type="secondary">错误ID: {errorId}</Text>
+                  </Paragraph>
+                )}
+                {error && (
+                  <Paragraph>
+                    <Text type="danger">{error.message}</Text>
+                  </Paragraph>
+                )}
+              </div>
+            }
             extra={[
               <Button
+                key="reload"
                 type="primary"
                 icon={<ReloadOutlined />}
                 onClick={this.handleReload}
-                key="reload"
               >
                 刷新页面
               </Button>,
               <Button
+                key="home"
                 icon={<HomeOutlined />}
                 onClick={this.handleGoHome}
-                key="home"
               >
                 返回首页
               </Button>,
-            ]}
+              process.env.NODE_ENV === 'development' && errorInfo && (
+                <Button
+                  key="details"
+                  type="dashed"
+                  icon={<BugOutlined />}
+                  onClick={this.toggleErrorDetails}
+                >
+                  查看详情
+                </Button>
+              ),
+            ].filter(Boolean)}
           >
-            {typeof process !== 'undefined' &&
-              process.env?.['NODE_ENV'] === 'development' && (
-                <div
+            {process.env.NODE_ENV === 'development' && errorInfo && (
+              <div
+                id="error-details"
+                style={{
+                  display: 'none',
+                  marginTop: 16,
+                  padding: 16,
+                  backgroundColor: '#f5f5f5',
+                  borderRadius: 4,
+                  textAlign: 'left',
+                }}
+              >
+                <Text strong>错误详情 (仅开发环境显示):</Text>
+                <pre
                   style={{
-                    marginTop: '20px',
-                    padding: '16px',
-                    background: '#fff',
-                    border: '1px solid #d9d9d9',
-                    borderRadius: '6px',
-                    textAlign: 'left',
+                    marginTop: 8,
+                    fontSize: 12,
+                    maxHeight: 300,
+                    overflow: 'auto',
+                    whiteSpace: 'pre-wrap',
                   }}
                 >
-                  <h4>错误详情（仅开发环境显示）：</h4>
-                  <pre
-                    style={{
-                      fontSize: '12px',
-                      color: '#666',
-                      whiteSpace: 'pre-wrap',
-                      wordBreak: 'break-word',
-                    }}
-                  >
-                    {this.state.error?.toString()}
-                    {this.state.errorInfo?.componentStack}
-                  </pre>
-                </div>
-              )}
+                  {errorInfo}
+                </pre>
+              </div>
+            )}
           </Result>
         </div>
       );
