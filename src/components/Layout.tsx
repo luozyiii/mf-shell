@@ -135,50 +135,48 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       // 最简单的模块联邦导入
       for (const microsystem of accessibleMicrosystems) {
-        if (microsystem.useModuleFederation) {
-          // 避免重复加载
-          if (microFrontendRoutes[microsystem.name]) {
-            continue;
-          }
+        // 避免重复加载
+        if (microFrontendRoutes[microsystem.name]) {
+          continue;
+        }
 
-          // 重试机制
-          let retryCount = 0;
-          const maxRetries = 3;
+        // 重试机制
+        let retryCount = 0;
+        const maxRetries = 3;
 
-          while (retryCount < maxRetries) {
-            try {
-              // 使用静态导入路径 - 参考 ModuleFederationLoader 的成功实现
-              let remoteModule: any;
+        while (retryCount < maxRetries) {
+          try {
+            // 使用静态导入路径 - 参考 ModuleFederationLoader 的成功实现
+            let remoteModule: any;
 
-              if (microsystem.name === 'template') {
-                // @ts-ignore
-                remoteModule = await import('template/routes');
-              } else {
-                throw new Error(`Unknown remote: ${microsystem.name}`);
-              }
+            if (microsystem.name === 'template') {
+              // @ts-ignore
+              remoteModule = await import('template/routes');
+            } else {
+              throw new Error(`Unknown remote: ${microsystem.name}`);
+            }
 
-              const routeConfig =
-                remoteModule.default || remoteModule.templateRoutes;
+            const routeConfig =
+              remoteModule.default || remoteModule.templateRoutes;
 
-              if (routeConfig) {
-                setMicroFrontendRoutes(prev => ({
-                  ...prev,
-                  [microsystem.name]: routeConfig,
-                }));
-                break; // 成功加载，跳出重试循环
-              }
-            } catch (error: any) {
-              retryCount++;
-              if (retryCount >= maxRetries) {
-                console.error(
-                  `加载 ${microsystem.name} 路由失败 (重试${maxRetries}次):`,
-                  error.message
-                );
-                // 静默处理失败，等待子应用通过postMessage发送路由配置
-              } else {
-                // 等待一段时间后重试
-                await new Promise(resolve => window.setTimeout(resolve, 1000));
-              }
+            if (routeConfig) {
+              setMicroFrontendRoutes(prev => ({
+                ...prev,
+                [microsystem.name]: routeConfig,
+              }));
+              break; // 成功加载，跳出重试循环
+            }
+          } catch (error: any) {
+            retryCount++;
+            if (retryCount >= maxRetries) {
+              console.error(
+                `加载 ${microsystem.name} 路由失败 (重试${maxRetries}次):`,
+                error.message
+              );
+              // 静默处理失败，等待子应用通过postMessage发送路由配置
+            } else {
+              // 等待一段时间后重试
+              await new Promise(resolve => window.setTimeout(resolve, 1000));
             }
           }
         }
@@ -186,7 +184,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     };
 
     loadMicroFrontendRoutes();
-  }, [authLoading, user, microFrontendRoutes]); // 依赖权限、用户信息和微前端路由的变化
+  }, [authLoading, user]); // 依赖权限、用户信息的变化
 
   // 根据当前路由自动设置展开的菜单
   useEffect(() => {

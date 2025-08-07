@@ -249,8 +249,9 @@ export class AuthUtils {
    */
   static redirectToLogin(returnUrl?: string): void {
     const currentUrl = returnUrl || window.location.href;
-    // 跳转到主应用登录页面
-    window.location.href = `http://localhost:3000/login?returnUrl=${encodeURIComponent(currentUrl)}`;
+    // 使用环境配置管理器获取登录URL
+    const { environmentManager } = require('../config/environment');
+    window.location.href = environmentManager.buildAuthUrl(currentUrl);
   }
 
   /**
@@ -258,9 +259,10 @@ export class AuthUtils {
    */
   static logout(): void {
     this.removeToken();
-    // 跳转到主应用登录页面，携带当前页面作为回调地址
+    // 使用环境配置管理器获取登录URL
+    const { environmentManager } = require('../config/environment');
     const currentUrl = window.location.href;
-    window.location.href = `http://localhost:3000/login?returnUrl=${encodeURIComponent(currentUrl)}`;
+    window.location.href = environmentManager.buildAuthUrl(currentUrl);
   }
 
   /**

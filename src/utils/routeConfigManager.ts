@@ -42,9 +42,7 @@ class RouteConfigManager {
 
     await Promise.all(
       enabledApps.map(async app => {
-        if (app.useModuleFederation) {
-          routeConfigs[app.name] = await this.getRouteConfigForApp(app.name);
-        }
+        routeConfigs[app.name] = await this.getRouteConfigForApp(app.name);
       })
     );
 
@@ -111,6 +109,7 @@ class RouteConfigManager {
     if (appName === 'template') {
       try {
         // 尝试加载 template
+        // @ts-ignore
         const routeModule = await import('template/routes');
         const routeConfig = routeModule.default || routeModule.templateRoutes;
 
@@ -168,15 +167,13 @@ class RouteConfigManager {
 
     await Promise.all(
       enabledApps.map(async app => {
-        if (app.useModuleFederation) {
-          try {
-            await this.getRouteConfigForApp(app.name);
-          } catch (error) {
-            console.warn(
-              `Failed to preload route config for ${app.name}:`,
-              error
-            );
-          }
+        try {
+          await this.getRouteConfigForApp(app.name);
+        } catch (error) {
+          console.warn(
+            `Failed to preload route config for ${app.name}:`,
+            error
+          );
         }
       })
     );

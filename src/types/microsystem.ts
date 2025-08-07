@@ -23,9 +23,6 @@ export interface MicrosystemConfig {
   permissions: string[];
   menuOrder: number;
   category: MicrosystemCategory;
-  // 模块联邦相关配置
-  useMicroFrontend?: boolean; // 是否使用 iframe 方式
-  useModuleFederation?: boolean; // 是否使用模块联邦
 }
 
 // 微前端系统集合类型
@@ -53,13 +50,6 @@ export type ModuleFederationRemotes = Record<string, string>;
 
 // 权限检查函数类型
 export type PermissionChecker = () => boolean;
-
-// 微前端加载器属性接口
-export interface MicroFrontendLoaderProps {
-  name: string;
-  host: string;
-  path?: string;
-}
 
 // 应用权限类型（扩展版本，支持字符串）
 export type AppPermissionType = 'template' | string;

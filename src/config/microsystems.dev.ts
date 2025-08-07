@@ -1,3 +1,5 @@
+import { environmentManager } from './environment';
+
 // 开发环境微前端子系统配置
 export const devMicrosystems = {
   // 模板系统（开发测试用）- 使用模块联邦
@@ -6,16 +8,78 @@ export const devMicrosystems = {
     displayName: '模板系统',
     description: '微前端子系统模板和示例',
     icon: 'AppstoreOutlined',
-    host: 'http://localhost:3003',
-    remoteEntry: 'http://localhost:3003/remoteEntry.js',
-    route: '/template', // 保持基础路由，但具体页面使用模块联邦
-    enabled: true, // 启用模块联邦方式
-    permissions: ['template:read'], // 改为模板系统专用权限
+    host: environmentManager.buildMicrofrontendUrl('template'),
+    remoteEntry: `${environmentManager.buildMicrofrontendUrl('template')}/remoteEntry.js`,
+    route: '/template',
+    enabled: environmentManager.isMicrofrontendAppEnabled('template'),
+    permissions: ['template:read'],
     menuOrder: 1,
     category: 'development',
-    // 新增模块联邦配置
-    useMicroFrontend: false, // 不使用 iframe
-    useModuleFederation: true, // 使用模块联邦
+    routeModule: 'template/routes',
+  },
+
+  // 营销系统
+  marketing: {
+    name: 'marketing',
+    displayName: '营销系统',
+    description: '营销活动管理和数据分析',
+    icon: 'RocketOutlined',
+    host: environmentManager.buildMicrofrontendUrl('marketing'),
+    remoteEntry: `${environmentManager.buildMicrofrontendUrl('marketing')}/remoteEntry.js`,
+    route: '/marketing',
+    enabled: environmentManager.isMicrofrontendAppEnabled('marketing'),
+    permissions: ['marketing:read'],
+    menuOrder: 2,
+    category: 'business',
+    routeModule: 'marketing/routes',
+  },
+
+  // 财务系统
+  finance: {
+    name: 'finance',
+    displayName: '财务系统',
+    description: '财务数据管理和报表分析',
+    icon: 'DollarOutlined',
+    host: environmentManager.buildMicrofrontendUrl('finance'),
+    remoteEntry: `${environmentManager.buildMicrofrontendUrl('finance')}/remoteEntry.js`,
+    route: '/finance',
+    enabled: environmentManager.isMicrofrontendAppEnabled('finance'),
+    permissions: ['finance:read'],
+    menuOrder: 3,
+    category: 'business',
+    routeModule: 'finance/routes',
+  },
+
+  // 用户管理系统
+  user: {
+    name: 'user',
+    displayName: '用户管理',
+    description: '用户账户和权限管理',
+    icon: 'UserOutlined',
+    host: environmentManager.buildMicrofrontendUrl('user'),
+    remoteEntry: `${environmentManager.buildMicrofrontendUrl('user')}/remoteEntry.js`,
+    route: '/user',
+    enabled: environmentManager.isMicrofrontendAppEnabled('user'),
+    permissions: ['user:read', 'user:write', 'admin:read'],
+    menuOrder: 4,
+    category: 'system',
+    routeModule: 'user/routes',
+  },
+
+  // 库存管理系统
+  inventory: {
+    name: 'inventory',
+    displayName: '库存管理',
+    description: '库存管理和供应链控制',
+    icon: 'InboxOutlined',
+    host: environmentManager.buildMicrofrontendUrl('inventory'),
+    remoteEntry: `${environmentManager.buildMicrofrontendUrl('inventory')}/remoteEntry.js`,
+    route: '/inventory',
+    enabled: environmentManager.isMicrofrontendAppEnabled('inventory'),
+    permissions: ['inventory:read'],
+    menuOrder: 5,
+    category: 'business',
+    routeModule: 'inventory/routes',
   },
 } as const;
 

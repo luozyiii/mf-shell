@@ -1,0 +1,112 @@
+.container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  flex-direction: column;
+}
+
+.loadingCard {
+  text-align: center;
+  padding: 40px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+}
+
+.loadingIcon {
+  font-size: 48px;
+  color: #1890ff;
+  margin-bottom: 16px;
+}
+
+.loadingTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #262626;
+  margin-bottom: 8px;
+}
+
+.loadingText {
+  font-size: 14px;
+  color: #8c8c8c;
+  margin-bottom: 24px;
+}
+
+.loadingProgress {
+  width: 100%;
+  height: 4px;
+  background: #f0f0f0;
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 16px;
+}
+
+.loadingProgressBar {
+  height: 100%;
+  background: linear-gradient(90deg, #1890ff, #40a9ff);
+  border-radius: 2px;
+  animation: loading 2s ease-in-out infinite;
+}
+
+.loadingTips {
+  font-size: 12px;
+  color: #bfbfbf;
+}
+
+@keyframes loading {
+  0% {
+    width: 0%;
+    margin-left: 0%;
+  }
+  50% {
+    width: 75%;
+    margin-left: 25%;
+  }
+  100% {
+    width: 0%;
+    margin-left: 100%;
+  }
+}
+
+.errorContainer {
+  padding: 20px;
+  text-align: center;
+}
+
+.errorCard {
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.errorIcon {
+  font-size: 48px;
+  color: #ff4d4f;
+  margin-bottom: 16px;
+}
+
+.errorTitle {
+  font-size: 18px;
+  font-weight: 600;
+  color: #262626;
+  margin-bottom: 8px;
+}
+
+.errorMessage {
+  font-size: 14px;
+  color: #8c8c8c;
+  margin-bottom: 24px;
+}
+
+.errorActions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}

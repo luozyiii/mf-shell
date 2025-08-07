@@ -40,14 +40,11 @@ export const useDynamicRoutes = () => {
     const enabledMicrosystems = microsystemManager.getEnabledMicrosystems();
 
     enabledMicrosystems.forEach(microsystem => {
-      // 只处理使用模块联邦的应用
-      if (microsystem.useModuleFederation) {
-        const appRouteConfigs = routeConfigs[microsystem.name] || [];
+      const appRouteConfigs = routeConfigs[microsystem.name] || [];
 
-        appRouteConfigs.forEach(routeConfig => {
-          allRoutes.push({ microsystem, routeConfig });
-        });
-      }
+      appRouteConfigs.forEach(routeConfig => {
+        allRoutes.push({ microsystem, routeConfig });
+      });
     });
 
     return allRoutes;

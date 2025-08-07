@@ -13,7 +13,7 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { microsystemManager } from '../config/microsystems';
 // import { Microsystem } from '../types/microsystem';
-import styles from './MicroFrontendLoader.module.css';
+import styles from './ModuleFederationLoader.module.css';
 
 const { Paragraph } = Typography;
 
@@ -38,15 +38,19 @@ const loadRemoteComponent = (
       if (name === 'template') {
         switch (componentName) {
           case 'Dashboard':
+            // @ts-ignore
             module = await import('template/Dashboard');
             break;
           case 'Feature1':
+            // @ts-ignore
             module = await import('template/Feature1');
             break;
           case 'Feature2':
+            // @ts-ignore
             module = await import('template/Feature2');
             break;
           case 'Settings':
+            // @ts-ignore
             module = await import('template/Settings');
             break;
           default:
