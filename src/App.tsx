@@ -13,6 +13,7 @@ import Layout from './components/Layout';
 import { LayoutSkeleton } from './components/LayoutSkeleton';
 import { ModuleFederationLoader } from './components/ModuleFederationLoader';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { useDynamicRoutes } from './components/DynamicRoutes';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { NotFound } from './pages/NotFound';
@@ -26,6 +27,7 @@ const basename: string =
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, isLoading, isInitializing } = useAuth();
+  const { isLoading: routesLoading, getAllDynamicRoutes } = useDynamicRoutes();
 
   // GitHub Pages SPA 路由支持
   useEffect(() => {
@@ -45,6 +47,9 @@ const AppContent: React.FC = () => {
     return <LayoutSkeleton />;
   }
 
+  // 获取所有动态路由
+  const dynamicRoutes = getAllDynamicRoutes();
+
   return (
     <Router basename={basename}>
       <Routes>
@@ -60,59 +65,24 @@ const AppContent: React.FC = () => {
           }
         />
 
-        {/* Template 模块联邦路由 */}
-        <Route
-          path="/template/dashboard"
-          element={
-            <ProtectedRoute requiredApp="template">
-              <Layout>
-                <ModuleFederationLoader
-                  name="template"
-                  componentName="Dashboard"
-                />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/template/feature1"
-          element={
-            <ProtectedRoute requiredApp="template">
-              <Layout>
-                <ModuleFederationLoader
-                  name="template"
-                  componentName="Feature1"
-                />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/template/feature2"
-          element={
-            <ProtectedRoute requiredApp="template">
-              <Layout>
-                <ModuleFederationLoader
-                  name="template"
-                  componentName="Feature2"
-                />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/template/settings"
-          element={
-            <ProtectedRoute requiredApp="template">
-              <Layout>
-                <ModuleFederationLoader
-                  name="template"
-                  componentName="Settings"
-                />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
+        {/* 动态微前端路由 - 根据配置自动生成 */}
+        {!routesLoading &&
+          dynamicRoutes.map(({ microsystem, routeConfig }) => (
+            <Route
+              key={routeConfig.path}
+              path={routeConfig.path}
+              element={
+                <ProtectedRoute requiredApp={microsystem.name}>
+                  <Layout>
+                    <ModuleFederationLoader
+                      name={microsystem.name}
+                      componentName={routeConfig.component}
+                    />
+                  </Layout>
+                </ProtectedRoute>
+              }
+            />
+          ))}
 
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         {/* 404 页面 - 必须放在最后 */}

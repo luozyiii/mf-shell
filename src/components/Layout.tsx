@@ -87,8 +87,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   });
 
   const { user, logout, isLoading: authLoading } = useAuth();
-  const { hasAppPermission, isAdmin, isDeveloper, getUserPermissionSummary } =
-    usePermissions();
+  const { isAdmin, isDeveloper, getUserPermissionSummary } = usePermissions();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -320,7 +319,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     microFrontendRoutes,
     isAdmin,
     isDeveloper,
-    hasAppPermission,
     getUserPermissionSummary,
   ]);
 
