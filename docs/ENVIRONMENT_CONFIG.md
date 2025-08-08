@@ -1,8 +1,8 @@
-# 环境配置化文档
+# 环境配置指南
 
 ## 概述
 
-本项目实现了完整的环境配置化方案，支持通过环境变量动态配置应用的各项参数，提高了系统的灵活性和可维护性。
+本文档详细说明了mf-shell项目的环境配置方案，包括开发、测试和生产环境的配置方法、变量说明和使用示例。
 
 ## 配置结构
 
@@ -147,10 +147,8 @@ REACT_APP_LOG_LEVEL=error
 3. 在 `.env.example` 中添加示例
 4. 更新此文档
 
-## 相关文件
+## 相关文档
 
-- `src/config/environment.ts` - 环境配置管理器
-- `src/config/microsystems.dev.ts` - 开发环境微前端配置
-- `src/config/microsystems.prod.ts` - 生产环境微前端配置
-- `.env.example` - 环境变量示例文件
-- `src/utils/authUtils.ts` - 认证工具（使用环境配置）
+- [微前端配置指南](./MICROSYSTEM_CONFIG.md)
+- [部署指南](./DEPLOYMENT.md)
+- [开发规范](./DEV_STANDARDS.md)

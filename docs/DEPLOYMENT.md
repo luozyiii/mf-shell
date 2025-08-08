@@ -7,6 +7,7 @@
 ### 1. GitHub 仓库设置
 
 1. **推送代码到 GitHub**：
+
    ```bash
    git add .
    git commit -m "feat: add GitHub Pages deployment"
@@ -32,6 +33,7 @@ GitHub Actions workflow (`.github/workflows/deploy.yml`) 会在以下情况下�
 - 手动触发 workflow
 
 **部署流程**：
+
 1. 检出代码
 2. 设置 Node.js 环境
 3. 安装依赖
@@ -41,6 +43,7 @@ GitHub Actions workflow (`.github/workflows/deploy.yml`) 会在以下情况下�
 ### 3. 访问部署的应用
 
 部署完成后，应用将可通过以下 URL 访问：
+
 ```
 https://<your-username>.github.io/mf-shell/
 ```
@@ -88,9 +91,10 @@ export default defineConfig({
   },
   output: {
     // GitHub Pages 部署配置
-    assetPrefix: process.env.NODE_ENV === 'production'
-      ? '/mf-shell/' // 仓库名
-      : '/',
+    assetPrefix:
+      process.env.NODE_ENV === 'production'
+        ? '/mf-shell/' // 仓库名
+        : '/',
   },
   html: {
     title: '微前端主应用',
@@ -111,6 +115,7 @@ export default defineConfig({
 如果你的仓库名不是 `mf-shell`，需要修改以下文件：
 
 1. **rsbuild.config.ts**：
+
    ```typescript
    assetPrefix: process.env.NODE_ENV === 'production'
      ? '/your-repo-name/' // 替换为你的仓库名
@@ -129,8 +134,10 @@ export default createModuleFederationConfig({
   name: 'shell',
   remotes: {
     // 生产环境中的远程模块地址
-    marketing: 'marketing@https://your-username.github.io/mf-marketing/remoteEntry.js',
-    finance: 'finance@https://your-username.github.io/mf-finance/remoteEntry.js',
+    marketing:
+      'marketing@https://your-username.github.io/mf-marketing/remoteEntry.js',
+    finance:
+      'finance@https://your-username.github.io/mf-finance/remoteEntry.js',
   },
   // ... 其他配置
 });
@@ -141,6 +148,7 @@ export default createModuleFederationConfig({
 如果要使用自定义域名：
 
 1. 在仓库根目录创建 `public/CNAME` 文件：
+
    ```
    your-domain.com
    ```
@@ -170,6 +178,7 @@ export default createModuleFederationConfig({
 
 **问题**: 远程微前端模块无法加载
 **解决**:
+
 - 检查远程模块地址是否正确
 - 确认远程微前端应用已部署并可访问
 - 检查跨域配置是否正确
@@ -183,6 +192,7 @@ export default createModuleFederationConfig({
 
 **问题**: GitHub Actions 构建失败
 **解决**:
+
 - 检查 Node.js 版本兼容性
 - 确认所有依赖都已正确安装
 - 查看 Actions 日志获取详细错误信息
