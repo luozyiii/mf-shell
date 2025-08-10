@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
+import { HelmetProvider } from 'react-helmet-async';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Layout from './components/Layout';
@@ -102,11 +103,13 @@ const AppContent: React.FC = () => {
 const App: React.FC = () => {
   return (
     <ErrorBoundary>
-      <ConfigProvider locale={zhCN}>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
-      </ConfigProvider>
+      <HelmetProvider>
+        <ConfigProvider locale={zhCN}>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </ConfigProvider>
+      </HelmetProvider>
     </ErrorBoundary>
   );
 };

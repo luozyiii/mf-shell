@@ -15,6 +15,7 @@ import {
 } from '@ant-design/icons';
 import { Layout as AntLayout, Avatar, Button, Dropdown, Menu } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { microsystemManager } from '../config/microsystems';
 import { APP_CONFIG } from '../constants';
@@ -439,105 +440,112 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   );
 
   return (
-    <AntLayout className={styles['layout']}>
-      <Sider
-        trigger={null}
-        collapsible
-        collapsed={collapsed}
-        className={`${styles['sider']} ${authLoading ? styles['siderLoading'] : ''}`}
-      >
-        <div
-          className={`${styles['logo']} ${collapsed ? styles['logoCollapsed'] : styles['logoExpanded']}`}
+    <>
+      <Helmet>
+        <title>
+          {currentPageInfo.title} - {APP_CONFIG.APP_NAME}
+        </title>
+      </Helmet>
+      <AntLayout style={{ minHeight: '100vh' }}>
+        <Sider
+          trigger={null}
+          collapsible
+          collapsed={collapsed}
+          className={`${styles['sider']} ${authLoading ? styles['siderLoading'] : ''}`}
         >
-          {collapsed ? APP_CONFIG.APP_SHORT_NAME : APP_CONFIG.APP_NAME}
-        </div>
-        <div className={styles['menuContainer']}>
-          {authLoading ? (
-            <MenuSkeleton />
-          ) : (
-            <Menu
-              theme="dark"
-              mode="inline"
-              selectedKeys={[location.pathname]}
-              openKeys={openKeys}
-              onOpenChange={setOpenKeys}
-              items={menuItems}
-              onClick={handleMenuClick}
-              className={`${styles['menu']} ${authLoading ? styles['menuLoading'] : ''}`}
+          <div
+            className={`${styles['logo']} ${collapsed ? styles['logoCollapsed'] : styles['logoExpanded']}`}
+          >
+            {collapsed ? APP_CONFIG.APP_SHORT_NAME : APP_CONFIG.APP_NAME}
+          </div>
+          <div className={styles['menuContainer']}>
+            {authLoading ? (
+              <MenuSkeleton />
+            ) : (
+              <Menu
+                theme="dark"
+                mode="inline"
+                selectedKeys={[location.pathname]}
+                openKeys={openKeys}
+                onOpenChange={setOpenKeys}
+                items={menuItems}
+                onClick={handleMenuClick}
+                className={`${styles['menu']} ${authLoading ? styles['menuLoading'] : ''}`}
+              />
+            )}
+          </div>
+
+          {/* 折叠按钮 */}
+          <div className={styles['collapseButtonContainer']}>
+            <Button
+              type="text"
+              icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
+              onClick={() => setCollapsed(!collapsed)}
+              className={styles['collapseButton'] || ''}
+              title={collapsed ? '展开菜单' : '折叠菜单'}
             />
-          )}
-        </div>
-
-        {/* 折叠按钮 */}
-        <div className={styles['collapseButtonContainer']}>
-          <Button
-            type="text"
-            icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
-            onClick={() => setCollapsed(!collapsed)}
-            className={styles['collapseButton'] || ''}
-            title={collapsed ? '展开菜单' : '折叠菜单'}
-          />
-        </div>
-      </Sider>
-      <AntLayout
-        className={`${styles['rightLayout']} ${collapsed ? styles['rightLayoutCollapsed'] : styles['rightLayoutExpanded']}`}
-      >
-        <Header
-          className={`${styles['header']} ${collapsed ? styles['headerCollapsed'] : styles['headerExpanded']}`}
-        >
-          <div className={styles['headerLeft']}>
-            {/* 页面标题区域 */}
-            <div className={styles['pageTitle']}>
-              {currentPageInfo.showBack && (
-                <Button
-                  type="text"
-                  icon={<LeftOutlined />}
-                  onClick={handleBack}
-                  className={styles['backButton'] || ''}
-                />
-              )}
-              <span className={styles['pageTitleText']}>
-                {currentPageInfo.title}
-              </span>
-            </div>
           </div>
-
-          <div className={styles['headerRight']}>
-            {/* 欢迎信息 */}
-            <div className={styles['welcomeText']}>
-              {authLoading
-                ? '加载中...'
-                : `欢迎回来！今天是 ${DateUtil.formatToChineseDate()}`}
-            </div>
-
-            {/* 用户信息区域 */}
-            <Dropdown
-              menu={{ items: userMenuItems }}
-              placement="bottomRight"
-              trigger={['click']}
-            >
-              <div className={styles['userInfo']}>
-                <Avatar
-                  size={32}
-                  icon={<UserOutlined />}
-                  className={styles['userAvatar'] || ''}
-                />
-                <div className={styles['userDetails']}>
-                  <div className={styles['userName']}>{user?.name}</div>
-                </div>
-                <div className={styles['dropdownArrow']}>▼</div>
+        </Sider>
+        <AntLayout
+          className={`${styles['rightLayout']} ${collapsed ? styles['rightLayoutCollapsed'] : styles['rightLayoutExpanded']}`}
+        >
+          <Header
+            className={`${styles['header']} ${collapsed ? styles['headerCollapsed'] : styles['headerExpanded']}`}
+          >
+            <div className={styles['headerLeft']}>
+              {/* 页面标题区域 */}
+              <div className={styles['pageTitle']}>
+                {currentPageInfo.showBack && (
+                  <Button
+                    type="text"
+                    icon={<LeftOutlined />}
+                    onClick={handleBack}
+                    className={styles['backButton'] || ''}
+                  />
+                )}
+                <span className={styles['pageTitleText']}>
+                  {currentPageInfo.title}
+                </span>
               </div>
-            </Dropdown>
-          </div>
-        </Header>
-        <Content
-          className={`${styles['content']} ${contentLoading ? styles['contentLoading'] : ''}`}
-          key={contentKey}
-        >
-          <div className={styles['contentEntering']}>{children}</div>
-        </Content>
+            </div>
+
+            <div className={styles['headerRight']}>
+              {/* 欢迎信息 */}
+              <div className={styles['welcomeText']}>
+                {authLoading
+                  ? '加载中...'
+                  : `欢迎回来！今天是 ${DateUtil.formatToChineseDate()}`}
+              </div>
+
+              {/* 用户信息区域 */}
+              <Dropdown
+                menu={{ items: userMenuItems }}
+                placement="bottomRight"
+                trigger={['click']}
+              >
+                <div className={styles['userInfo']}>
+                  <Avatar
+                    size={32}
+                    icon={<UserOutlined />}
+                    className={styles['userAvatar'] || ''}
+                  />
+                  <div className={styles['userDetails']}>
+                    <div className={styles['userName']}>{user?.name}</div>
+                  </div>
+                  <div className={styles['dropdownArrow']}>▼</div>
+                </div>
+              </Dropdown>
+            </div>
+          </Header>
+          <Content
+            className={`${styles['content']} ${contentLoading ? styles['contentLoading'] : ''}`}
+            key={contentKey}
+          >
+            <div className={styles['contentEntering']}>{children}</div>
+          </Content>
+        </AntLayout>
       </AntLayout>
-    </AntLayout>
+    </>
   );
 };
 
