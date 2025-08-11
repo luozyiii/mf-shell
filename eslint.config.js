@@ -12,61 +12,26 @@ module.exports = [
   {
     files: ['**/*.{js,jsx,ts,tsx}'],
     languageOptions: {
+      ecmaVersion: 'latest',
+      sourceType: 'module',
       parser: typescriptParser,
       parserOptions: {
-        ecmaVersion: 2021,
-        sourceType: 'module',
         ecmaFeatures: {
           jsx: true,
         },
       },
       globals: {
-        console: 'readonly',
-        process: 'readonly',
-        Buffer: 'readonly',
-        __dirname: 'readonly',
-        __filename: 'readonly',
-        module: 'readonly',
-        require: 'readonly',
-        window: 'readonly',
-        document: 'readonly',
-        navigator: 'readonly',
-        localStorage: 'readonly',
-        sessionStorage: 'readonly',
-        URL: 'readonly',
-        URLSearchParams: 'readonly',
-        fetch: 'readonly',
-        Headers: 'readonly',
-        Request: 'readonly',
-        Response: 'readonly',
-        MessageEvent: 'readonly',
-        HTMLIFrameElement: 'readonly',
-        Window: 'readonly',
-        // 定时器函数
-        setTimeout: 'readonly',
-        clearTimeout: 'readonly',
-        setInterval: 'readonly',
-        clearInterval: 'readonly',
-        setImmediate: 'readonly',
-        clearImmediate: 'readonly',
-        // 其他常用全局函数
-        alert: 'readonly',
-        confirm: 'readonly',
-        prompt: 'readonly',
-        parseInt: 'readonly',
-        parseFloat: 'readonly',
-        isNaN: 'readonly',
-        isFinite: 'readonly',
-        encodeURIComponent: 'readonly',
-        decodeURIComponent: 'readonly',
-        encodeURI: 'readonly',
-        decodeURI: 'readonly',
-        btoa: 'readonly',
-        atob: 'readonly',
-        // 全局对象
-        global: 'readonly',
-        globalThis: 'readonly',
-        self: 'readonly',
+        ...require('globals').browser,
+        ...require('globals').node,
+        ...require('globals').es2021,
+        // 添加一些特定的类型定义
+        RequestInfo: 'readonly',
+        RequestInit: 'readonly',
+        XMLHttpRequestBodyInit: 'readonly',
+        PerformanceObserver: 'readonly',
+        PerformanceEntry: 'readonly',
+        PerformanceNavigationTiming: 'readonly',
+        PerformanceResourceTiming: 'readonly',
       },
     },
     plugins: {
@@ -78,7 +43,15 @@ module.exports = [
     },
     rules: {
       // TypeScript 规则
-      '@typescript-eslint/no-unused-vars': 'error',
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          ignoreRestSiblings: true,
+          args: 'after-used',
+        },
+      ],
       '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-explicit-any': 'off',
 
@@ -94,6 +67,7 @@ module.exports = [
       'no-debugger': 'error',
       'prefer-const': 'error',
       'no-var': 'error',
+      'no-unused-vars': 'off', // 使用 TypeScript 版本
       eqeqeq: ['error', 'always'],
       curly: ['error', 'all'],
 
