@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback } from 'react';
 import { performanceMonitor } from '../utils/performanceMonitor';
 
 /**
@@ -69,95 +69,8 @@ export const usePerformanceMonitor = () => {
   };
 };
 
-/**
- * 组件性能监控Hook
- * 自动监控组件的挂载、更新和卸载性能
- */
-export const useComponentPerformance = (componentName: string) => {
-  const mountTimeRef = useRef<number>(0);
-  const renderCountRef = useRef<number>(0);
+// useComponentPerformance 已移至独立文件 ./useComponentPerformance.ts
+// 请使用: import { useComponentPerformance } from './useComponentPerformance';
 
-  useEffect(() => {
-    // 记录组件挂载时间
-    mountTimeRef.current = performance.now();
-    performanceMonitor.startTimer(`${componentName}_mount`);
-
-    return () => {
-      // 记录组件卸载
-      const unmountTime = performance.now();
-      const mountDuration = unmountTime - mountTimeRef.current;
-
-      performanceMonitor.recordMetric({
-        name: `${componentName}_unmount`,
-        value: mountDuration,
-        type: 'timing' as any,
-        metadata: {
-          renderCount: renderCountRef.current,
-        },
-      });
-    };
-  }, [componentName]);
-
-  useEffect(() => {
-    // 记录组件渲染
-    renderCountRef.current += 1;
-
-    if (renderCountRef.current === 1) {
-      // 首次渲染完成
-      performanceMonitor.endTimer(`${componentName}_mount`, {
-        firstRender: true,
-      });
-    } else {
-      // 后续渲染
-      performanceMonitor.recordMetric({
-        name: `${componentName}_render`,
-        value: performance.now(),
-        type: 'counter' as any,
-        metadata: {
-          renderCount: renderCountRef.current,
-        },
-      });
-    }
-  });
-
-  return {
-    renderCount: renderCountRef.current,
-  };
-};
-
-/**
- * API调用性能监控Hook
- */
-export const useApiPerformance = () => {
-  const trackApiCall = useCallback(
-    async <T>(
-      apiName: string,
-      apiCall: () => Promise<T>,
-      metadata?: Record<string, unknown>
-    ): Promise<T> => {
-      const timerName = `api_${apiName}`;
-      performanceMonitor.startTimer(timerName);
-
-      try {
-        const result = await apiCall();
-        performanceMonitor.endTimer(timerName, {
-          status: 'success',
-          ...metadata,
-        });
-        return result;
-      } catch (error) {
-        performanceMonitor.endTimer(timerName, {
-          status: 'error',
-          error: error instanceof Error ? error.message : 'Unknown error',
-          ...metadata,
-        });
-        throw error;
-      }
-    },
-    []
-  );
-
-  return {
-    trackApiCall,
-  };
-};
+// useApiPerformance 已移至独立文件 ./useApiPerformance.ts
+// 请使用: import { useApiPerformance } from './useApiPerformance';

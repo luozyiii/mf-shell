@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { performanceMonitor } from '../utils/performanceMonitor';
+import { performanceMonitor, MetricType } from '../utils/performanceMonitor';
 
 /**
  * 组件性能监控Hook
@@ -15,7 +15,7 @@ export const useComponentPerformance = (componentName: string) => {
     performanceMonitor.recordMetric({
       name: `component_mount_${componentName}`,
       value: mountTimeRef.current,
-      type: 'timing' as any,
+      type: MetricType.TIMING,
       metadata: {
         component: componentName,
         action: 'mount',
@@ -30,7 +30,7 @@ export const useComponentPerformance = (componentName: string) => {
       performanceMonitor.recordMetric({
         name: `component_lifetime_${componentName}`,
         value: lifeTime,
-        type: 'timing' as any,
+        type: MetricType.TIMING,
         metadata: {
           component: componentName,
           action: 'unmount',
@@ -47,7 +47,7 @@ export const useComponentPerformance = (componentName: string) => {
     performanceMonitor.recordMetric({
       name: `component_render_${componentName}`,
       value: (globalThis as any).performance?.now() || Date.now(),
-      type: 'counter' as any,
+      type: MetricType.COUNTER,
       metadata: {
         component: componentName,
         action: 'render',
