@@ -1,5 +1,4 @@
 // 用户角色枚举
-/* eslint-disable no-unused-vars */
 export enum UserRole {
   ADMIN = 'admin',
   DEVELOPER = 'developer',
@@ -12,7 +11,6 @@ export enum AppPermission {
   DASHBOARD = 'dashboard',
   SETTINGS = 'settings',
 }
-/* eslint-enable no-unused-vars */
 
 // 登录表单接口
 export interface LoginForm {
@@ -64,7 +62,6 @@ export interface Permissions {
 }
 
 // 认证上下文类型
-/* eslint-disable no-unused-vars */
 export interface AuthContextType {
   user: User | null;
   permissions: Permissions | null;
@@ -77,4 +74,3 @@ export interface AuthContextType {
   hasPermission: (permission: AppPermission) => boolean;
   hasRole: (role: UserRole) => boolean;
 }
-/* eslint-enable no-unused-vars */

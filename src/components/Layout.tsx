@@ -185,7 +185,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     };
 
     loadMicroFrontendRoutes();
-  }, [authLoading, user]); // 依赖权限、用户信息的变化
+  }, [authLoading, user, microFrontendRoutes]); // 依赖权限、用户信息的变化
 
   // 根据当前路由自动设置展开的菜单
   useEffect(() => {

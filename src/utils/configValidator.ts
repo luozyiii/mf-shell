@@ -479,7 +479,7 @@ export class ConfigValidator {
       }
 
       // 检查版本信息
-      if (!microsystem.version) {
+      if (!(microsystem as any).version) {
         result.warnings.push(`${microsystem.name}: 建议配置版本信息`);
       }
     });

@@ -74,12 +74,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             name: defaultUser.name,
             role: defaultUser.role,
             roles: defaultUser.roles,
-            permissions: defaultUser.permissions,
           };
 
           const permissionsData: Permissions = {
-            apps: defaultUser.permissions,
-            features: [],
+            [AppPermission.TEMPLATE]: defaultUser.permissions.includes(
+              AppPermission.TEMPLATE
+            ),
           };
 
           setUser(userData);
@@ -87,8 +87,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
           // 保存到本地存储
           AuthUtils.setToken('dev-token');
-          AuthUtils.setUserData(userData);
-          AuthUtils.setPermissions(permissionsData);
+          AuthUtils.setUserData(userData as any);
+          AuthUtils.setPermissions(permissionsData as any);
 
           // 跳过认证时显示较短的加载时间
           await new Promise(resolve =>
@@ -158,8 +158,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             roles: foundUser.roles,
           };
 
-          const userPermissions: Permissions = {
-            apps: foundUser.permissions,
+          const permissionsData: Permissions = {
+            [AppPermission.TEMPLATE]: foundUser.permissions.includes(
+              AppPermission.TEMPLATE
+            ),
           };
 
           // 生成模拟JWT token
@@ -167,11 +169,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
           // 使用AuthUtils统一存储，确保所有应用都能访问
           AuthUtils.setToken(token);
-          AuthUtils.setUserData(userData);
-          AuthUtils.setPermissions(userPermissions as Record<string, unknown>);
+          AuthUtils.setUserData(userData as any);
+          AuthUtils.setPermissions(permissionsData as Record<string, unknown>);
 
           setUser(userData);
-          setPermissions(userPermissions);
+          setPermissions(permissionsData);
           resolve();
         } else {
           reject(new Error('用户名或密码错误'));
@@ -217,7 +219,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // 检查用户是否有特定应用权限
   const hasPermission = useCallback(
     (permission: AppPermission): boolean => {
-      return permissions?.apps?.includes(permission) || false;
+      return permissions?.[permission] || false;
     },
     [permissions]
   );

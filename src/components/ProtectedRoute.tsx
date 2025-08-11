@@ -44,7 +44,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // 检查应用权限
-  if (requiredApp && !hasAppAccess(requiredApp)) {
+  if (requiredApp && !hasAppAccess(requiredApp as any)) {
     return (
       <Result
         status="403"
@@ -60,7 +60,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   }
 
   // 检查角色权限
-  if (requiredRole && !hasRole(requiredRole)) {
+  if (requiredRole && !hasRole(requiredRole as any)) {
     return (
       <Result
         status="403"

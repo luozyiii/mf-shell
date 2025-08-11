@@ -14,6 +14,7 @@ import Layout from './components/Layout';
 import { LayoutSkeleton } from './components/LayoutSkeleton';
 import { ModuleFederationLoader } from './components/ModuleFederationLoader';
 import { ErrorBoundary } from './components/ErrorBoundary';
+// import PerformanceDevTools from './components/PerformanceDevTools';
 import { useDynamicRoutes } from './components/DynamicRoutes';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
@@ -21,6 +22,11 @@ import { NotFound } from './pages/NotFound';
 
 import './utils/configValidator'; // 自动执行配置验证
 import './App.css';
+
+// 初始化监控工具
+import './utils/performanceMonitor';
+import './utils/errorMonitor';
+import './utils/networkMonitor';
 
 // GitHub Pages 路由基础路径
 const basename: string =
@@ -107,6 +113,8 @@ const App: React.FC = () => {
         <ConfigProvider locale={zhCN}>
           <AuthProvider>
             <AppContent />
+            {/* 性能监控开发工具 - 仅在开发环境显示 */}
+            {/* <PerformanceDevTools /> */}
           </AuthProvider>
         </ConfigProvider>
       </HelmetProvider>
