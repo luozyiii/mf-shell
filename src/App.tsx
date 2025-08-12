@@ -4,6 +4,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
@@ -12,21 +13,29 @@ import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Layout from './components/Layout';
 import { LayoutSkeleton } from './components/LayoutSkeleton';
-import { ModuleFederationLoader } from './components/ModuleFederationLoader';
+import { LazyMicroFrontend } from './components/LazyMicroFrontend';
 import { ErrorBoundary } from './components/ErrorBoundary';
-// import PerformanceDevTools from './components/PerformanceDevTools';
-import { useDynamicRoutes } from './components/DynamicRoutes';
+import { configManager } from './config';
 import { Login } from './pages/Login';
 import { Dashboard } from './pages/Dashboard';
 import { NotFound } from './pages/NotFound';
 
-import './utils/configValidator'; // 自动执行配置验证
-import './App.css';
+// 微前端包装组件，用于获取当前路径
+const MicroFrontendWrapper: React.FC<{
+  appName: string;
+  displayName: string;
+}> = ({ appName, displayName }) => {
+  const location = useLocation();
+  return (
+    <LazyMicroFrontend
+      appName={appName}
+      pathname={location.pathname}
+      displayName={displayName}
+    />
+  );
+};
 
-// 初始化监控工具
-import './utils/performanceMonitor';
-import './utils/errorMonitor';
-import './utils/networkMonitor';
+import './App.css';
 
 // GitHub Pages 路由基础路径
 const basename: string =
@@ -34,7 +43,6 @@ const basename: string =
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, isLoading, isInitializing } = useAuth();
-  const { isLoading: routesLoading, getAllDynamicRoutes } = useDynamicRoutes();
 
   // GitHub Pages SPA 路由支持
   useEffect(() => {
@@ -54,9 +62,6 @@ const AppContent: React.FC = () => {
     return <LayoutSkeleton />;
   }
 
-  // 获取所有动态路由
-  const dynamicRoutes = getAllDynamicRoutes();
-
   return (
     <Router basename={basename}>
       <Routes>
@@ -72,24 +77,23 @@ const AppContent: React.FC = () => {
           }
         />
 
-        {/* 动态微前端路由 - 根据配置自动生成 */}
-        {!routesLoading &&
-          dynamicRoutes.map(({ microsystem, routeConfig }) => (
-            <Route
-              key={routeConfig.path}
-              path={routeConfig.path}
-              element={
-                <ProtectedRoute requiredApp={microsystem.name}>
-                  <Layout>
-                    <ModuleFederationLoader
-                      name={microsystem.name}
-                      componentName={routeConfig.component}
-                    />
-                  </Layout>
-                </ProtectedRoute>
-              }
-            />
-          ))}
+        {/* 动态微前端路由 */}
+        {configManager.getEnabledMicroFrontends().map(mf => (
+          <Route
+            key={mf.name}
+            path={`/${mf.name}/*`}
+            element={
+              <ProtectedRoute>
+                <Layout>
+                  <MicroFrontendWrapper
+                    appName={mf.name}
+                    displayName={mf.displayName}
+                  />
+                </Layout>
+              </ProtectedRoute>
+            }
+          />
+        ))}
 
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
         {/* 404 页面 - 必须放在最后 */}

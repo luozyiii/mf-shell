@@ -247,11 +247,9 @@ export class AuthUtils {
    * 跳转到登录页面
    * @param returnUrl 登录成功后的回调地址
    */
-  static redirectToLogin(returnUrl?: string): void {
-    const currentUrl = returnUrl || window.location.href;
-    // 使用环境配置管理器获取登录URL
-    const { environmentManager } = require('../config/environment');
-    window.location.href = environmentManager.buildAuthUrl(currentUrl);
+  static redirectToLogin(_returnUrl?: string): void {
+    // 简化登录跳转
+    window.location.href = '/login';
   }
 
   /**
@@ -259,10 +257,8 @@ export class AuthUtils {
    */
   static logout(): void {
     this.removeToken();
-    // 使用环境配置管理器获取登录URL
-    const { environmentManager } = require('../config/environment');
-    const currentUrl = window.location.href;
-    window.location.href = environmentManager.buildAuthUrl(currentUrl);
+    // 简化登出跳转
+    window.location.href = '/login';
   }
 
   /**

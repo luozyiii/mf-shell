@@ -17,11 +17,11 @@ import { Layout as AntLayout, Avatar, Button, Dropdown, Menu } from 'antd';
 import React, { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { microsystemManager } from '../config/microsystems';
+import { configManager } from '../config';
+import { RouteLoader, AppRouteConfig } from '../utils/routeLoader';
 import { APP_CONFIG } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../hooks/usePermissions';
-import { UserRole } from '../types/auth';
 import { DateUtil } from '../utils';
 import styles from './Layout.module.css';
 
@@ -31,28 +31,11 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-interface RouteConfig {
-  path: string;
-  name: string;
-  icon: string;
-  showBack: boolean;
-  backPath?: string;
-}
-
-interface AppRouteConfig {
-  appName: string;
-  appKey: string;
-  routes: RouteConfig[];
-}
-
-interface MicroFrontendMessage {
-  type: string;
-  appKey: string;
-  routes: AppRouteConfig;
-}
+// 清理：移除未使用的接口
 
 // 图标映射函数
-const getIconComponent = (iconName: string): React.ReactNode => {
+const getIconComponent = (iconName?: string): React.ReactNode => {
+  if (!iconName) return <AppstoreOutlined />;
   const iconMap: Record<string, React.ReactNode> = {
     DashboardOutlined: <DashboardOutlined />,
     ShoppingOutlined: <ShoppingOutlined />,
@@ -79,10 +62,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [microFrontendRoutes, setMicroFrontendRoutes] = useState<
     Record<string, AppRouteConfig | null>
   >(() => {
-    const enabledMicrosystems = microsystemManager.getEnabledMicrosystems();
+    const enabledMicrosystems = configManager.getEnabledMicroFrontends();
     const initialState: Record<string, AppRouteConfig | null> = {};
-    enabledMicrosystems.forEach(microsystem => {
-      initialState[microsystem.name] = null;
+    enabledMicrosystems.forEach(microFrontend => {
+      initialState[microFrontend.name] = null;
     });
     return initialState;
   });
@@ -92,100 +75,41 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // 监听来自子应用的路由配置消息
+  // 动态加载微前端路由配置
   useEffect(() => {
-    const handleMessage = (event: MessageEvent<MicroFrontendMessage>) => {
-      console.log('Received message:', event.data);
-      if (event.data.type === 'MICRO_FRONTEND_ROUTES') {
-        const { appKey, routes } = event.data;
-        console.log('Received routes from', appKey, ':', routes);
+    const loadRouteConfigs = async () => {
+      const enabledMicroFrontends = configManager.getEnabledMicroFrontends();
+      console.log(
+        '🔄 Loading route configs for:',
+        enabledMicroFrontends.map(mf => mf.name)
+      );
 
-        setMicroFrontendRoutes(prev => {
-          const newRoutes = {
-            ...prev,
-            [appKey]: routes,
-          };
-          console.log('Updated microFrontendRoutes:', newRoutes);
-          return newRoutes;
-        });
-      }
-    };
-
-    window.addEventListener('message', handleMessage);
-
-    return () => {
-      window.removeEventListener('message', handleMessage);
-    };
-  }, []);
-
-  // 预加载子应用路由配置 - 使用简单的模块联邦导入
-  useEffect(() => {
-    const loadMicroFrontendRoutes = async () => {
-      if (authLoading) return;
-
-      // 等待模块联邦运行时初始化
-      await new Promise(resolve => window.setTimeout(resolve, 1000));
-
-      // 获取用户权限
-      const permissions: string[] = [];
-      if (user?.roles.includes(UserRole.ADMIN)) permissions.push('admin:read');
-      permissions.push('template:read'); // 所有登录用户都可以访问模板系统
-
-      const accessibleMicrosystems =
-        microsystemManager.getAccessibleMicrosystems(permissions);
-
-      // 最简单的模块联邦导入
-      for (const microsystem of accessibleMicrosystems) {
-        // 避免重复加载
-        if (microFrontendRoutes[microsystem.name]) {
-          continue;
-        }
-
-        // 重试机制
-        let retryCount = 0;
-        const maxRetries = 3;
-
-        while (retryCount < maxRetries) {
-          try {
-            // 使用静态导入路径 - 参考 ModuleFederationLoader 的成功实现
-            let remoteModule: any;
-
-            if (microsystem.name === 'template') {
-              // @ts-ignore
-              remoteModule = await import('template/routes');
-            } else {
-              throw new Error(`Unknown remote: ${microsystem.name}`);
-            }
-
-            const routeConfig =
-              remoteModule.default || remoteModule.templateRoutes;
-
-            if (routeConfig) {
-              setMicroFrontendRoutes(prev => ({
-                ...prev,
-                [microsystem.name]: routeConfig,
-              }));
-              break; // 成功加载，跳出重试循环
-            }
-          } catch (error: any) {
-            retryCount++;
-            if (retryCount >= maxRetries) {
-              console.error(
-                `加载 ${microsystem.name} 路由失败 (重试${maxRetries}次):`,
-                error.message
-              );
-              // 静默处理失败，等待子应用通过postMessage发送路由配置
-            } else {
-              // 等待一段时间后重试
-              await new Promise(resolve => window.setTimeout(resolve, 1000));
-            }
+      for (const microFrontend of enabledMicroFrontends) {
+        try {
+          const routeConfig = await RouteLoader.loadRouteConfig(
+            microFrontend.name
+          );
+          if (routeConfig) {
+            setMicroFrontendRoutes(prev => ({
+              ...prev,
+              [microFrontend.name]: routeConfig,
+            }));
+            console.log(
+              `✅ Loaded route config for ${microFrontend.name}:`,
+              routeConfig
+            );
           }
+        } catch (error) {
+          console.warn(
+            `❌ Failed to load route config for ${microFrontend.name}:`,
+            error
+          );
         }
       }
     };
 
-    loadMicroFrontendRoutes();
-  }, [authLoading, user, microFrontendRoutes]); // 依赖权限、用户信息的变化
+    loadRouteConfigs();
+  }, []);
 
   // 根据当前路由自动设置展开的菜单
   useEffect(() => {
@@ -199,10 +123,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     const openKeysToSet: string[] = [];
 
     // 动态检查是否在微前端应用路由下
-    const enabledMicrosystems = microsystemManager.getEnabledMicrosystems();
-    enabledMicrosystems.forEach(microsystem => {
-      if (pathname.startsWith(microsystem.route)) {
-        openKeysToSet.push(microsystem.name);
+    const enabledMicroFrontends = configManager.getEnabledMicroFrontends();
+    enabledMicroFrontends.forEach(microFrontend => {
+      const route = `/${microFrontend.name}`;
+      if (pathname.startsWith(route)) {
+        openKeysToSet.push(microFrontend.name);
       }
     });
 
@@ -277,22 +202,22 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       userPermissions.push('template:read');
     }
 
-    const accessibleMicrosystems =
-      microsystemManager.getAccessibleMicrosystems(userPermissions);
+    const accessibleMicroFrontends =
+      configManager.getAccessibleMicroFrontends(userPermissions);
 
-    accessibleMicrosystems.forEach(microsystem => {
+    accessibleMicroFrontends.forEach(microFrontend => {
       // 检查是否有路由配置
       const routeConfig =
         microFrontendRoutes[
-          microsystem.name as keyof typeof microFrontendRoutes
+          microFrontend.name as keyof typeof microFrontendRoutes
         ];
 
       if (routeConfig) {
         // 有详细路由配置，显示子菜单
         const menuItem = {
-          key: microsystem.name,
-          icon: getIconComponent(microsystem.icon),
-          label: microsystem.displayName,
+          key: microFrontend.name,
+          icon: getIconComponent(microFrontend.icon),
+          label: microFrontend.displayName,
           children: routeConfig.routes.map(
             (route: { path: string; name: string }) => ({
               key: route.path,
@@ -304,9 +229,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       } else {
         // 没有详细路由配置，显示单一菜单项
         const menuItem = {
-          key: microsystem.route,
-          icon: getIconComponent(microsystem.icon),
-          label: microsystem.displayName,
+          key: `/${microFrontend.name}`,
+          icon: getIconComponent(microFrontend.icon),
+          label: microFrontend.displayName,
         };
         items.push(menuItem);
       }
@@ -366,21 +291,22 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     // 尝试从子应用路由配置中获取
     try {
       // 动态检查所有微前端系统的路由
-      const enabledMicrosystems = microsystemManager.getEnabledMicrosystems();
-      for (const microsystem of enabledMicrosystems) {
+      const enabledMicroFrontends = configManager.getEnabledMicroFrontends();
+      for (const microFrontend of enabledMicroFrontends) {
+        const route = `/${microFrontend.name}`;
         if (
-          pathname.startsWith(microsystem.route) &&
-          microFrontendRoutes[microsystem.name]
+          pathname.startsWith(route) &&
+          microFrontendRoutes[microFrontend.name]
         ) {
-          const routes = microFrontendRoutes[microsystem.name]?.routes || [];
-          const route = routes.find(
+          const routes = microFrontendRoutes[microFrontend.name]?.routes || [];
+          const routeConfig = routes.find(
             (r: { path: string; name?: string }) => r.path === pathname
           );
-          if (route) {
+          if (routeConfig) {
             return {
-              title: route.name,
-              showBack: route.showBack || false,
-              backPath: route.backPath || null,
+              title: routeConfig.name,
+              showBack: routeConfig.showBack || false,
+              backPath: routeConfig.backPath || null,
             };
           }
         }
@@ -390,11 +316,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
 
     // 如果没有找到具体路由配置，尝试根据路径推断页面信息
-    const enabledMicrosystems = microsystemManager.getEnabledMicrosystems();
-    for (const microsystem of enabledMicrosystems) {
-      if (pathname.startsWith(microsystem.route)) {
+    const enabledMicroFrontends = configManager.getEnabledMicroFrontends();
+    for (const microFrontend of enabledMicroFrontends) {
+      const route = `/${microFrontend.name}`;
+      if (pathname.startsWith(route)) {
         return {
-          title: microsystem.displayName,
+          title: microFrontend.displayName,
           showBack: true,
           backPath: '/dashboard',
         };

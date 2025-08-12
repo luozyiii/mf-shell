@@ -476,9 +476,4 @@ export class PerformanceUtil {
 }
 
 // 导出类型
-// 导出监控工具
-export { performanceMonitor, PerformanceMonitor } from './performanceMonitor';
-export { errorMonitor, ErrorMonitor } from './errorMonitor';
-export { networkMonitor, NetworkMonitor } from './networkMonitor';
-
 export type { StorageResult, StorageConfig, DateFormatOptions };

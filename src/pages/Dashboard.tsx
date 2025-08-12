@@ -28,7 +28,7 @@ import {
 } from '@ant-design/icons';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { microsystemManager } from '../config/microsystems';
+import { configManager } from '../config';
 import { UserRole } from '../types/auth';
 import styles from './Dashboard.module.css';
 
@@ -39,7 +39,7 @@ export const Dashboard: React.FC = () => {
   const { user } = useAuth();
 
   // 获取图标组件
-  const getIconComponent = (iconName: string): React.ReactNode => {
+  const getIconComponent = (iconName?: string): React.ReactNode => {
     const iconMap: Record<string, React.ReactNode> = {
       RocketOutlined: <RocketOutlined />,
       DollarOutlined: <DollarOutlined />,
@@ -49,7 +49,7 @@ export const Dashboard: React.FC = () => {
       SettingOutlined: <UserOutlined />,
     };
 
-    return iconMap[iconName] || <AppstoreOutlined />;
+    return iconMap[iconName || 'AppstoreOutlined'] || <AppstoreOutlined />;
   };
 
   // 获取用户可访问的微前端系统
@@ -59,8 +59,8 @@ export const Dashboard: React.FC = () => {
   // 所有登录用户都可以访问模板系统（用于演示）
   userPermissions.push('template:read');
 
-  const accessibleMicrosystems =
-    microsystemManager.getAccessibleMicrosystems(userPermissions);
+  const accessibleMicroFrontends =
+    configManager.getAccessibleMicroFrontends(userPermissions);
 
   const quickStats = [
     {
@@ -132,27 +132,27 @@ export const Dashboard: React.FC = () => {
         styles={{ body: { padding: '24px' } }}
       >
         <Row gutter={[16, 16]}>
-          {accessibleMicrosystems.map(microsystem => (
-            <Col xs={24} sm={12} md={8} lg={6} key={microsystem.name}>
+          {accessibleMicroFrontends.map(microFrontend => (
+            <Col xs={24} sm={12} md={8} lg={6} key={microFrontend.name}>
               <Card
                 hoverable
                 className={styles['appCard'] || ''}
-                onClick={() => navigate(microsystem.route)}
+                onClick={() => navigate(`/${microFrontend.name}`)}
                 styles={{ body: { padding: '20px', textAlign: 'center' } }}
               >
                 <div className={styles['appIcon']}>
-                  {getIconComponent(microsystem.icon)}
+                  {getIconComponent(microFrontend.icon)}
                 </div>
                 <Title level={5} style={{ margin: '12px 0 8px 0' }}>
-                  {microsystem.displayName}
+                  {microFrontend.displayName}
                 </Title>
                 <Text type="secondary" style={{ fontSize: '12px' }}>
-                  {microsystem.description}
+                  {microFrontend.description}
                 </Text>
                 <div style={{ marginTop: '12px' }}>
                   <Badge
-                    status={microsystem.enabled ? 'success' : 'default'}
-                    text={microsystem.enabled ? '运行中' : '已停用'}
+                    status={microFrontend.enabled ? 'success' : 'default'}
+                    text={microFrontend.enabled ? '运行中' : '已停用'}
                   />
                 </div>
               </Card>
@@ -160,7 +160,7 @@ export const Dashboard: React.FC = () => {
           ))}
 
           {/* 如果没有可访问的系统，显示提示 */}
-          {accessibleMicrosystems.length === 0 && (
+          {accessibleMicroFrontends.length === 0 && (
             <Col span={24}>
               <div
                 style={{

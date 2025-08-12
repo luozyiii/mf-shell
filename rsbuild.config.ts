@@ -10,8 +10,30 @@ export default defineConfig({
   },
   source: {
     define: {
+      'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
       'process.env.REACT_APP_SKIP_AUTH': JSON.stringify(
         process.env.REACT_APP_SKIP_AUTH
+      ),
+      // 微前端配置环境变量
+      'process.env.SHELL_PORT': JSON.stringify(process.env.SHELL_PORT),
+      'process.env.PUBLIC_PATH': JSON.stringify(process.env.PUBLIC_PATH),
+      'process.env.TEMPLATE_NAME': JSON.stringify(process.env.TEMPLATE_NAME),
+      'process.env.TEMPLATE_URL': JSON.stringify(process.env.TEMPLATE_URL),
+      'process.env.TEMPLATE_PORT': JSON.stringify(process.env.TEMPLATE_PORT),
+      'process.env.TEMPLATE_ENABLED': JSON.stringify(
+        process.env.TEMPLATE_ENABLED
+      ),
+      'process.env.MARKETING_NAME': JSON.stringify(process.env.MARKETING_NAME),
+      'process.env.MARKETING_URL': JSON.stringify(process.env.MARKETING_URL),
+      'process.env.MARKETING_PORT': JSON.stringify(process.env.MARKETING_PORT),
+      'process.env.MARKETING_ENABLED': JSON.stringify(
+        process.env.MARKETING_ENABLED
+      ),
+      'process.env.FINANCE_NAME': JSON.stringify(process.env.FINANCE_NAME),
+      'process.env.FINANCE_URL': JSON.stringify(process.env.FINANCE_URL),
+      'process.env.FINANCE_PORT': JSON.stringify(process.env.FINANCE_PORT),
+      'process.env.FINANCE_ENABLED': JSON.stringify(
+        process.env.FINANCE_ENABLED
       ),
     },
     entry: {

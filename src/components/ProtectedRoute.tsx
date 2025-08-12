@@ -3,12 +3,12 @@ import { Navigate } from 'react-router-dom';
 import { Result, Button, Spin } from 'antd';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../hooks/usePermissions';
-import { AppPermissionType, UserRoleType } from '../types/microsystem';
+import { UserRole } from '../types/auth';
 
 interface ProtectedRouteProps {
   children: ReactNode;
-  requiredApp?: AppPermissionType;
-  requiredRole?: UserRoleType;
+  requiredApp?: string;
+  requiredRole?: UserRole;
 }
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
