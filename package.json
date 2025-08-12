@@ -2,6 +2,7 @@
   "name": "mf-shell",
   "private": true,
   "version": "1.0.0",
+  "packageManager": "pnpm@10.13.1",
   "scripts": {
     "dev": "rsbuild dev --open",
     "build": "rsbuild build",
