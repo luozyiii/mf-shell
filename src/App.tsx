@@ -14,7 +14,9 @@ import { ErrorBoundary } from './components/ErrorBoundary';
 import Layout from './components/Layout';
 import { LayoutSkeleton } from './components/LayoutSkeleton';
 import { LazyMicroFrontend } from './components/LazyMicroFrontend';
+import { PerformanceMonitor } from './components/PerformanceMonitor';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { ScrollToTop } from './components/ScrollToTop';
 import { configManager } from './config';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Dashboard } from './pages/Dashboard';
@@ -65,6 +67,12 @@ const AppContent: React.FC = () => {
 
   return (
     <Router basename={basename}>
+      {/* 路由切换时自动滚动到顶部 */}
+      <ScrollToTop
+        smooth={true}
+        delay={150} // 等待页面加载动画完成
+        excludePatterns={[]} // 可以排除特定路径
+      />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route
@@ -119,7 +127,7 @@ const App: React.FC = () => {
           <AuthProvider>
             <AppContent />
             {/* 性能监控开发工具 - 仅在开发环境显示 */}
-            {/* <PerformanceDevTools /> */}
+            <PerformanceMonitor />
           </AuthProvider>
         </ConfigProvider>
       </HelmetProvider>

@@ -468,6 +468,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           <Content
             className={`${styles.content} ${contentLoading ? styles.contentLoading : ''}`}
             key={contentKey}
+            data-scroll-container="main" // 标识主滚动容器
           >
             <div className={styles.contentEntering}>{children}</div>
           </Content>
