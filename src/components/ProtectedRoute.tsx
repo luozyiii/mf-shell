@@ -1,9 +1,10 @@
-import React, { ReactNode } from 'react';
+import { Button, Result, Spin } from 'antd';
+import type React from 'react';
+import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Result, Button, Spin } from 'antd';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../hooks/usePermissions';
-import { UserRole } from '../types/auth';
+import type { UserRole } from '../types/auth';
 
 interface ProtectedRouteProps {
   children: ReactNode;

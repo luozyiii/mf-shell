@@ -14,15 +14,16 @@ import {
   UserOutlined,
 } from '@ant-design/icons';
 import { Layout as AntLayout, Avatar, Button, Dropdown, Menu } from 'antd';
-import React, { useEffect, useMemo, useState } from 'react';
+import type React from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { configManager } from '../config';
-import { RouteLoader, AppRouteConfig } from '../utils/routeLoader';
 import { APP_CONFIG } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../hooks/usePermissions';
 import { DateUtil } from '../utils';
+import { type AppRouteConfig, RouteLoader } from '../utils/routeLoader';
 import styles from './Layout.module.css';
 
 const { Header, Sider, Content } = AntLayout;
@@ -64,7 +65,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   >(() => {
     const enabledMicrosystems = configManager.getEnabledMicroFrontends();
     const initialState: Record<string, AppRouteConfig | null> = {};
-    enabledMicrosystems.forEach(microFrontend => {
+    enabledMicrosystems.forEach((microFrontend) => {
       initialState[microFrontend.name] = null;
     });
     return initialState;
@@ -81,7 +82,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       const enabledMicroFrontends = configManager.getEnabledMicroFrontends();
       console.log(
         '🔄 Loading route configs for:',
-        enabledMicroFrontends.map(mf => mf.name)
+        enabledMicroFrontends.map((mf) => mf.name)
       );
 
       for (const microFrontend of enabledMicroFrontends) {
@@ -90,7 +91,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             microFrontend.name
           );
           if (routeConfig) {
-            setMicroFrontendRoutes(prev => ({
+            setMicroFrontendRoutes((prev) => ({
               ...prev,
               [microFrontend.name]: routeConfig,
             }));
@@ -124,7 +125,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     // 动态检查是否在微前端应用路由下
     const enabledMicroFrontends = configManager.getEnabledMicroFrontends();
-    enabledMicroFrontends.forEach(microFrontend => {
+    enabledMicroFrontends.forEach((microFrontend) => {
       const route = `/${microFrontend.name}`;
       if (pathname.startsWith(route)) {
         openKeysToSet.push(microFrontend.name);
@@ -137,7 +138,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   // 路由变化时的内容过渡效果
   useEffect(() => {
     setContentLoading(true);
-    setContentKey(prev => prev + 1);
+    setContentKey((prev) => prev + 1);
 
     // 短暂延迟后移除加载状态，让内容平滑进入
     const timer = window.setTimeout(() => {
@@ -145,7 +146,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }, 150);
 
     return () => window.clearTimeout(timer);
-  }, [location.pathname]);
+  }, []);
 
   const handleLogout = () => {
     logout();
@@ -205,7 +206,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     const accessibleMicroFrontends =
       configManager.getAccessibleMicroFrontends(userPermissions);
 
-    accessibleMicroFrontends.forEach(microFrontend => {
+    accessibleMicroFrontends.forEach((microFrontend) => {
       // 检查是否有路由配置
       const routeConfig =
         microFrontendRoutes[
@@ -350,18 +351,18 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   // 菜单骨架屏组件
   const MenuSkeleton = () => (
-    <div className={styles['menuSkeleton']}>
-      <div className={styles['menuSkeletonItem']}>
-        <div className={styles['menuSkeletonIcon']}></div>
-        <div className={styles['menuSkeletonText']}></div>
+    <div className={styles.menuSkeleton}>
+      <div className={styles.menuSkeletonItem}>
+        <div className={styles.menuSkeletonIcon}></div>
+        <div className={styles.menuSkeletonText}></div>
       </div>
-      <div className={styles['menuSkeletonItem']}>
-        <div className={styles['menuSkeletonIcon']}></div>
-        <div className={styles['menuSkeletonText']}></div>
+      <div className={styles.menuSkeletonItem}>
+        <div className={styles.menuSkeletonIcon}></div>
+        <div className={styles.menuSkeletonText}></div>
       </div>
-      <div className={styles['menuSkeletonItem']}>
-        <div className={styles['menuSkeletonIcon']}></div>
-        <div className={styles['menuSkeletonText']}></div>
+      <div className={styles.menuSkeletonItem}>
+        <div className={styles.menuSkeletonIcon}></div>
+        <div className={styles.menuSkeletonText}></div>
       </div>
     </div>
   );
@@ -378,14 +379,14 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           trigger={null}
           collapsible
           collapsed={collapsed}
-          className={`${styles['sider']} ${authLoading ? styles['siderLoading'] : ''}`}
+          className={`${styles.sider} ${authLoading ? styles.siderLoading : ''}`}
         >
           <div
-            className={`${styles['logo']} ${collapsed ? styles['logoCollapsed'] : styles['logoExpanded']}`}
+            className={`${styles.logo} ${collapsed ? styles.logoCollapsed : styles.logoExpanded}`}
           >
             {collapsed ? APP_CONFIG.APP_SHORT_NAME : APP_CONFIG.APP_NAME}
           </div>
-          <div className={styles['menuContainer']}>
+          <div className={styles.menuContainer}>
             {authLoading ? (
               <MenuSkeleton />
             ) : (
@@ -397,48 +398,48 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 onOpenChange={setOpenKeys}
                 items={menuItems}
                 onClick={handleMenuClick}
-                className={`${styles['menu']} ${authLoading ? styles['menuLoading'] : ''}`}
+                className={`${styles.menu} ${authLoading ? styles.menuLoading : ''}`}
               />
             )}
           </div>
 
           {/* 折叠按钮 */}
-          <div className={styles['collapseButtonContainer']}>
+          <div className={styles.collapseButtonContainer}>
             <Button
               type="text"
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={() => setCollapsed(!collapsed)}
-              className={styles['collapseButton'] || ''}
+              className={styles.collapseButton || ''}
               title={collapsed ? '展开菜单' : '折叠菜单'}
             />
           </div>
         </Sider>
         <AntLayout
-          className={`${styles['rightLayout']} ${collapsed ? styles['rightLayoutCollapsed'] : styles['rightLayoutExpanded']}`}
+          className={`${styles.rightLayout} ${collapsed ? styles.rightLayoutCollapsed : styles.rightLayoutExpanded}`}
         >
           <Header
-            className={`${styles['header']} ${collapsed ? styles['headerCollapsed'] : styles['headerExpanded']}`}
+            className={`${styles.header} ${collapsed ? styles.headerCollapsed : styles.headerExpanded}`}
           >
-            <div className={styles['headerLeft']}>
+            <div className={styles.headerLeft}>
               {/* 页面标题区域 */}
-              <div className={styles['pageTitle']}>
+              <div className={styles.pageTitle}>
                 {currentPageInfo.showBack && (
                   <Button
                     type="text"
                     icon={<LeftOutlined />}
                     onClick={handleBack}
-                    className={styles['backButton'] || ''}
+                    className={styles.backButton || ''}
                   />
                 )}
-                <span className={styles['pageTitleText']}>
+                <span className={styles.pageTitleText}>
                   {currentPageInfo.title}
                 </span>
               </div>
             </div>
 
-            <div className={styles['headerRight']}>
+            <div className={styles.headerRight}>
               {/* 欢迎信息 */}
-              <div className={styles['welcomeText']}>
+              <div className={styles.welcomeText}>
                 {authLoading
                   ? '加载中...'
                   : `欢迎回来！今天是 ${DateUtil.formatToChineseDate()}`}
@@ -450,25 +451,25 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 placement="bottomRight"
                 trigger={['click']}
               >
-                <div className={styles['userInfo']}>
+                <div className={styles.userInfo}>
                   <Avatar
                     size={32}
                     icon={<UserOutlined />}
-                    className={styles['userAvatar'] || ''}
+                    className={styles.userAvatar || ''}
                   />
-                  <div className={styles['userDetails']}>
-                    <div className={styles['userName']}>{user?.name}</div>
+                  <div className={styles.userDetails}>
+                    <div className={styles.userName}>{user?.name}</div>
                   </div>
-                  <div className={styles['dropdownArrow']}>▼</div>
+                  <div className={styles.dropdownArrow}>▼</div>
                 </div>
               </Dropdown>
             </div>
           </Header>
           <Content
-            className={`${styles['content']} ${contentLoading ? styles['contentLoading'] : ''}`}
+            className={`${styles.content} ${contentLoading ? styles.contentLoading : ''}`}
             key={contentKey}
           >
-            <div className={styles['contentEntering']}>{children}</div>
+            <div className={styles.contentEntering}>{children}</div>
           </Content>
         </AntLayout>
       </AntLayout>

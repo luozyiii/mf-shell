@@ -1,6 +1,6 @@
-import React, { Component, ReactNode } from 'react';
-import { Result, Button, Typography } from 'antd';
-import { ReloadOutlined, HomeOutlined, BugOutlined } from '@ant-design/icons';
+import { BugOutlined, HomeOutlined, ReloadOutlined } from '@ant-design/icons';
+import { Button, Result, Typography } from 'antd';
+import { Component, type ReactNode } from 'react';
 
 const { Paragraph, Text } = Typography;
 

@@ -73,7 +73,7 @@ class ConfigManager {
 
   // 获取所有启用的微前端
   getEnabledMicroFrontends(): MicroFrontendConfig[] {
-    return Object.values(this.config.microFrontends).filter(mf => mf.enabled);
+    return Object.values(this.config.microFrontends).filter((mf) => mf.enabled);
   }
 
   // 获取指定微前端配置
@@ -90,7 +90,7 @@ class ConfigManager {
   generateRemotes(): Record<string, string> {
     const remotes: Record<string, string> = {};
 
-    this.getEnabledMicroFrontends().forEach(mf => {
+    this.getEnabledMicroFrontends().forEach((mf) => {
       remotes[mf.name] = `${mf.name}@${mf.url}/remoteEntry.js`;
     });
 
@@ -101,9 +101,9 @@ class ConfigManager {
   getAccessibleMicroFrontends(
     userPermissions: string[]
   ): MicroFrontendConfig[] {
-    return this.getEnabledMicroFrontends().filter(mf => {
+    return this.getEnabledMicroFrontends().filter((mf) => {
       // 支持简单权限名和详细权限名
-      return mf.permissions.some(permission => {
+      return mf.permissions.some((permission) => {
         // 如果用户权限包含完整权限名
         if (userPermissions.includes(permission)) {
           return true;
@@ -117,7 +117,7 @@ class ConfigManager {
 
   // 获取菜单配置
   getMenuItems(userPermissions: string[] = []) {
-    return this.getAccessibleMicroFrontends(userPermissions).map(mf => ({
+    return this.getAccessibleMicroFrontends(userPermissions).map((mf) => ({
       key: mf.name,
       label: mf.displayName,
       icon: mf.icon,

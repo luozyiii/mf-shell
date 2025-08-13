@@ -1,34 +1,34 @@
-import React from 'react';
 import {
-  Row,
-  Col,
-  Card,
-  Button,
-  Space,
-  List,
-  Badge,
-  Progress,
-  Timeline,
-  Typography,
-} from 'antd';
-import {
-  UserOutlined,
-  DollarOutlined,
+  AppstoreOutlined,
   BarChartOutlined,
-  TeamOutlined,
   BellOutlined,
   CheckCircleOutlined,
   ClockCircleOutlined,
-  ExclamationCircleOutlined,
-  RocketOutlined,
   CloudServerOutlined,
-  SafetyOutlined,
-  AppstoreOutlined,
+  DollarOutlined,
+  ExclamationCircleOutlined,
   InboxOutlined,
+  RocketOutlined,
+  SafetyOutlined,
+  TeamOutlined,
+  UserOutlined,
 } from '@ant-design/icons';
+import {
+  Badge,
+  Button,
+  Card,
+  Col,
+  List,
+  Progress,
+  Row,
+  Space,
+  Timeline,
+  Typography,
+} from 'antd';
+import type React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../contexts/AuthContext';
 import { configManager } from '../config';
+import { useAuth } from '../contexts/AuthContext';
 import { UserRole } from '../types/auth';
 import styles from './Dashboard.module.css';
 
@@ -84,20 +84,20 @@ export const Dashboard: React.FC = () => {
   ];
 
   return (
-    <div className={styles['container']}>
+    <div className={styles.container}>
       {/* 快速统计 */}
-      <Row gutter={[16, 16]} className={styles['statsSection']}>
+      <Row gutter={[16, 16]} className={styles.statsSection}>
         {quickStats.map((stat, index) => (
-          <Col xs={24} sm={8} key={index}>
+          <Col xs={24} sm={8} key={`stat-${stat.title}-${index}`}>
             <Card
-              className={styles['statCard'] || ''}
+              className={styles.statCard || ''}
               hoverable
               styles={{ body: { padding: '20px' } }}
             >
               <Row align="middle" gutter={0}>
                 <Col>
                   <div
-                    className={styles['statCardIcon']}
+                    className={styles.statCardIcon}
                     style={{
                       color: stat.color,
                       background: `${stat.color}15`,
@@ -107,9 +107,9 @@ export const Dashboard: React.FC = () => {
                   </div>
                 </Col>
                 <Col flex={1}>
-                  <div className={styles['statCardTextContainer']}>
-                    <div className={styles['statCardTitle']}>{stat.title}</div>
-                    <div className={styles['statCardValue']}>{stat.value}</div>
+                  <div className={styles.statCardTextContainer}>
+                    <div className={styles.statCardTitle}>{stat.title}</div>
+                    <div className={styles.statCardValue}>{stat.value}</div>
                   </div>
                 </Col>
               </Row>
@@ -121,26 +121,26 @@ export const Dashboard: React.FC = () => {
       {/* 微前端系统入口 */}
       <Card
         title={
-          <span className={styles['cardTitle']}>
+          <span className={styles.cardTitle}>
             <AppstoreOutlined
               style={{ marginRight: '8px', color: '#1890ff' }}
             />
             系统应用
           </span>
         }
-        className={styles['appsCard'] || ''}
+        className={styles.appsCard || ''}
         styles={{ body: { padding: '24px' } }}
       >
         <Row gutter={[16, 16]}>
-          {accessibleMicroFrontends.map(microFrontend => (
+          {accessibleMicroFrontends.map((microFrontend) => (
             <Col xs={24} sm={12} md={8} lg={6} key={microFrontend.name}>
               <Card
                 hoverable
-                className={styles['appCard'] || ''}
+                className={styles.appCard || ''}
                 onClick={() => navigate(`/${microFrontend.name}`)}
                 styles={{ body: { padding: '20px', textAlign: 'center' } }}
               >
-                <div className={styles['appIcon']}>
+                <div className={styles.appIcon}>
                   {getIconComponent(microFrontend.icon)}
                 </div>
                 <Title level={5} style={{ margin: '12px 0 8px 0' }}>
@@ -184,30 +184,30 @@ export const Dashboard: React.FC = () => {
 
       {/* 快捷操作 */}
       <Card
-        title={<span className={styles['actionsTitle'] || ''}>快捷操作</span>}
-        className={styles['actionsCard'] || ''}
+        title={<span className={styles.actionsTitle || ''}>快捷操作</span>}
+        className={styles.actionsCard || ''}
         styles={{ body: { padding: '24px' } }}
       >
-        <Space wrap size="middle" className={styles['actionsButtons'] || ''}>
+        <Space wrap size="middle" className={styles.actionsButtons || ''}>
           <Button
             type="primary"
             icon={<BarChartOutlined />}
             size="large"
-            className={`${styles['actionButton']} ${styles['actionButtonPrimary']}`}
+            className={`${styles.actionButton} ${styles.actionButtonPrimary}`}
           >
             查看报表
           </Button>
           <Button
             icon={<TeamOutlined />}
             size="large"
-            className={`${styles['actionButton']} ${styles['actionButtonSecondary']}`}
+            className={`${styles.actionButton} ${styles.actionButtonSecondary}`}
           >
             用户管理
           </Button>
           <Button
             icon={<UserOutlined />}
             size="large"
-            className={`${styles['actionButton']} ${styles['actionButtonSecondary']}`}
+            className={`${styles.actionButton} ${styles.actionButtonSecondary}`}
           >
             个人设置
           </Button>
@@ -220,57 +220,57 @@ export const Dashboard: React.FC = () => {
         <Col xs={24} lg={8}>
           <Card
             title={
-              <span className={styles['cardTitle']}>
+              <span className={styles.cardTitle}>
                 <SafetyOutlined
                   style={{ marginRight: '8px', color: '#52c41a' }}
                 />
                 系统状态
               </span>
             }
-            className={styles['statusCard'] || ''}
+            className={styles.statusCard || ''}
           >
-            <div className={styles['systemStatus']}>
-              <div className={styles['statusItem']}>
-                <div className={styles['statusIcon']}>
+            <div className={styles.systemStatus}>
+              <div className={styles.statusItem}>
+                <div className={styles.statusIcon}>
                   <RocketOutlined style={{ color: '#1890ff' }} />
                 </div>
-                <div className={styles['statusInfo']}>
-                  <div className={styles['statusName']}>营销系统</div>
-                  <div className={styles['statusValue']}>
+                <div className={styles.statusInfo}>
+                  <div className={styles.statusName}>营销系统</div>
+                  <div className={styles.statusValue}>
                     <Badge status="success" text="运行正常" />
                   </div>
                 </div>
-                <div className={styles['statusProgress']}>
+                <div className={styles.statusProgress}>
                   <Progress percent={95} size="small" status="active" />
                 </div>
               </div>
 
-              <div className={styles['statusItem']}>
-                <div className={styles['statusIcon']}>
+              <div className={styles.statusItem}>
+                <div className={styles.statusIcon}>
                   <DollarOutlined style={{ color: '#722ed1' }} />
                 </div>
-                <div className={styles['statusInfo']}>
-                  <div className={styles['statusName']}>财务系统</div>
-                  <div className={styles['statusValue']}>
+                <div className={styles.statusInfo}>
+                  <div className={styles.statusName}>财务系统</div>
+                  <div className={styles.statusValue}>
                     <Badge status="success" text="运行正常" />
                   </div>
                 </div>
-                <div className={styles['statusProgress']}>
+                <div className={styles.statusProgress}>
                   <Progress percent={88} size="small" status="active" />
                 </div>
               </div>
 
-              <div className={styles['statusItem']}>
-                <div className={styles['statusIcon']}>
+              <div className={styles.statusItem}>
+                <div className={styles.statusIcon}>
                   <CloudServerOutlined style={{ color: '#13c2c2' }} />
                 </div>
-                <div className={styles['statusInfo']}>
-                  <div className={styles['statusName']}>核心服务</div>
-                  <div className={styles['statusValue']}>
+                <div className={styles.statusInfo}>
+                  <div className={styles.statusName}>核心服务</div>
+                  <div className={styles.statusValue}>
                     <Badge status="success" text="运行正常" />
                   </div>
                 </div>
-                <div className={styles['statusProgress']}>
+                <div className={styles.statusProgress}>
                   <Progress percent={92} size="small" status="active" />
                 </div>
               </div>
@@ -282,14 +282,14 @@ export const Dashboard: React.FC = () => {
         <Col xs={24} lg={8}>
           <Card
             title={
-              <span className={styles['cardTitle']}>
+              <span className={styles.cardTitle}>
                 <ClockCircleOutlined
                   style={{ marginRight: '8px', color: '#1890ff' }}
                 />
                 最近活动
               </span>
             }
-            className={styles['activityCard'] || ''}
+            className={styles.activityCard || ''}
           >
             <Timeline
               items={[
@@ -297,10 +297,10 @@ export const Dashboard: React.FC = () => {
                   color: 'green',
                   children: (
                     <div>
-                      <div className={styles['activityTitle']}>
+                      <div className={styles.activityTitle}>
                         营销活动创建成功
                       </div>
-                      <div className={styles['activityTime']}>2分钟前</div>
+                      <div className={styles.activityTime}>2分钟前</div>
                     </div>
                   ),
                 },
@@ -308,10 +308,8 @@ export const Dashboard: React.FC = () => {
                   color: 'blue',
                   children: (
                     <div>
-                      <div className={styles['activityTitle']}>
-                        财务报表已生成
-                      </div>
-                      <div className={styles['activityTime']}>15分钟前</div>
+                      <div className={styles.activityTitle}>财务报表已生成</div>
+                      <div className={styles.activityTime}>15分钟前</div>
                     </div>
                   ),
                 },
@@ -319,10 +317,8 @@ export const Dashboard: React.FC = () => {
                   color: 'gray',
                   children: (
                     <div>
-                      <div className={styles['activityTitle']}>
-                        用户权限更新
-                      </div>
-                      <div className={styles['activityTime']}>1小时前</div>
+                      <div className={styles.activityTitle}>用户权限更新</div>
+                      <div className={styles.activityTime}>1小时前</div>
                     </div>
                   ),
                 },
@@ -330,10 +326,8 @@ export const Dashboard: React.FC = () => {
                   color: 'gray',
                   children: (
                     <div>
-                      <div className={styles['activityTitle']}>
-                        系统备份完成
-                      </div>
-                      <div className={styles['activityTime']}>3小时前</div>
+                      <div className={styles.activityTitle}>系统备份完成</div>
+                      <div className={styles.activityTime}>3小时前</div>
                     </div>
                   ),
                 },
@@ -346,7 +340,7 @@ export const Dashboard: React.FC = () => {
         <Col xs={24} lg={8}>
           <Card
             title={
-              <span className={styles['cardTitle']}>
+              <span className={styles.cardTitle}>
                 <BellOutlined
                   style={{ marginRight: '8px', color: '#fa8c16' }}
                 />
@@ -354,7 +348,7 @@ export const Dashboard: React.FC = () => {
                 <Badge count={3} style={{ marginLeft: '8px' }} />
               </span>
             }
-            className={styles['todoCard'] || ''}
+            className={styles.todoCard || ''}
           >
             <List
               size="small"
@@ -378,10 +372,10 @@ export const Dashboard: React.FC = () => {
                   deadline: '本周五',
                 },
               ]}
-              renderItem={item => (
-                <List.Item className={styles['todoItem'] || ''}>
-                  <div className={styles['todoContent']}>
-                    <div className={styles['todoTitle']}>
+              renderItem={(item) => (
+                <List.Item className={styles.todoItem || ''}>
+                  <div className={styles.todoContent}>
+                    <div className={styles.todoTitle}>
                       {item.priority === 'high' && (
                         <ExclamationCircleOutlined
                           style={{ color: '#ff4d4f', marginRight: '4px' }}
@@ -399,9 +393,7 @@ export const Dashboard: React.FC = () => {
                       )}
                       {item.title}
                     </div>
-                    <div className={styles['todoDeadline']}>
-                      {item.deadline}
-                    </div>
+                    <div className={styles.todoDeadline}>{item.deadline}</div>
                   </div>
                 </List.Item>
               )}

@@ -1,23 +1,24 @@
-import React, { useEffect } from 'react';
-import {
-  BrowserRouter as Router,
-  Routes,
-  Route,
-  Navigate,
-  useLocation,
-} from 'react-router-dom';
 import { ConfigProvider } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
+import type React from 'react';
+import { useEffect } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { ProtectedRoute } from './components/ProtectedRoute';
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+  useLocation,
+} from 'react-router-dom';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import Layout from './components/Layout';
 import { LayoutSkeleton } from './components/LayoutSkeleton';
 import { LazyMicroFrontend } from './components/LazyMicroFrontend';
-import { ErrorBoundary } from './components/ErrorBoundary';
+import { ProtectedRoute } from './components/ProtectedRoute';
 import { configManager } from './config';
-import { Login } from './pages/Login';
+import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { Dashboard } from './pages/Dashboard';
+import { Login } from './pages/Login';
 import { NotFound } from './pages/NotFound';
 
 // 微前端包装组件，用于获取当前路径
@@ -39,7 +40,7 @@ import './App.css';
 
 // GitHub Pages 路由基础路径
 const basename: string =
-  process.env['NODE_ENV'] === 'production' ? '/mf-shell' : '';
+  process.env.NODE_ENV === 'production' ? '/mf-shell' : '';
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, isLoading, isInitializing } = useAuth();
@@ -78,7 +79,7 @@ const AppContent: React.FC = () => {
         />
 
         {/* 动态微前端路由 */}
-        {configManager.getEnabledMicroFrontends().map(mf => (
+        {configManager.getEnabledMicroFrontends().map((mf) => (
           <Route
             key={mf.name}
             path={`/${mf.name}/*`}

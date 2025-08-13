@@ -23,7 +23,6 @@ interface StorageConfig {
  */
 export class StorageUtil {
   private static readonly DEFAULT_PREFIX = 'mf_shell_';
-  private static readonly EXPIRATION_KEY_SUFFIX = '_exp';
 
   /**
    * 设置本地存储（增强版）
@@ -34,7 +33,7 @@ export class StorageUtil {
     config: StorageConfig = {}
   ): StorageResult<T> {
     try {
-      const { prefix = this.DEFAULT_PREFIX, expiration } = config;
+      const { prefix = StorageUtil.DEFAULT_PREFIX, expiration } = config;
       const fullKey = prefix + key;
 
       // 准备存储数据
@@ -63,7 +62,7 @@ export class StorageUtil {
    */
   static getItem<T>(key: string, config: StorageConfig = {}): StorageResult<T> {
     try {
-      const { prefix = this.DEFAULT_PREFIX } = config;
+      const { prefix = StorageUtil.DEFAULT_PREFIX } = config;
       const fullKey = prefix + key;
       const item = localStorage.getItem(fullKey);
 
@@ -81,7 +80,7 @@ export class StorageUtil {
 
       // 检查过期时间
       if (parsedData.expiration && Date.now() > parsedData.expiration) {
-        this.removeItem(key, config);
+        StorageUtil.removeItem(key, config);
         return { success: false, error: '数据已过期' };
       }
 
@@ -104,7 +103,7 @@ export class StorageUtil {
     config: StorageConfig = {}
   ): StorageResult<void> {
     try {
-      const { prefix = this.DEFAULT_PREFIX } = config;
+      const { prefix = StorageUtil.DEFAULT_PREFIX } = config;
       const fullKey = prefix + key;
       localStorage.removeItem(fullKey);
       return { success: true };
@@ -122,7 +121,7 @@ export class StorageUtil {
    * 检查存储项是否存在
    */
   static hasItem(key: string, config: StorageConfig = {}): boolean {
-    const result = this.getItem(key, config);
+    const result = StorageUtil.getItem(key, config);
     return result.success;
   }
 
@@ -131,12 +130,12 @@ export class StorageUtil {
    */
   static clear(config: StorageConfig = {}): StorageResult<number> {
     try {
-      const { prefix = this.DEFAULT_PREFIX } = config;
-      const keys = Object.keys(localStorage).filter(key =>
+      const { prefix = StorageUtil.DEFAULT_PREFIX } = config;
+      const keys = Object.keys(localStorage).filter((key) =>
         key.startsWith(prefix)
       );
 
-      keys.forEach(key => localStorage.removeItem(key));
+      keys.forEach((key) => localStorage.removeItem(key));
 
       return { success: true, data: keys.length };
     } catch (error) {
@@ -158,7 +157,7 @@ export class StorageUtil {
     try {
       let used = 0;
       for (const key in localStorage) {
-        if (Object.prototype.hasOwnProperty.call(localStorage, key)) {
+        if (Object.hasOwn(localStorage, key)) {
           used += localStorage[key].length + key.length;
         }
       }
@@ -198,11 +197,11 @@ export class DateUtil {
     date: Date = new Date(),
     options: DateFormatOptions = {}
   ): string {
-    const { locale = this.DEFAULT_LOCALE, format = 'long' } = options;
+    const { locale = DateUtil.DEFAULT_LOCALE, format = 'long' } = options;
 
     try {
       const formatOptions: Intl.DateTimeFormatOptions = {
-        timeZone: this.DEFAULT_TIMEZONE,
+        timeZone: DateUtil.DEFAULT_TIMEZONE,
       };
 
       switch (format) {
@@ -242,11 +241,11 @@ export class DateUtil {
     date: Date = new Date(),
     options: DateFormatOptions = {}
   ): string {
-    const { locale = this.DEFAULT_LOCALE } = options;
+    const { locale = DateUtil.DEFAULT_LOCALE } = options;
 
     try {
       return date.toLocaleTimeString(locale, {
-        timeZone: this.DEFAULT_TIMEZONE,
+        timeZone: DateUtil.DEFAULT_TIMEZONE,
         hour: '2-digit',
         minute: '2-digit',
         second: '2-digit',
@@ -264,11 +263,11 @@ export class DateUtil {
     date: Date = new Date(),
     options: DateFormatOptions = {}
   ): string {
-    const { locale = this.DEFAULT_LOCALE, format = 'medium' } = options;
+    const { locale = DateUtil.DEFAULT_LOCALE, format = 'medium' } = options;
 
     try {
       const formatOptions: Intl.DateTimeFormatOptions = {
-        timeZone: this.DEFAULT_TIMEZONE,
+        timeZone: DateUtil.DEFAULT_TIMEZONE,
         year: 'numeric',
         month: format === 'short' ? 'numeric' : 'long',
         day: 'numeric',
@@ -293,7 +292,7 @@ export class DateUtil {
   static getRelativeTime(
     date: Date,
     baseDate: Date = new Date(),
-    locale: string = this.DEFAULT_LOCALE
+    locale: string = DateUtil.DEFAULT_LOCALE
   ): string {
     try {
       const rtf = new Intl.RelativeTimeFormat(locale, { numeric: 'auto' });
@@ -326,7 +325,7 @@ export class DateUtil {
    * 检查日期是否有效
    */
   static isValidDate(date: unknown): date is Date {
-    return date instanceof Date && !isNaN(date.getTime());
+    return date instanceof Date && !Number.isNaN(date.getTime());
   }
 
   /**
@@ -335,7 +334,7 @@ export class DateUtil {
   static parseDate(input: string | number | Date): Date | null {
     try {
       const date = new Date(input);
-      return this.isValidDate(date) ? date : null;
+      return DateUtil.isValidDate(date) ? date : null;
     } catch {
       return null;
     }
@@ -413,9 +412,9 @@ export class PerformanceUtil {
    */
   static startTimer(name: string): void {
     if (typeof window !== 'undefined' && window.performance) {
-      this.timers.set(name, window.performance.now());
+      PerformanceUtil.timers.set(name, window.performance.now());
     } else {
-      this.timers.set(name, Date.now());
+      PerformanceUtil.timers.set(name, Date.now());
     }
   }
 
@@ -423,7 +422,7 @@ export class PerformanceUtil {
    * 结束计时并返回耗时
    */
   static endTimer(name: string): number {
-    const startTime = this.timers.get(name);
+    const startTime = PerformanceUtil.timers.get(name);
     if (startTime === undefined) {
       console.warn(`Timer "${name}" not found`);
       return 0;
@@ -434,7 +433,7 @@ export class PerformanceUtil {
         ? window.performance.now()
         : Date.now();
     const duration = currentTime - startTime;
-    this.timers.delete(name);
+    PerformanceUtil.timers.delete(name);
     return duration;
   }
 
@@ -445,13 +444,13 @@ export class PerformanceUtil {
     name: string,
     fn: () => Promise<T>
   ): Promise<{ result: T; duration: number }> {
-    this.startTimer(name);
+    PerformanceUtil.startTimer(name);
     try {
       const result = await fn();
-      const duration = this.endTimer(name);
+      const duration = PerformanceUtil.endTimer(name);
       return { result, duration };
     } catch (error) {
-      this.endTimer(name);
+      PerformanceUtil.endTimer(name);
       throw error;
     }
   }
@@ -463,13 +462,13 @@ export class PerformanceUtil {
     name: string,
     fn: () => T
   ): { result: T; duration: number } {
-    this.startTimer(name);
+    PerformanceUtil.startTimer(name);
     try {
       const result = fn();
-      const duration = this.endTimer(name);
+      const duration = PerformanceUtil.endTimer(name);
       return { result, duration };
     } catch (error) {
-      this.endTimer(name);
+      PerformanceUtil.endTimer(name);
       throw error;
     }
   }

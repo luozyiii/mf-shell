@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { AppPermission, UserRole } from '../types/auth';
+import { type AppPermission, UserRole } from '../types/auth';
 
 // 权限检查结果接口
 interface PermissionCheckResult {
@@ -148,7 +148,7 @@ export const usePermissions = () => {
         };
       }
 
-      const hasPermission = roles.some(role => hasRoleSimple(role));
+      const hasPermission = roles.some((role) => hasRoleSimple(role));
       return {
         hasPermission,
         reason: hasPermission
@@ -183,7 +183,7 @@ export const usePermissions = () => {
         };
       }
 
-      const missingRoles = roles.filter(role => !hasRoleSimple(role));
+      const missingRoles = roles.filter((role) => !hasRoleSimple(role));
       const hasPermission = missingRoles.length === 0;
 
       return {

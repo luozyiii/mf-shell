@@ -1,5 +1,5 @@
-import React, { Suspense, lazy } from 'react';
 import { Spin } from 'antd';
+import React, { lazy, Suspense } from 'react';
 
 // 简单的加载组件
 const LoadingFallback: React.FC = () => (
@@ -39,7 +39,9 @@ class ErrorBoundary extends React.Component<
         <div style={{ padding: '20px', textAlign: 'center' }}>
           <h3>应用加载失败</h3>
           <p>请检查网络连接或稍后重试</p>
-          <button onClick={() => window.location.reload()}>刷新页面</button>
+          <button type="button" onClick={() => window.location.reload()}>
+            刷新页面
+          </button>
         </div>
       );
     }
@@ -94,7 +96,7 @@ const DynamicMicroFrontendContainer: React.FC<{
   // 每次路径变化时，强制重新创建组件
   React.useEffect(() => {
     setComponentKey(`${appName}-${componentName}-${Date.now()}`);
-  }, [appName, pathname, componentName]);
+  }, [appName, componentName]);
 
   // 创建动态组件
   const DynamicComponent = React.useMemo(() => {
@@ -173,7 +175,10 @@ const createLazyMicroFrontend = (appName: string, pathname: string) => {
   const cacheKey = `${appName}-${pathname}`;
 
   if (componentCache.has(cacheKey)) {
-    return componentCache.get(cacheKey)!;
+    const cachedComponent = componentCache.get(cacheKey);
+    if (cachedComponent) {
+      return cachedComponent;
+    }
   }
 
   const LazyComponent = lazy(async () => {

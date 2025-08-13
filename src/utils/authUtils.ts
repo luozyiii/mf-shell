@@ -69,7 +69,7 @@ export class AuthUtils {
    * 获取token
    */
   static getToken(): string | null {
-    return SafeStorage.getItem(this.TOKEN_KEY);
+    return SafeStorage.getItem(AuthUtils.TOKEN_KEY);
   }
 
   /**
@@ -80,7 +80,7 @@ export class AuthUtils {
       console.warn('Invalid token provided');
       return false;
     }
-    return SafeStorage.setItem(this.TOKEN_KEY, token);
+    return SafeStorage.setItem(AuthUtils.TOKEN_KEY, token);
   }
 
   /**
@@ -88,18 +88,18 @@ export class AuthUtils {
    */
   static removeToken(): boolean {
     const results = [
-      SafeStorage.removeItem(this.TOKEN_KEY),
-      SafeStorage.removeItem(this.USER_KEY),
-      SafeStorage.removeItem(this.PERMISSIONS_KEY),
+      SafeStorage.removeItem(AuthUtils.TOKEN_KEY),
+      SafeStorage.removeItem(AuthUtils.USER_KEY),
+      SafeStorage.removeItem(AuthUtils.PERMISSIONS_KEY),
     ];
-    return results.every(result => result);
+    return results.every((result) => result);
   }
 
   /**
    * 检查是否已登录
    */
   static isAuthenticated(): boolean {
-    const token = this.getToken();
+    const token = AuthUtils.getToken();
     return !!token && token.length > 0;
   }
 
@@ -107,7 +107,7 @@ export class AuthUtils {
    * 验证 token 格式（简单验证）
    */
   static isValidToken(token?: string): boolean {
-    const tokenToCheck = token || this.getToken();
+    const tokenToCheck = token || AuthUtils.getToken();
     if (!tokenToCheck) return false;
 
     // 简单的 JWT 格式检查
@@ -119,7 +119,7 @@ export class AuthUtils {
    * 获取用户数据
    */
   static getUserData(): User | null {
-    const userData = SafeStorage.getItem(this.USER_KEY);
+    const userData = SafeStorage.getItem(AuthUtils.USER_KEY);
     if (!userData) return null;
 
     try {
@@ -128,14 +128,14 @@ export class AuthUtils {
       // 基本验证用户对象结构
       if (!user.id || !user.username) {
         console.warn('Invalid user data structure');
-        this.removeUserData();
+        AuthUtils.removeUserData();
         return null;
       }
 
       return user;
     } catch (error) {
       console.error('Failed to parse user data:', error);
-      this.removeUserData();
+      AuthUtils.removeUserData();
       return null;
     }
   }
@@ -156,7 +156,7 @@ export class AuthUtils {
 
     try {
       const userStr = JSON.stringify(userData);
-      const success = SafeStorage.setItem(this.USER_KEY, userStr);
+      const success = SafeStorage.setItem(AuthUtils.USER_KEY, userStr);
 
       if (success) {
         // 记录最后登录时间
@@ -174,7 +174,7 @@ export class AuthUtils {
    * 移除用户数据
    */
   static removeUserData(): boolean {
-    const success1 = SafeStorage.removeItem(this.USER_KEY);
+    const success1 = SafeStorage.removeItem(AuthUtils.USER_KEY);
     const success2 = SafeStorage.removeItem(STORAGE_KEYS.LAST_LOGIN);
     return success1 && success2;
   }
@@ -183,14 +183,14 @@ export class AuthUtils {
    * 获取权限数据
    */
   static getPermissions(): Record<string, unknown> | null {
-    const permissions = SafeStorage.getItem(this.PERMISSIONS_KEY);
+    const permissions = SafeStorage.getItem(AuthUtils.PERMISSIONS_KEY);
     if (!permissions) return null;
 
     try {
       return JSON.parse(permissions) as Record<string, unknown>;
     } catch (error) {
       console.error('Failed to parse permissions data:', error);
-      this.removePermissions();
+      AuthUtils.removePermissions();
       return null;
     }
   }
@@ -206,7 +206,7 @@ export class AuthUtils {
 
     try {
       return SafeStorage.setItem(
-        this.PERMISSIONS_KEY,
+        AuthUtils.PERMISSIONS_KEY,
         JSON.stringify(permissions)
       );
     } catch (error) {
@@ -219,7 +219,7 @@ export class AuthUtils {
    * 移除权限数据
    */
   static removePermissions(): boolean {
-    return SafeStorage.removeItem(this.PERMISSIONS_KEY);
+    return SafeStorage.removeItem(AuthUtils.PERMISSIONS_KEY);
   }
 
   /**
@@ -240,7 +240,7 @@ export class AuthUtils {
    * 检查用户是否完全登录（有token和用户数据）
    */
   static isFullyAuthenticated(): boolean {
-    return this.isAuthenticated() && !!this.getUserData();
+    return AuthUtils.isAuthenticated() && !!AuthUtils.getUserData();
   }
 
   /**
@@ -256,7 +256,7 @@ export class AuthUtils {
    * 退出登录
    */
   static logout(): void {
-    this.removeToken();
+    AuthUtils.removeToken();
     // 简化登出跳转
     window.location.href = '/login';
   }
@@ -265,8 +265,8 @@ export class AuthUtils {
    * 检查token是否过期（简单实现）
    */
   static isTokenExpired(): boolean {
-    const token = this.getToken();
-    return !token || !this.isValidToken(token);
+    const token = AuthUtils.getToken();
+    return !token || !AuthUtils.isValidToken(token);
   }
 
   /**
@@ -274,14 +274,14 @@ export class AuthUtils {
    */
   static clearAll(): boolean {
     const results = [
-      SafeStorage.removeItem(this.TOKEN_KEY),
-      SafeStorage.removeItem(this.USER_KEY),
-      SafeStorage.removeItem(this.PERMISSIONS_KEY),
+      SafeStorage.removeItem(AuthUtils.TOKEN_KEY),
+      SafeStorage.removeItem(AuthUtils.USER_KEY),
+      SafeStorage.removeItem(AuthUtils.PERMISSIONS_KEY),
       SafeStorage.removeItem(STORAGE_KEYS.REFRESH_TOKEN),
       SafeStorage.removeItem(STORAGE_KEYS.LAST_LOGIN),
     ];
 
-    return results.every(result => result);
+    return results.every((result) => result);
   }
 
   /**
@@ -289,9 +289,9 @@ export class AuthUtils {
    */
   static getStorageInfo(): { [key: string]: string | null } {
     return {
-      token: this.isAuthenticated() ? '[PRESENT]' : null,
-      userData: this.getUserData() ? '[PRESENT]' : null,
-      permissions: this.getPermissions() ? '[PRESENT]' : null,
+      token: AuthUtils.isAuthenticated() ? '[PRESENT]' : null,
+      userData: AuthUtils.getUserData() ? '[PRESENT]' : null,
+      permissions: AuthUtils.getPermissions() ? '[PRESENT]' : null,
       lastLogin: SafeStorage.getItem(STORAGE_KEYS.LAST_LOGIN),
     };
   }

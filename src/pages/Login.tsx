@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Card, Typography, Alert, Space } from 'antd';
-import { UserOutlined, LockOutlined } from '@ant-design/icons';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { LockOutlined, UserOutlined } from '@ant-design/icons';
+import { Alert, Button, Card, Form, Input, Space, Typography } from 'antd';
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LoginForm } from '../types/auth';
+import type { LoginForm } from '../types/auth';
 
 const { Title, Text } = Typography;
 
@@ -27,7 +28,9 @@ export const Login: React.FC = () => {
       }
       // 如果是内部路径但不是有效路由，跳转到首页
       const validPaths = ['/dashboard', '/template'];
-      const isValidPath = validPaths.some(path => decodedUrl.startsWith(path));
+      const isValidPath = validPaths.some((path) =>
+        decodedUrl.startsWith(path)
+      );
       return isValidPath ? decodedUrl : '/dashboard';
     }
     const fromPath = (location.state as { from?: { pathname: string } })?.from
@@ -35,7 +38,7 @@ export const Login: React.FC = () => {
     if (fromPath) {
       // 如果来源路径是有效路由，使用它；否则跳转到首页
       const validPaths = ['/dashboard', '/template'];
-      const isValidPath = validPaths.some(path => fromPath.startsWith(path));
+      const isValidPath = validPaths.some((path) => fromPath.startsWith(path));
       return isValidPath ? fromPath : '/dashboard';
     }
     return '/dashboard';

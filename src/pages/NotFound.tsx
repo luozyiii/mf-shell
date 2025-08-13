@@ -1,7 +1,8 @@
-import React, { useEffect } from 'react';
-import { Result, Button } from 'antd';
+import { ArrowLeftOutlined, HomeOutlined } from '@ant-design/icons';
+import { Button, Result } from 'antd';
+import type React from 'react';
+import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { HomeOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 
 export const NotFound: React.FC = () => {

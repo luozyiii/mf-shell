@@ -38,27 +38,33 @@ export class RouteLoader {
     appName: string
   ): Promise<AppRouteConfig | null> {
     // 检查缓存
-    if (this.routeCache.has(appName)) {
-      return this.routeCache.get(appName)!;
+    if (RouteLoader.routeCache.has(appName)) {
+      const cachedConfig = RouteLoader.routeCache.get(appName);
+      if (cachedConfig) {
+        return cachedConfig;
+      }
     }
 
     // 检查是否正在加载
-    if (this.loadingPromises.has(appName)) {
-      return this.loadingPromises.get(appName)!;
+    if (RouteLoader.loadingPromises.has(appName)) {
+      const loadingPromise = RouteLoader.loadingPromises.get(appName);
+      if (loadingPromise) {
+        return loadingPromise;
+      }
     }
 
     // 创建加载 Promise
-    const loadingPromise = this.doLoadRouteConfig(appName);
-    this.loadingPromises.set(appName, loadingPromise);
+    const loadingPromise = RouteLoader.doLoadRouteConfig(appName);
+    RouteLoader.loadingPromises.set(appName, loadingPromise);
 
     try {
       const config = await loadingPromise;
       if (config) {
-        this.routeCache.set(appName, config);
+        RouteLoader.routeCache.set(appName, config);
       }
       return config;
     } finally {
-      this.loadingPromises.delete(appName);
+      RouteLoader.loadingPromises.delete(appName);
     }
   }
 
@@ -71,7 +77,7 @@ export class RouteLoader {
     try {
       console.log(`🔄 Loading route config for ${appName}...`);
 
-      let routeModule;
+      let routeModule: any;
 
       switch (appName) {
         case 'template':
@@ -121,8 +127,8 @@ export class RouteLoader {
   ): Promise<Record<string, AppRouteConfig | null>> {
     const results: Record<string, AppRouteConfig | null> = {};
 
-    const loadPromises = appNames.map(async appName => {
-      const config = await this.loadRouteConfig(appName);
+    const loadPromises = appNames.map(async (appName) => {
+      const config = await RouteLoader.loadRouteConfig(appName);
       results[appName] = config;
     });
 
@@ -135,11 +141,11 @@ export class RouteLoader {
    */
   static clearCache(appName?: string): void {
     if (appName) {
-      this.routeCache.delete(appName);
-      this.loadingPromises.delete(appName);
+      RouteLoader.routeCache.delete(appName);
+      RouteLoader.loadingPromises.delete(appName);
     } else {
-      this.routeCache.clear();
-      this.loadingPromises.clear();
+      RouteLoader.routeCache.clear();
+      RouteLoader.loadingPromises.clear();
     }
   }
 
@@ -147,14 +153,14 @@ export class RouteLoader {
    * 获取缓存的路由配置
    */
   static getCachedRouteConfig(appName: string): AppRouteConfig | null {
-    return this.routeCache.get(appName) || null;
+    return RouteLoader.routeCache.get(appName) || null;
   }
 
   /**
    * 检查路由配置是否已加载
    */
   static isRouteConfigLoaded(appName: string): boolean {
-    return this.routeCache.has(appName);
+    return RouteLoader.routeCache.has(appName);
   }
 
   /**
@@ -162,7 +168,7 @@ export class RouteLoader {
    */
   static getAllLoadedConfigs(): Record<string, AppRouteConfig> {
     const result: Record<string, AppRouteConfig> = {};
-    this.routeCache.forEach((config, appName) => {
+    RouteLoader.routeCache.forEach((config, appName) => {
       result[appName] = config;
     });
     return result;

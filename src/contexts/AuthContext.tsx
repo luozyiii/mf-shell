@@ -1,18 +1,19 @@
-import React, {
+import type React from 'react';
+import {
   createContext,
-  useContext,
-  useState,
-  useEffect,
+  type ReactNode,
   useCallback,
-  ReactNode,
+  useContext,
+  useEffect,
+  useState,
 } from 'react';
 import {
-  AuthContextType,
-  User,
-  Permissions,
-  LoginForm,
-  UserRole,
   AppPermission,
+  type AuthContextType,
+  type LoginForm,
+  type Permissions,
+  type User,
+  UserRole,
 } from '../types/auth';
 import { AuthUtils } from '../utils/authUtils';
 
@@ -91,7 +92,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           AuthUtils.setPermissions(permissionsData as any);
 
           // 跳过认证时显示较短的加载时间
-          await new Promise(resolve =>
+          await new Promise((resolve) =>
             window.setTimeout(resolve as () => void, 500)
           );
           return;
@@ -109,12 +110,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setPermissions(permissionsData as Permissions);
 
           // 已登录用户显示较短的骨架屏时间
-          await new Promise(resolve =>
+          await new Promise((resolve) =>
             window.setTimeout(resolve as () => void, 800)
           );
         } else {
           // 未登录用户，显示较长的骨架屏时间
-          await new Promise(resolve =>
+          await new Promise((resolve) =>
             window.setTimeout(resolve as () => void, 1200)
           );
         }
@@ -126,7 +127,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         localStorage.removeItem('permissions_data');
 
         // 验证失败，显示较短时间
-        await new Promise(resolve => window.setTimeout(resolve, 600));
+        await new Promise((resolve) => window.setTimeout(resolve, 600));
       } finally {
         // 先结束初始化状态，再结束加载状态，确保平滑过渡
         setIsInitializing(false);
@@ -144,7 +145,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return new Promise((resolve, reject) => {
       window.setTimeout(() => {
         const foundUser = mockUsers.find(
-          u =>
+          (u) =>
             u.username === credentials.username &&
             u.password === credentials.password
         );
@@ -188,7 +189,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return new Promise((resolve, reject) => {
         window.setTimeout(() => {
           const foundUser = mockUsers.find(
-            u =>
+            (u) =>
               u.username === credentials.username &&
               u.password === credentials.password
           );

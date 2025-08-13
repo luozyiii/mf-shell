@@ -45,11 +45,9 @@ export const APP_CONFIG = {
 // 环境配置
 export const ENV_CONFIG = {
   isDevelopment:
-    typeof process !== 'undefined' &&
-    process.env?.['NODE_ENV'] === 'development',
+    typeof process !== 'undefined' && process.env?.NODE_ENV === 'development',
   isProduction:
-    typeof process !== 'undefined' &&
-    process.env?.['NODE_ENV'] === 'production',
+    typeof process !== 'undefined' && process.env?.NODE_ENV === 'production',
 } as const;
 
 // 错误消息常量

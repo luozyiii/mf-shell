@@ -34,7 +34,7 @@ export const generateRemotes = () => {
   const isDev = process.env.NODE_ENV !== 'production';
   const remotes: Record<string, string> = {};
 
-  Object.values(remoteConfigs).forEach(config => {
+  Object.values(remoteConfigs).forEach((config) => {
     const url = isDev ? config.development : config.production;
     remotes[config.name] = `${config.url}@${url}`;
   });
