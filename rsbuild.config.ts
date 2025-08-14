@@ -35,6 +35,10 @@ export default defineConfig({
       'process.env.FINANCE_ENABLED': JSON.stringify(
         process.env.FINANCE_ENABLED
       ),
+      // MF-Shared 配置
+      'process.env.MF_SHARED_URL': JSON.stringify(
+        process.env.MF_SHARED_URL || 'https://luozyiii.github.io/mf-shared/'
+      ),
     },
     entry: {
       index: './src/index.tsx',

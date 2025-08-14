@@ -33,6 +33,12 @@ declare module 'template/App' {
   export default App;
 }
 
+declare module 'template/StoreDemo' {
+  import type React from 'react';
+  const StoreDemo: React.ComponentType;
+  export default StoreDemo;
+}
+
 declare module 'template/routes' {
   export interface RouteConfig {
     path: string;
@@ -43,6 +49,23 @@ declare module 'template/routes' {
 
   const routes: RouteConfig[];
   export default routes;
+}
+
+declare module 'mf-shared/store' {
+  export interface GlobalStoreModule {
+    initGlobalStore: () => Promise<void>;
+    setStoreValue: (key: string, value: any) => void;
+    getStoreValue: (key: string) => any;
+    subscribeStore: (
+      key: string,
+      callback: (key: string, newVal: any, oldVal?: any) => void
+    ) => () => void;
+    clearStore: () => void;
+    getAllStoreData: () => Record<string, any>;
+  }
+
+  const store: GlobalStoreModule;
+  export = store;
 }
 
 // 扩展 Window 接口，添加调试工具

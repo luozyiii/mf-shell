@@ -133,6 +133,9 @@ const getComponentNameFromPath = (pathname: string): string => {
     case 'settings':
       componentName = 'Settings';
       break;
+    case 'store-demo':
+      componentName = 'StoreDemo';
+      break;
     default:
       componentName = 'Dashboard'; // 默认组件
   }
@@ -231,6 +234,8 @@ const dynamicImportMap: Record<string, Record<string, () => Promise<any>>> = {
     Feature2: () => import('template/Feature2'),
     // @ts-ignore - Module Federation 动态导入，运行时存在
     Settings: () => import('template/Settings'),
+    // @ts-ignore - Module Federation 动态导入，运行时存在
+    StoreDemo: () => import('template/StoreDemo'),
   },
   // 可以在这里添加更多应用的导入配置
 };

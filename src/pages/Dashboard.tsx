@@ -5,6 +5,7 @@ import {
   CheckCircleOutlined,
   ClockCircleOutlined,
   CloudServerOutlined,
+  DatabaseOutlined,
   DollarOutlined,
   ExclamationCircleOutlined,
   InboxOutlined,
@@ -15,7 +16,6 @@ import {
 } from '@ant-design/icons';
 import {
   Badge,
-  Button,
   Card,
   Col,
   List,
@@ -27,6 +27,7 @@ import {
 } from 'antd';
 import type React from 'react';
 import { useNavigate } from 'react-router-dom';
+import { StoreDemo } from '../components/StoreDemo';
 import { configManager } from '../config';
 import { useAuth } from '../contexts/AuthContext';
 import { UserRole } from '../types/auth';
@@ -182,37 +183,24 @@ export const Dashboard: React.FC = () => {
         </Row>
       </Card>
 
-      {/* 快捷操作 */}
-      <Card
-        title={<span className={styles.actionsTitle || ''}>快捷操作</span>}
-        className={styles.actionsCard || ''}
-        styles={{ body: { padding: '24px' } }}
-      >
-        <Space wrap size="middle" className={styles.actionsButtons || ''}>
-          <Button
-            type="primary"
-            icon={<BarChartOutlined />}
-            size="large"
-            className={`${styles.actionButton} ${styles.actionButtonPrimary}`}
+      {/* Store 演示区域 */}
+      <Row gutter={[24, 24]} style={{ marginTop: '24px' }}>
+        <Col span={24}>
+          <Card
+            title={
+              <span className={styles.cardTitle}>
+                <DatabaseOutlined
+                  style={{ marginRight: '8px', color: '#1890ff' }}
+                />
+                🗄️ 全局存储演示
+              </span>
+            }
+            className={styles.statusCard || ''}
           >
-            查看报表
-          </Button>
-          <Button
-            icon={<TeamOutlined />}
-            size="large"
-            className={`${styles.actionButton} ${styles.actionButtonSecondary}`}
-          >
-            用户管理
-          </Button>
-          <Button
-            icon={<UserOutlined />}
-            size="large"
-            className={`${styles.actionButton} ${styles.actionButtonSecondary}`}
-          >
-            个人设置
-          </Button>
-        </Space>
-      </Card>
+            <StoreDemo />
+          </Card>
+        </Col>
+      </Row>
 
       {/* 第二行内容 */}
       <Row gutter={[24, 24]} style={{ marginTop: '24px' }}>
@@ -398,6 +386,46 @@ export const Dashboard: React.FC = () => {
                 </List.Item>
               )}
             />
+          </Card>
+        </Col>
+      </Row>
+
+      {/* 相关链接 */}
+      <Row gutter={[24, 24]} style={{ marginTop: '24px' }}>
+        <Col span={24}>
+          <Card
+            title="🔗 相关链接"
+            size="small"
+            style={{ textAlign: 'center' }}
+          >
+            <Space size="large">
+              <a
+                href={process.env.MF_SHARED_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: '#1890ff',
+                  textDecoration: 'none',
+                  fontSize: '16px',
+                  fontWeight: 500,
+                }}
+              >
+                🚀 MF-Shared 共享模块演示
+              </a>
+              <a
+                href="https://github.com/luozyiii/micro-frontend-app"
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: '#1890ff',
+                  textDecoration: 'none',
+                  fontSize: '16px',
+                  fontWeight: 500,
+                }}
+              >
+                📚 查看源码
+              </a>
+            </Space>
           </Card>
         </Col>
       </Row>

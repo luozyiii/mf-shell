@@ -8,6 +8,12 @@ export interface RemoteConfig {
 
 // 远程模块配置列表
 export const remoteConfigs: Record<string, RemoteConfig> = {
+  'mf-shared': {
+    name: 'mf-shared',
+    url: 'mfShared',
+    development: `http://localhost:${process.env.SHARED_PORT || '2999'}/remoteEntry.js`,
+    production: `${process.env.SHARED_URL || 'https://luozyiii.github.io/mf-shared'}/remoteEntry.js`,
+  },
   template: {
     name: 'template',
     url: 'template',
