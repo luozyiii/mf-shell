@@ -7,24 +7,51 @@ async function initGlobalStore() {
   try {
     // 动态导入 mf-shared 的存储模块
     // @ts-ignore - Module Federation 动态导入，运行时存在
-    const { initGlobalStore, setStoreValue } = await import('mf-shared/store');
+    const { initGlobalStore, setStoreValue, configureStoreStrategy } =
+      await import('mf-shared/store');
 
-    // 初始化全局存储
+    // 初始化全局存储（聚合）
     initGlobalStore({
       enablePersistence: true,
       enableEncryption: true,
-      storageKey: 'mf-global-store',
+      storageKey: 'mf-shell-store',
     });
+    // 兼容迁移：如果检测到旧容器 mf-global-store 存在但当前容器为空，尝试从旧容器读出四大键迁移
+    try {
+      const win: any = window as any;
+      if (win?.localStorage) {
+        const readOld = (k: string) => {
+          const raw = localStorage.getItem(`mf-global-store:${k}`) || '';
+          try {
+            return JSON.parse(raw);
+          } catch {
+            return undefined;
+          }
+        };
+        const toMigrate = ['user', 'app', 'roles', 'token'];
+        for (const s of toMigrate) {
+          // 仅当新容器中该键为空时迁移
+          const newRaw = localStorage.getItem(`mf-shell-store:${s}`);
+          if (!newRaw) {
+            const oldVal = readOld(s);
+            if (oldVal !== undefined && oldVal !== null) {
+              try {
+                setStoreValue(s, oldVal);
+              } catch {}
+            }
+          }
+        }
+      }
+    } catch {}
 
-    // 设置一些初始数据（模拟用户信息）
-    setStoreValue('userinfo', {
-      name: '张三',
-      age: 18,
-      role: 'admin',
-      permissions: ['read', 'write', 'delete'],
-    });
+    // 配置细粒度存储策略（简化键）
+    configureStoreStrategy('user', { medium: 'local', encrypted: true });
+    configureStoreStrategy('token', { medium: 'local', encrypted: false });
+    configureStoreStrategy('app', { medium: 'local', encrypted: false });
+    configureStoreStrategy('roles', { medium: 'local', encrypted: false });
 
-    setStoreValue('appConfig', {
+    // 示例：初始化默认 app（不初始化用户信息/令牌）
+    setStoreValue('app', {
       theme: 'light',
       language: 'zh-CN',
       version: '1.0.0',

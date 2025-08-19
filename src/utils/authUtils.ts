@@ -7,7 +7,15 @@ interface User {
   [key: string]: unknown;
 }
 
-// 存储键名常量
+// @ts-ignore - MF runtime
+import {
+  clearStoreByPrefix,
+  getStoreValue,
+  setStoreValue,
+} from 'mf-shared/store';
+import { clearByPrefix as clearShortKeys } from '../store/keys';
+
+// 存储键名常量（兼容旧逻辑）
 const STORAGE_KEYS = {
   AUTH_TOKEN: 'auth_token',
   USER_DATA: 'user_data',
@@ -69,6 +77,12 @@ export class AuthUtils {
    * 获取token
    */
   static getToken(): string | null {
+    // 优先从 globalStore 获取
+    try {
+      const v = getStoreValue<string>('token');
+      if (v) return v;
+    } catch {}
+    // 兼容旧逻辑
     return SafeStorage.getItem(AuthUtils.TOKEN_KEY);
   }
 
@@ -80,6 +94,10 @@ export class AuthUtils {
       console.warn('Invalid token provided');
       return false;
     }
+    try {
+      // 同步写入 globalStore（简化键）
+      setStoreValue('token', token);
+    } catch {}
     return SafeStorage.setItem(AuthUtils.TOKEN_KEY, token);
   }
 
@@ -87,6 +105,53 @@ export class AuthUtils {
    * 移除token
    */
   static removeToken(): boolean {
+    try {
+      // 清理旧命名空间（mf-shell-*）
+      clearStoreByPrefix('mf-shell-');
+      // 清理现行简化键（容器内前缀为空，调用短键清理逻辑）
+      clearShortKeys();
+      // 物理删除 per-key 持久化条目（localStorage/sessionStorage）
+      const win: any = window as any;
+      const containers = [
+        win?.globalStore?.options?.storageKey || 'mf-shell-store',
+        'mf-global-store',
+      ];
+      const legacyPrefixes = ['mf-shell-', 'g:sh:'];
+      const legacyKeys = [
+        'mf-shell-appconfig',
+        'mf-shell-userinfo',
+        'mf-shell-permissions',
+        'mf-shell-token',
+      ];
+      const simpleKeys = ['user', 'app', 'roles', 'token'];
+      containers.forEach((container) => {
+        try {
+          // 删除显式的简化键
+          simpleKeys.forEach((k) => {
+            try {
+              localStorage.removeItem(`${container}:${k}`);
+            } catch {}
+            try {
+              sessionStorage.removeItem(`${container}:${k}`);
+            } catch {}
+          });
+          // 删除旧前缀项与遗留显式键
+          const allKeys = Object.keys(localStorage);
+          allKeys.forEach((fullKey) => {
+            if (!fullKey.startsWith(`${container}:`)) return;
+            const sub = fullKey.slice(container.length + 1);
+            if (
+              legacyPrefixes.some((p) => sub.startsWith(p)) ||
+              legacyKeys.includes(sub)
+            ) {
+              try {
+                localStorage.removeItem(fullKey);
+              } catch {}
+            }
+          });
+        } catch {}
+      });
+    } catch {}
     const results = [
       SafeStorage.removeItem(AuthUtils.TOKEN_KEY),
       SafeStorage.removeItem(AuthUtils.USER_KEY),
@@ -119,6 +184,11 @@ export class AuthUtils {
    * 获取用户数据
    */
   static getUserData(): User | null {
+    try {
+      const fromStore = getStoreValue<User>('user');
+      if (fromStore) return fromStore as unknown as User;
+    } catch {}
+
     const userData = SafeStorage.getItem(AuthUtils.USER_KEY);
     if (!userData) return null;
 
@@ -155,6 +225,9 @@ export class AuthUtils {
     }
 
     try {
+      // 同步写入 globalStore（简化键）
+      setStoreValue('user', userData as any);
+
       const userStr = JSON.stringify(userData);
       const success = SafeStorage.setItem(AuthUtils.USER_KEY, userStr);
 
@@ -183,6 +256,11 @@ export class AuthUtils {
    * 获取权限数据
    */
   static getPermissions(): Record<string, unknown> | null {
+    try {
+      const fromStore = getStoreValue<Record<string, unknown>>('roles');
+      if (fromStore) return fromStore;
+    } catch {}
+
     const permissions = SafeStorage.getItem(AuthUtils.PERMISSIONS_KEY);
     if (!permissions) return null;
 
@@ -205,6 +283,7 @@ export class AuthUtils {
     }
 
     try {
+      setStoreValue('roles', permissions as any);
       return SafeStorage.setItem(
         AuthUtils.PERMISSIONS_KEY,
         JSON.stringify(permissions)

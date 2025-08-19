@@ -1,7 +1,8 @@
-import { ConfigProvider } from 'antd';
+import { theme as AntTheme, ConfigProvider } from 'antd';
+import enUS from 'antd/locale/en_US';
 import zhCN from 'antd/locale/zh_CN';
 import type React from 'react';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
 import {
   Navigate,
@@ -120,10 +121,41 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  // 绑定 ConfigProvider 到简化键 app（theme / language）
+  const [themeMode, setThemeMode] = useState<'light' | 'dark'>('light');
+  const [localeName, setLocaleName] = useState<string>('zh-CN');
+  useEffect(() => {
+    let unsub: (() => void) | undefined;
+    (async () => {
+      try {
+        // @ts-ignore
+        const { getStoreValue, subscribeStore } = await import(
+          'mf-shared/store'
+        );
+        const app = (getStoreValue('app') as any) || {};
+        if (app?.theme) setThemeMode(app.theme);
+        if (app?.language) setLocaleName(app.language);
+        unsub = subscribeStore?.('app', (_k: string, nv: any) => {
+          if (nv?.theme) setThemeMode(nv.theme);
+          if (nv?.language) setLocaleName(nv.language);
+        });
+      } catch {}
+    })();
+    return () => {
+      try {
+        unsub?.();
+      } catch {}
+    };
+  }, []);
+
+  const antLocale = localeName === 'en-US' ? enUS : zhCN;
+  const algorithm =
+    themeMode === 'dark' ? AntTheme.darkAlgorithm : AntTheme.defaultAlgorithm;
+
   return (
     <ErrorBoundary>
       <HelmetProvider>
-        <ConfigProvider locale={zhCN}>
+        <ConfigProvider locale={antLocale} theme={{ algorithm }}>
           <AuthProvider>
             <AppContent />
             {/* 性能监控开发工具 - 仅在开发环境显示 */}

@@ -1,3 +1,5 @@
+// @ts-ignore - MF runtime
+import { configureStoreStrategy, setStoreValue } from 'mf-shared/store';
 import type React from 'react';
 import {
   createContext,
@@ -7,6 +9,8 @@ import {
   useEffect,
   useState,
 } from 'react';
+// @ts-ignore - JSON modules
+import users from '../mock/userinfo.json';
 import {
   AppPermission,
   type AuthContextType,
@@ -141,10 +145,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   const login = useCallback(async (credentials: LoginForm): Promise<void> => {
-    // 模拟API调用
+    // 模拟API调用（读取本地 mock 文件）
     return new Promise((resolve, reject) => {
       window.setTimeout(() => {
-        const foundUser = mockUsers.find(
+        const list: any[] = (users as any[])?.length
+          ? (users as any[])
+          : mockUsers;
+        const foundUser = list.find(
           (u) =>
             u.username === credentials.username &&
             u.password === credentials.password
@@ -160,7 +167,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           };
 
           const permissionsData: Permissions = {
-            [AppPermission.TEMPLATE]: foundUser.permissions.includes(
+            [AppPermission.TEMPLATE]: !!foundUser.permissions?.includes(
               AppPermission.TEMPLATE
             ),
           };
@@ -168,10 +175,24 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // 生成模拟JWT token
           const token = `mock_jwt_token_${foundUser.id}_${Date.now()}`;
 
-          // 使用AuthUtils统一存储，确保所有应用都能访问
+          // 使用AuthUtils写入 token / user / permissions（同时写 globalStore）
           AuthUtils.setToken(token);
           AuthUtils.setUserData(userData as any);
           AuthUtils.setPermissions(permissionsData as Record<string, unknown>);
+
+          // 同步写入 globalStore（简化键）
+          try {
+            configureStoreStrategy?.('user', {
+              medium: 'local',
+              encrypted: true,
+            });
+            configureStoreStrategy?.('roles', {
+              medium: 'local',
+              encrypted: false,
+            });
+            setStoreValue?.('user', userData as any);
+            setStoreValue?.('roles', permissionsData as any);
+          } catch {}
 
           setUser(userData);
           setPermissions(permissionsData);
@@ -179,7 +200,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         } else {
           reject(new Error('用户名或密码错误'));
         }
-      }, 1000); // 模拟网络延迟
+      }, 600);
     });
   }, []);
 

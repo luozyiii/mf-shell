@@ -1,4 +1,6 @@
 // 简化的微前端配置系统
+export const STORE_PREFIX = 'mf-shell-';
+
 export interface MicroFrontendConfig {
   name: string;
   displayName: string;

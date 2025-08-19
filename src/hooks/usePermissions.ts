@@ -1,5 +1,6 @@
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
+import { getVal, subscribeVal } from '../store/keys';
 import { type AppPermission, UserRole } from '../types/auth';
 
 // 权限检查结果接口
@@ -9,10 +10,29 @@ interface PermissionCheckResult {
   requiredRole?: UserRole;
   requiredPermission?: AppPermission;
 }
-
 // 权限管理 Hook（增强版）
 export const usePermissions = () => {
   const { user, permissions, isAuthenticated } = useAuth();
+
+  // 从 globalStore 读取权限（优先）
+  const [gsPermissions, setGsPermissions] = useState<Record<
+    string,
+    boolean
+  > | null>(null);
+  useEffect(() => {
+    try {
+      const initial = (getVal('roles') as Record<string, boolean>) || null;
+      setGsPermissions(initial);
+      const unsub = subscribeVal('roles', (_k: string, newVal: any) => {
+        setGsPermissions((newVal as Record<string, boolean>) || null);
+      });
+      return () => {
+        try {
+          unsub?.();
+        } catch {}
+      };
+    } catch {}
+  }, []);
 
   // 检查是否有特定应用权限（增强版）
   const hasAppAccess = useCallback(
@@ -33,7 +53,8 @@ export const usePermissions = () => {
         };
       }
 
-      if (!permissions) {
+      const effectivePermissions = gsPermissions || permissions;
+      if (!effectivePermissions) {
         return {
           hasPermission: false,
           reason: '权限信息不存在',
@@ -47,14 +68,14 @@ export const usePermissions = () => {
       }
 
       // 检查具体权限
-      const hasPermission = permissions[app] === true;
+      const hasPermission = effectivePermissions[app] === true;
       return {
         hasPermission,
         reason: hasPermission ? undefined : `缺少 ${app} 权限`,
         requiredPermission: app,
       };
     },
-    [user, permissions, isAuthenticated]
+    [user, permissions, isAuthenticated, gsPermissions]
   );
 
   // 简化的权限检查（向后兼容）
@@ -223,7 +244,8 @@ export const usePermissions = () => {
 
   // 获取用户所有权限信息
   const getUserPermissionSummary = useMemo(() => {
-    if (!user || !permissions) {
+    const effectivePermissions = gsPermissions || permissions;
+    if (!user || !effectivePermissions) {
       return {
         isAuthenticated: false,
         roles: [],
@@ -236,13 +258,13 @@ export const usePermissions = () => {
     return {
       isAuthenticated: true,
       roles: user.roles || [user.role].filter(Boolean),
-      permissions,
+      permissions: effectivePermissions,
       isAdmin,
       isDeveloper,
       userId: user.id,
       username: user.username,
     };
-  }, [user, permissions, isAdmin, isDeveloper]);
+  }, [user, permissions, isAdmin, isDeveloper, gsPermissions]);
 
   // 权限调试信息（仅开发环境）
   const getDebugInfo = useCallback(() => {

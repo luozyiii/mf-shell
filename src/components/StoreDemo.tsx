@@ -21,6 +21,14 @@ import {
 } from 'antd';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
+import {
+  clearByPrefix,
+  ensureMigrated,
+  getVal,
+  setVal,
+  shortPrefix,
+  subscribeVal,
+} from '../store/keys';
 
 const { Text } = Typography;
 
@@ -31,24 +39,23 @@ export const StoreDemo: React.FC = () => {
   const [messageCount, setMessageCount] = useState(0);
   const [lastUpdate, setLastUpdate] = useState<string>('');
 
-  const refreshData = useCallback(
-    (module = storeModule) => {
-      if (!module) return;
-
-      try {
-        const userinfo = module.getStoreValue('userinfo');
-        const appConfig = module.getStoreValue('appConfig');
-
-        setCurrentData({
-          userinfo: userinfo || {},
-          appConfig: appConfig || {},
-        });
-      } catch (error) {
-        console.error('Failed to refresh data:', error);
-      }
-    },
-    [storeModule]
-  );
+  const refreshData = useCallback(() => {
+    try {
+      ensureMigrated();
+      const userinfo = getVal('user');
+      const appConfig = getVal('app');
+      const token = getVal('token');
+      const permissions = getVal('roles');
+      setCurrentData({
+        userinfo: userinfo || {},
+        appConfig: appConfig || {},
+        token: token || '',
+        permissions: permissions || {},
+      });
+    } catch (error) {
+      console.error('Failed to refresh data:', error);
+    }
+  }, []);
 
   const loadStoreModule = useCallback(async (): Promise<
     (() => void) | undefined
@@ -60,34 +67,28 @@ export const StoreDemo: React.FC = () => {
       setIsConnected(true);
 
       // 获取当前数据
-      refreshData(module);
+      refreshData();
 
-      // 订阅数据变化 - 使用唯一标识避免重复订阅
-      const unsubscribeUserInfo = module.subscribeStore(
-        'userinfo',
-        (key: string, newVal: any) => {
-          setMessageCount((prev) => prev + 1);
-          setLastUpdate(new Date().toLocaleTimeString());
-          refreshData(module);
-          // 只在主应用的StoreDemo中显示通知，避免重复
-          console.log(`StoreDemo收到数据更新: ${key}`, newVal);
-        }
-      );
-
-      const unsubscribeAppConfig = module.subscribeStore(
-        'appConfig',
-        (key: string, newVal: any) => {
-          setMessageCount((prev) => prev + 1);
-          setLastUpdate(new Date().toLocaleTimeString());
-          refreshData(module);
-          console.log(`StoreDemo收到配置更新: ${key}`, newVal);
-        }
-      );
+      // 订阅数据变化（短键 + 旧键兼容）
+      const unsubUser = subscribeVal('user', (_k, _v) => {
+        setMessageCount((p) => p + 1);
+        setLastUpdate(new Date().toLocaleTimeString());
+        refreshData();
+      });
+      const unsubApp = subscribeVal('app', (_k, _v) => {
+        setMessageCount((p) => p + 1);
+        setLastUpdate(new Date().toLocaleTimeString());
+        refreshData();
+      });
 
       // 保存取消订阅函数，组件卸载时清理
       return () => {
-        unsubscribeUserInfo();
-        unsubscribeAppConfig();
+        try {
+          unsubUser?.();
+        } catch {}
+        try {
+          unsubApp?.();
+        } catch {}
       };
     } catch (error) {
       console.error('Failed to load store module:', error);
@@ -111,27 +112,63 @@ export const StoreDemo: React.FC = () => {
   }, [loadStoreModule]);
 
   const updateUserInfo = () => {
-    if (!storeModule) return;
-
     const newName = `用户${Math.floor(Math.random() * 1000)}`;
-    storeModule.setStoreValue('userinfo.name', newName);
+    const curUser = (getVal('user') as any) || {};
+    setVal('user', { ...curUser, name: newName });
+    setCurrentData((prev: any) => ({
+      ...prev,
+      userinfo: { ...(prev?.userinfo || {}), name: newName },
+    }));
     message.success(`用户名已更新为: ${newName}`);
   };
 
   const updateUserAge = () => {
-    if (!storeModule) return;
-
     const newAge = Math.floor(Math.random() * 50) + 18;
-    storeModule.setStoreValue('userinfo.age', newAge);
+    const curUser = (getVal('user') as any) || {};
+    setVal('user', { ...curUser, age: newAge });
+    setCurrentData((prev: any) => ({
+      ...prev,
+      userinfo: { ...(prev?.userinfo || {}), age: newAge },
+    }));
     message.success(`年龄已更新为: ${newAge}`);
   };
 
-  const toggleTheme = () => {
-    if (!storeModule) return;
+  const updateUserRole = () => {
+    const roles = ['USER', 'ADMIN', 'DEVELOPER'];
+    const next = roles[Math.floor(Math.random() * roles.length)];
+    const curUser = (getVal('user') as any) || {};
+    setVal('user', { ...curUser, role: next });
+    setCurrentData((prev: any) => ({
+      ...prev,
+      userinfo: { ...(prev?.userinfo || {}), role: next },
+    }));
+    message.success(`角色已更新为: ${next}`);
+  };
 
-    const currentTheme = storeModule.getStoreValue('appConfig.theme');
+  const bumpVersion = () => {
+    const cur = (getVal('app') as any)?.version || '1.0.0';
+    const parts = String(cur)
+      .split('.')
+      .map((n: any) => parseInt(n || '0', 10));
+    const next = `${parts[0]}.${parts[1]}.${(parts[2] || 0) + 1}`;
+    const curApp = (getVal('app') as any) || {};
+    setVal('app', { ...curApp, version: next });
+    setCurrentData((prev: any) => ({
+      ...prev,
+      appConfig: { ...(prev?.appConfig || {}), version: next },
+    }));
+    message.success(`版本号已递增为: ${next}`);
+  };
+
+  const toggleTheme = () => {
+    const curApp = (getVal('app') as any) || {};
+    const currentTheme = curApp?.theme;
     const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    storeModule.setStoreValue('appConfig.theme', newTheme);
+    setVal('app', { ...curApp, theme: newTheme });
+    setCurrentData((prev: any) => ({
+      ...prev,
+      appConfig: { ...(prev?.appConfig || {}), theme: newTheme },
+    }));
     message.success(`主题已切换为: ${newTheme}`);
   };
 
@@ -147,6 +184,40 @@ export const StoreDemo: React.FC = () => {
 
     storeModule.setStoreValue('notifications', notification);
     message.success('通知已发送到所有应用');
+  };
+
+  const clearNamespace = () => {
+    try {
+      clearByPrefix();
+      message.success('已清理当前命名空间数据');
+      setCurrentData({
+        userinfo: {},
+        appConfig: {},
+        token: '',
+        permissions: {},
+      });
+      refreshData();
+    } catch (_e) {
+      message.error('清理失败');
+    }
+  };
+
+  const writeLargeData = () => {
+    if (!storeModule) return;
+    const bigArray = Array.from({ length: 1000 }, (_, i) => ({
+      id: i,
+      text: `记录-${i}`,
+    }));
+    try {
+      storeModule.configureStrategy?.(`${shortPrefix}bigdata`, {
+        medium: 'local',
+        encrypted: false,
+      });
+      storeModule.setStoreValue(`${shortPrefix}bigdata`, bigArray);
+      message.success('已写入大数据到命名空间（localStorage）');
+    } catch {
+      message.warning('当前环境不支持配置策略，已跳过');
+    }
   };
 
   return (
@@ -197,6 +268,24 @@ export const StoreDemo: React.FC = () => {
           </Row>
         </Col>
 
+        <Divider />
+        <Space wrap>
+          <Button
+            icon={<DatabaseOutlined />}
+            onClick={clearNamespace}
+            size="small"
+          >
+            清理当前命名空间
+          </Button>
+          <Button
+            icon={<DatabaseOutlined />}
+            onClick={writeLargeData}
+            size="small"
+          >
+            写入大数据（策略演示）
+          </Button>
+        </Space>
+
         {/* 用户信息操作 */}
         <Col span={12}>
           <Card
@@ -209,6 +298,14 @@ export const StoreDemo: React.FC = () => {
             size="small"
           >
             <Space direction="vertical" style={{ width: '100%' }}>
+              <Button
+                icon={<SendOutlined />}
+                onClick={updateUserRole}
+                size="small"
+              >
+                随机更新角色
+              </Button>
+
               <div>
                 <Text strong>当前用户: </Text>
                 <Tag color="blue">{currentData.userinfo?.name || '未设置'}</Tag>
@@ -258,6 +355,16 @@ export const StoreDemo: React.FC = () => {
             }
             size="small"
           >
+            <Space wrap>
+              <Button
+                icon={<SettingOutlined />}
+                onClick={bumpVersion}
+                size="small"
+              >
+                版本号+1
+              </Button>
+            </Space>
+
             <Space direction="vertical" style={{ width: '100%' }}>
               <div>
                 <Text strong>主题: </Text>

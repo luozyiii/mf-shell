@@ -22,8 +22,11 @@ import { configManager } from '../config';
 import { APP_CONFIG } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../hooks/usePermissions';
+// @ts-ignore - MF runtime
+import { getVal, subscribeVal } from '../store/keys';
 import { DateUtil } from '../utils';
 import { type AppRouteConfig, RouteLoader } from '../utils/routeLoader';
+
 import styles from './Layout.module.css';
 
 const { Header, Sider, Content } = AntLayout;
@@ -70,6 +73,22 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     });
     return initialState;
   });
+  // 顶栏用户名来自 globalStore，跨 Tab 同步
+  const [userName, setUserName] = useState<string>('');
+  useEffect(() => {
+    try {
+      const user = getVal('user') as any;
+      if (user?.name) setUserName(user.name);
+      const unsub = subscribeVal('user', (_k: string, newVal: any) => {
+        if (newVal?.name) setUserName(newVal.name);
+      });
+      return () => {
+        try {
+          unsub?.();
+        } catch {}
+      };
+    } catch {}
+  }, []);
 
   const { user, logout, isLoading: authLoading } = useAuth();
   const { isAdmin, isDeveloper, getUserPermissionSummary } = usePermissions();
@@ -458,7 +477,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     className={styles.userAvatar || ''}
                   />
                   <div className={styles.userDetails}>
-                    <div className={styles.userName}>{user?.name}</div>
+                    <div className={styles.userName}>
+                      {userName || user?.name}
+                    </div>
                   </div>
                   <div className={styles.dropdownArrow}>▼</div>
                 </div>

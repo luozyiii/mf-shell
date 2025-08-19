@@ -1,7 +1,7 @@
 import { Button, Result, Spin } from 'antd';
 import type React from 'react';
 import type { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../hooks/usePermissions';
 import type { UserRole } from '../types/auth';
@@ -19,6 +19,7 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 }) => {
   const { isAuthenticated, isLoading } = useAuth();
   const { hasAppAccess, hasRole } = usePermissions();
+  const location = useLocation();
 
   // 如果还在加载认证状态，显示加载指示器
   if (isLoading) {
@@ -41,7 +42,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
 
   // 检查是否已登录
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+    const returnUrl = encodeURIComponent(location.pathname + location.search);
+    return <Navigate to={`/login?returnUrl=${returnUrl}`} replace />;
   }
 
   // 检查应用权限
