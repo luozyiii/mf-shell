@@ -187,6 +187,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const handleLogout = () => {
     logout();
+    navigate('/login');
   };
 
   // 构建菜单项 - 使用useMemo避免不必要的重新计算

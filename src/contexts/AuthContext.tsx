@@ -9,6 +9,7 @@ import {
   useEffect,
   useState,
 } from 'react';
+
 // @ts-expect-error - JSON modules
 import users from '../mock/userinfo.json';
 import {
@@ -225,7 +226,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
 
   const logout = useCallback((): void => {
-    // 使用AuthUtils统一清理（包括clearAppData）
+    // 使用AuthUtils统一清理（包括clearAppData），传入 navigate 函数
     AuthUtils.logout();
     setUser(null);
     setPermissions(null);

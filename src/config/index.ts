@@ -21,18 +21,23 @@ const getEnvVar = (key: string, defaultValue: string = ''): string => {
   return defaultValue;
 };
 
+// 获取 basename，确保开发环境始终为空
+const getBasename = (): string => {
+  // 直接检查 NODE_ENV，不依赖 isDev 变量
+  const nodeEnv = process.env.NODE_ENV;
+  const isDevEnvironment = nodeEnv !== 'production';
+
+  if (isDevEnvironment) {
+    return ''; // 开发环境始终不使用 basename
+  }
+
+  return getEnvVar('PUBLIC_PATH', '/mf-shell');
+};
+
 const isDev =
   typeof process !== 'undefined'
     ? process.env.NODE_ENV !== 'production'
     : false;
-
-// 获取 basename，确保开发环境始终为空
-const getBasename = (): string => {
-  if (isDev) {
-    return ''; // 开发环境始终不使用 basename
-  }
-  return getEnvVar('PUBLIC_PATH', '/mf-shell');
-};
 
 // 基础配置
 const BASE_CONFIG = {

@@ -3,7 +3,6 @@ import { Button, Result } from 'antd';
 import type React from 'react';
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getShellConfig } from '../config';
 import { useAuth } from '../contexts/AuthContext';
 
 export const NotFound: React.FC = () => {
@@ -13,9 +12,8 @@ export const NotFound: React.FC = () => {
   // 如果用户未登录，跳转到登录页面
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
-      const { basename } = getShellConfig();
-      const loginPath = basename ? `${basename}/login` : '/login';
-      navigate(loginPath, { replace: true });
+      // 使用相对路径，让 React Router 自动处理 basename
+      navigate('/login', { replace: true });
     }
   }, [isAuthenticated, isLoading, navigate]);
 

@@ -9,7 +9,6 @@ interface User {
 
 // @ts-expect-error - MF runtime
 import { clearAppData } from 'mf-shared/store';
-import { getShellConfig } from '../config';
 import { getVal, setVal } from '../store/keys';
 
 // 认证相关工具类
@@ -35,32 +34,6 @@ export class AuthUtils {
       setVal('token', token);
     } catch (error) {
       console.warn('Failed to set token:', error);
-    }
-  }
-
-  /**
-   * 移除token
-   */
-  static removeToken(): void {
-    try {
-      setVal('token', undefined);
-
-      // 额外清理：移除可能存在的其他相关数据
-      const keysToRemove = [
-        'mf-shell-token',
-        'mf-shell-userinfo',
-        'mf-shell-appconfig',
-        'mf-shell-permissions',
-      ];
-
-      keysToRemove.forEach((key) => {
-        try {
-          sessionStorage.removeItem(key);
-          localStorage.removeItem(key);
-        } catch {}
-      });
-    } catch (error) {
-      console.warn('Failed to remove token:', error);
     }
   }
 
@@ -119,18 +92,8 @@ export class AuthUtils {
   }
 
   /**
-   * 跳转到登录页面
-   * @param returnUrl 登录成功后的回调地址
-   */
-  static redirectToLogin(returnUrl?: string): void {
-    const currentUrl = returnUrl || window.location.href;
-    const { basename } = getShellConfig();
-    const loginPath = basename ? `${basename}/login` : '/login';
-    window.location.href = `${loginPath}?returnUrl=${encodeURIComponent(currentUrl)}`;
-  }
-
-  /**
-   * 退出登录
+   * 退出登录 - 仅清理数据，不处理页面导航
+   * 调用者需要自行处理导航到登录页面
    */
   static logout(): void {
     try {
@@ -140,17 +103,9 @@ export class AuthUtils {
 
       // 使用新的 clearAppData 方法清理所有应用数据
       clearAppData(storageKey);
-
-      // 清理 session 数据
-      AuthUtils.removeToken();
     } catch (error) {
       console.warn('Failed to logout:', error);
     }
-
-    // 跳转到登录页面
-    const { basename } = getShellConfig();
-    const loginPath = basename ? `${basename}/login` : '/login';
-    window.location.href = loginPath;
   }
 
   /**
