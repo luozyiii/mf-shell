@@ -128,7 +128,7 @@ const App: React.FC = () => {
     let unsub: (() => void) | undefined;
     (async () => {
       try {
-        // @ts-ignore
+        // @ts-expect-error
         const { getStoreValue, subscribeStore } = await import(
           'mf-shared/store'
         );

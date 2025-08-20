@@ -226,15 +226,15 @@ const componentCacheManager = new ComponentCacheManager();
 // 动态导入函数 - 支持更多应用类型
 const dynamicImportMap: Record<string, Record<string, () => Promise<any>>> = {
   template: {
-    // @ts-ignore - Module Federation 动态导入，运行时存在
+    // @ts-expect-error - Module Federation 动态导入，运行时存在
     Dashboard: () => import('template/Dashboard'),
-    // @ts-ignore - Module Federation 动态导入，运行时存在
+    // @ts-expect-error - Module Federation 动态导入，运行时存在
     Feature1: () => import('template/Feature1'),
-    // @ts-ignore - Module Federation 动态导入，运行时存在
+    // @ts-expect-error - Module Federation 动态导入，运行时存在
     Feature2: () => import('template/Feature2'),
-    // @ts-ignore - Module Federation 动态导入，运行时存在
+    // @ts-expect-error - Module Federation 动态导入，运行时存在
     Settings: () => import('template/Settings'),
-    // @ts-ignore - Module Federation 动态导入，运行时存在
+    // @ts-expect-error - Module Federation 动态导入，运行时存在
     StoreDemo: () => import('template/StoreDemo'),
   },
   // 可以在这里添加更多应用的导入配置

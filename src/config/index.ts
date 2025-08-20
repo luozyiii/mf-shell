@@ -30,7 +30,7 @@ const isDev =
 const BASE_CONFIG = {
   // 主应用配置
   shell: {
-    port: parseInt(getEnvVar('SHELL_PORT', '3000')),
+    port: parseInt(getEnvVar('SHELL_PORT', '3000'), 10),
     basename: getEnvVar('PUBLIC_PATH', isDev ? '' : '/mf-shell'),
   },
 
@@ -40,7 +40,7 @@ const BASE_CONFIG = {
       name: 'template',
       displayName: getEnvVar('TEMPLATE_NAME', '模板应用'),
       url: getEnvVar('TEMPLATE_URL', `http://localhost:3003`),
-      port: parseInt(getEnvVar('TEMPLATE_PORT', '3003')),
+      port: parseInt(getEnvVar('TEMPLATE_PORT', '3003'), 10),
       enabled: getEnvVar('TEMPLATE_ENABLED', 'true') === 'true',
       permissions: ['template:read'],
       icon: 'AppstoreOutlined',
@@ -50,7 +50,7 @@ const BASE_CONFIG = {
       name: 'marketing',
       displayName: getEnvVar('MARKETING_NAME', '营销系统'),
       url: getEnvVar('MARKETING_URL', `http://localhost:3001`),
-      port: parseInt(getEnvVar('MARKETING_PORT', '3001')),
+      port: parseInt(getEnvVar('MARKETING_PORT', '3001'), 10),
       enabled: getEnvVar('MARKETING_ENABLED', 'false') === 'true',
       permissions: ['marketing:view'],
       icon: 'RocketOutlined',
@@ -60,7 +60,7 @@ const BASE_CONFIG = {
       name: 'finance',
       displayName: getEnvVar('FINANCE_NAME', '财务系统'),
       url: getEnvVar('FINANCE_URL', `http://localhost:3002`),
-      port: parseInt(getEnvVar('FINANCE_PORT', '3002')),
+      port: parseInt(getEnvVar('FINANCE_PORT', '3002'), 10),
       enabled: getEnvVar('FINANCE_ENABLED', 'false') === 'true',
       permissions: ['finance:view'],
       icon: 'DollarOutlined',

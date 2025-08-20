@@ -81,7 +81,7 @@ export class RouteLoader {
 
       switch (appName) {
         case 'template':
-          // @ts-ignore - 模块联邦动态导入
+          // @ts-expect-error - 模块联邦动态导入
           routeModule = await import('template/routes');
           break;
         // TODO: 添加其他微前端应用的路由配置

@@ -22,7 +22,7 @@ import { configManager } from '../config';
 import { APP_CONFIG } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../hooks/usePermissions';
-// @ts-ignore - MF runtime
+// @ts-expect-error - MF runtime
 import { getVal, subscribeVal } from '../store/keys';
 import { DateUtil } from '../utils';
 import { type AppRouteConfig, RouteLoader } from '../utils/routeLoader';
@@ -56,6 +56,24 @@ const getIconComponent = (iconName?: string): React.ReactNode => {
 };
 
 // 路由配置完全由子应用提供，不再使用默认配置
+
+// 菜单骨架屏组件
+const MenuSkeleton = ({ styles }: { styles: any }) => (
+  <div className={styles.menuSkeleton}>
+    <div className={styles.menuSkeletonItem}>
+      <div className={styles.menuSkeletonIcon}></div>
+      <div className={styles.menuSkeletonText}></div>
+    </div>
+    <div className={styles.menuSkeletonItem}>
+      <div className={styles.menuSkeletonIcon}></div>
+      <div className={styles.menuSkeletonText}></div>
+    </div>
+    <div className={styles.menuSkeletonItem}>
+      <div className={styles.menuSkeletonIcon}></div>
+      <div className={styles.menuSkeletonText}></div>
+    </div>
+  </div>
+);
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -169,7 +187,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   const handleLogout = () => {
     logout();
-    navigate('/login');
   };
 
   // 构建菜单项 - 使用useMemo避免不必要的重新计算
@@ -368,24 +385,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
   };
 
-  // 菜单骨架屏组件
-  const MenuSkeleton = () => (
-    <div className={styles.menuSkeleton}>
-      <div className={styles.menuSkeletonItem}>
-        <div className={styles.menuSkeletonIcon}></div>
-        <div className={styles.menuSkeletonText}></div>
-      </div>
-      <div className={styles.menuSkeletonItem}>
-        <div className={styles.menuSkeletonIcon}></div>
-        <div className={styles.menuSkeletonText}></div>
-      </div>
-      <div className={styles.menuSkeletonItem}>
-        <div className={styles.menuSkeletonIcon}></div>
-        <div className={styles.menuSkeletonText}></div>
-      </div>
-    </div>
-  );
-
   return (
     <>
       <Helmet>
@@ -407,7 +406,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </div>
           <div className={styles.menuContainer}>
             {authLoading ? (
-              <MenuSkeleton />
+              <MenuSkeleton styles={styles} />
             ) : (
               <Menu
                 theme="dark"

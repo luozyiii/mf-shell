@@ -13,7 +13,7 @@ import {
 } from 'antd';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
-import { ensureMigrated, getVal, setVal, subscribeVal } from '../store/keys';
+import { getVal, setVal, subscribeVal } from '../store/keys';
 
 const { Text } = Typography;
 
@@ -32,7 +32,6 @@ export const StoreDemo: React.FC = () => {
 
   const refreshData = useCallback(() => {
     try {
-      ensureMigrated();
       const userinfo = getVal('user');
       const appConfig = getVal('app');
       const token = getVal('token');

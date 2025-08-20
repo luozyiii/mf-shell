@@ -15,10 +15,10 @@ body {
 
 /* 只对图表Card移除padding，保留数据概览Card的padding */
 .chart-card .ant-card-body {
-  padding: 0 !important;
+  padding: 0;
 }
 
 /* 确保数据概览Card保持默认padding */
 .ant-card:not(.chart-card) .ant-card-body {
-  padding: 24px !important;
+  padding: 24px;
 }

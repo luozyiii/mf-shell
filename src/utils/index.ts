@@ -135,7 +135,9 @@ export class StorageUtil {
         key.startsWith(prefix)
       );
 
-      keys.forEach((key) => localStorage.removeItem(key));
+      for (const key of keys) {
+        localStorage.removeItem(key);
+      }
 
       return { success: true, data: keys.length };
     } catch (error) {

@@ -1,4 +1,4 @@
-// @ts-ignore - MF runtime
+// @ts-expect-error - MF runtime
 import { configureStoreStrategy, setStoreValue } from 'mf-shared/store';
 import type React from 'react';
 import {
@@ -9,7 +9,7 @@ import {
   useEffect,
   useState,
 } from 'react';
-// @ts-ignore - JSON modules
+// @ts-expect-error - JSON modules
 import users from '../mock/userinfo.json';
 import {
   AppPermission,
@@ -226,8 +226,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   );
 
   const logout = useCallback((): void => {
-    // 使用AuthUtils统一清理
-    AuthUtils.removeToken();
+    // 使用AuthUtils统一清理（包括clearAppData）
+    AuthUtils.logout();
     setUser(null);
     setPermissions(null);
     setIsLoading(false);
