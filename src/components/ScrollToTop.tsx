@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 
 interface ScrollToTopProps {
@@ -41,16 +41,23 @@ export const ScrollToTop: React.FC<ScrollToTopProps> = ({
   excludePatterns = [],
 }) => {
   const location = useLocation();
+  const prevPathnameRef = useRef<string>(location.pathname);
 
   // 监听来自微前端的滚动消息
   useEffect(() => {
     const handleMicroFrontendMessage = (event: MessageEvent) => {
       if (event.data.type === 'MICRO_FRONTEND_SCROLL_TO_TOP') {
-        console.log('收到微前端滚动请求:', event.data);
-        scrollToTop({
-          smooth: event.data.smooth ?? smooth,
-          delay: 0, // 微前端请求时立即滚动
-        });
+        // 只有在真正的路由变化时才滚动，忽略来自 Store Demo 等组件内部操作的滚动请求
+        const isFromRouteChange = event.data.source === 'route-change';
+        if (isFromRouteChange) {
+          console.log('收到微前端路由变化滚动请求:', event.data);
+          scrollToTop({
+            smooth: event.data.smooth ?? smooth,
+            delay: 0, // 微前端请求时立即滚动
+          });
+        } else {
+          console.log('忽略微前端内部操作滚动请求:', event.data);
+        }
       }
     };
 
@@ -62,21 +69,33 @@ export const ScrollToTop: React.FC<ScrollToTopProps> = ({
   useEffect(() => {
     if (!autoScroll) return;
 
+    // 检查路径是否真的发生了变化
+    const currentPathname = location.pathname;
+    const prevPathname = prevPathnameRef.current;
+
+    if (currentPathname === prevPathname) {
+      // 路径没有变化，不滚动（这解决了同一页面内状态变化导致的滚动问题）
+      return;
+    }
+
+    // 更新上一次的路径
+    prevPathnameRef.current = currentPathname;
+
     // 检查是否需要排除当前路径
     const shouldExclude = excludePatterns.some((pattern) => {
       if (pattern.includes('*')) {
         // 支持通配符匹配
         const regex = new RegExp(pattern.replace(/\*/g, '.*'));
-        return regex.test(location.pathname);
+        return regex.test(currentPathname);
       }
-      return location.pathname.includes(pattern);
+      return currentPathname.includes(pattern);
     });
 
     if (shouldExclude) {
       return;
     }
 
-    const scrollToTop = () => {
+    const performScroll = () => {
       // 优先滚动主内容区域
       const contentElement = document.querySelector(
         '.ant-layout-content'
@@ -141,11 +160,11 @@ export const ScrollToTop: React.FC<ScrollToTopProps> = ({
 
     if (delay > 0) {
       // 延迟滚动，等待页面内容加载完成
-      const timer = setTimeout(scrollToTop, delay);
+      const timer = setTimeout(performScroll, delay);
       return () => clearTimeout(timer);
     } else {
       // 立即滚动
-      scrollToTop();
+      performScroll();
     }
   }, [location.pathname, smooth, delay, autoScroll, excludePatterns]);
 

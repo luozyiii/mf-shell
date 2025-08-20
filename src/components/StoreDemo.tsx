@@ -1,43 +1,34 @@
+import { BellOutlined, SettingOutlined, UserOutlined } from '@ant-design/icons';
 import {
-  BellOutlined,
-  DatabaseOutlined,
-  SendOutlined,
-  SettingOutlined,
-  SyncOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
-import {
-  Alert,
   Button,
   Card,
   Col,
+  Descriptions,
   Divider,
   message,
   Row,
   Space,
-  Statistic,
-  Tag,
+  Timeline,
   Typography,
 } from 'antd';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
-import {
-  clearByPrefix,
-  ensureMigrated,
-  getVal,
-  setVal,
-  shortPrefix,
-  subscribeVal,
-} from '../store/keys';
+import { ensureMigrated, getVal, setVal, subscribeVal } from '../store/keys';
 
 const { Text } = Typography;
 
 export const StoreDemo: React.FC = () => {
-  const [storeModule, setStoreModule] = useState<any>(null);
+  const [_storeModule, setStoreModule] = useState<any>(null);
   const [currentData, setCurrentData] = useState<any>({});
   const [isConnected, setIsConnected] = useState(false);
-  const [messageCount, setMessageCount] = useState(0);
-  const [lastUpdate, setLastUpdate] = useState<string>('');
+  const [notifications, setNotifications] = useState<any[]>([]);
+
+  const addNotification = useCallback(
+    (notif: { type: string; message: string; time: string }) => {
+      setNotifications((prev) => [notif, ...prev].slice(0, 10));
+    },
+    []
+  );
 
   const refreshData = useCallback(() => {
     try {
@@ -71,13 +62,19 @@ export const StoreDemo: React.FC = () => {
 
       // 订阅数据变化（短键 + 旧键兼容）
       const unsubUser = subscribeVal('user', (_k, _v) => {
-        setMessageCount((p) => p + 1);
-        setLastUpdate(new Date().toLocaleTimeString());
+        addNotification({
+          type: 'userinfo',
+          message: '用户信息已更新',
+          time: new Date().toLocaleTimeString(),
+        });
         refreshData();
       });
       const unsubApp = subscribeVal('app', (_k, _v) => {
-        setMessageCount((p) => p + 1);
-        setLastUpdate(new Date().toLocaleTimeString());
+        addNotification({
+          type: 'config',
+          message: '应用配置已更新',
+          time: new Date().toLocaleTimeString(),
+        });
         refreshData();
       });
 
@@ -94,7 +91,7 @@ export const StoreDemo: React.FC = () => {
       console.error('Failed to load store module:', error);
       setIsConnected(false);
     }
-  }, [refreshData]);
+  }, [refreshData, addNotification]);
 
   // 加载存储模块
   useEffect(() => {
@@ -111,389 +108,309 @@ export const StoreDemo: React.FC = () => {
     };
   }, [loadStoreModule]);
 
-  const updateUserInfo = () => {
-    const newName = `用户${Math.floor(Math.random() * 1000)}`;
+  // 用户信息操作
+  const updateUsername = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+
     const curUser = (getVal('user') as any) || {};
+    const number = Math.floor(Math.random() * 900) + 100;
+    const newName = `用户${number}`;
     setVal('user', { ...curUser, name: newName });
-    setCurrentData((prev: any) => ({
-      ...prev,
-      userinfo: { ...(prev?.userinfo || {}), name: newName },
-    }));
-    message.success(`用户名已更新为: ${newName}`);
+    addNotification({
+      type: 'userinfo',
+      message: `用户名更新为: ${newName}`,
+      time: new Date().toLocaleTimeString(),
+    });
+    refreshData();
+    message.success(`用户名已更新: ${newName}`);
   };
 
-  const updateUserAge = () => {
-    const newAge = Math.floor(Math.random() * 50) + 18;
+  const updateAge = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+
     const curUser = (getVal('user') as any) || {};
+    const newAge = (Number(curUser?.age) || 0) + 1;
     setVal('user', { ...curUser, age: newAge });
-    setCurrentData((prev: any) => ({
-      ...prev,
-      userinfo: { ...(prev?.userinfo || {}), age: newAge },
-    }));
+    addNotification({
+      type: 'userinfo',
+      message: `年龄更新为: ${newAge}`,
+      time: new Date().toLocaleTimeString(),
+    });
+    refreshData();
     message.success(`年龄已更新为: ${newAge}`);
   };
 
-  const updateUserRole = () => {
-    const roles = ['USER', 'ADMIN', 'DEVELOPER'];
-    const next = roles[Math.floor(Math.random() * roles.length)];
+  const updateUserRole = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
+
     const curUser = (getVal('user') as any) || {};
-    setVal('user', { ...curUser, role: next });
-    setCurrentData((prev: any) => ({
-      ...prev,
-      userinfo: { ...(prev?.userinfo || {}), role: next },
-    }));
-    message.success(`角色已更新为: ${next}`);
+    let role = curUser.role;
+    if (role === 'admin') {
+      role = 'developer';
+    } else {
+      role = 'admin';
+    }
+    const nextUser = { ...curUser, role };
+    setVal('user', nextUser);
+    addNotification({
+      type: 'userinfo',
+      message: `角色更新: ${role}`,
+      time: new Date().toLocaleTimeString(),
+    });
+    refreshData();
+    message.success('用户角色已更新');
   };
 
-  const bumpVersion = () => {
-    const cur = (getVal('app') as any)?.version || '1.0.0';
-    const parts = String(cur)
-      .split('.')
-      .map((n: any) => parseInt(n || '0', 10));
-    const next = `${parts[0]}.${parts[1]}.${(parts[2] || 0) + 1}`;
-    const curApp = (getVal('app') as any) || {};
-    setVal('app', { ...curApp, version: next });
-    setCurrentData((prev: any) => ({
-      ...prev,
-      appConfig: { ...(prev?.appConfig || {}), version: next },
-    }));
-    message.success(`版本号已递增为: ${next}`);
-  };
+  // 应用配置操作
+  const toggleTheme = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
 
-  const toggleTheme = () => {
     const curApp = (getVal('app') as any) || {};
-    const currentTheme = curApp?.theme;
-    const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+    const newTheme = curApp?.theme === 'dark' ? 'light' : 'dark';
     setVal('app', { ...curApp, theme: newTheme });
-    setCurrentData((prev: any) => ({
-      ...prev,
-      appConfig: { ...(prev?.appConfig || {}), theme: newTheme },
-    }));
+    addNotification({
+      type: 'config',
+      message: `主题切换为: ${newTheme}`,
+      time: new Date().toLocaleTimeString(),
+    });
+    refreshData();
     message.success(`主题已切换为: ${newTheme}`);
   };
 
-  const sendNotification = () => {
-    if (!storeModule) return;
+  const toggleLanguage = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
 
-    const notification = {
-      id: Date.now(),
-      message: '来自主应用的通知',
-      timestamp: new Date().toISOString(),
-      type: 'info',
-    };
-
-    storeModule.setStoreValue('notifications', notification);
-    message.success('通知已发送到所有应用');
+    const curApp = (getVal('app') as any) || {};
+    const newLang = curApp?.language === 'zh-CN' ? 'en-US' : 'zh-CN';
+    setVal('app', { ...curApp, language: newLang });
+    addNotification({
+      type: 'config',
+      message: `语言切换为: ${newLang}`,
+      time: new Date().toLocaleTimeString(),
+    });
+    refreshData();
+    message.success(`语言已切换为: ${newLang}`);
   };
 
-  const clearNamespace = () => {
-    try {
-      clearByPrefix();
-      message.success('已清理当前命名空间数据');
-      setCurrentData({
-        userinfo: {},
-        appConfig: {},
-        token: '',
-        permissions: {},
-      });
-      refreshData();
-    } catch (_e) {
-      message.error('清理失败');
-    }
-  };
+  const bumpVersion = (e?: React.MouseEvent) => {
+    e?.preventDefault();
+    e?.stopPropagation();
 
-  const writeLargeData = () => {
-    if (!storeModule) return;
-    const bigArray = Array.from({ length: 1000 }, (_, i) => ({
-      id: i,
-      text: `记录-${i}`,
-    }));
-    try {
-      storeModule.configureStrategy?.(`${shortPrefix}bigdata`, {
-        medium: 'local',
-        encrypted: false,
-      });
-      storeModule.setStoreValue(`${shortPrefix}bigdata`, bigArray);
-      message.success('已写入大数据到命名空间（localStorage）');
-    } catch {
-      message.warning('当前环境不支持配置策略，已跳过');
-    }
+    const curApp = (getVal('app') as any) || {};
+    const cur = String(curApp?.version || '1.0.0');
+    const parts = cur.split('.').map((p: string) => Number(p) || 0);
+    const next = [parts[0], parts[1], (parts[2] || 0) + 1].join('.');
+    setVal('app', { ...curApp, version: next });
+    addNotification({
+      type: 'config',
+      message: `版本更新为: ${next}`,
+      time: new Date().toLocaleTimeString(),
+    });
+    refreshData();
+    message.success(`版本已更新为: ${next}`);
   };
 
   return (
-    <div style={{ padding: '24px' }}>
-      <Row gutter={[24, 24]}>
-        {/* 连接状态 */}
-        <Col span={24}>
-          <Alert
-            message="全局存储演示"
-            description={
-              isConnected
-                ? '✅ 已连接到全局存储，可以与其他微前端应用实时通信'
-                : '❌ 未连接到全局存储'
-            }
-            type={isConnected ? 'success' : 'error'}
-            showIcon
-            icon={<DatabaseOutlined />}
-          />
-        </Col>
+    <Row gutter={[24, 24]}>
+      {/* 运行信息简要 */}
+      <Col span={24}>
+        <Card size="small">
+          <Space wrap>
+            <span>连接状态：{isConnected ? '已连接' : '未连接'}</span>
+            <span>通知数量：{notifications.length}</span>
+          </Space>
+        </Card>
+      </Col>
 
-        {/* 统计信息 */}
-        <Col span={24}>
+      {/* 左侧：管理模块 */}
+      <Col xs={24}>
+        {/* 用户信息管理 */}
+        <Card
+          title={
+            <Space>
+              <UserOutlined /> 用户信息管理
+            </Space>
+          }
+          size="small"
+        >
           <Row gutter={16}>
-            <Col span={8}>
-              <Statistic
-                title="连接状态"
-                value={isConnected ? '已连接' : '未连接'}
-                prefix={<DatabaseOutlined />}
-                valueStyle={{ color: isConnected ? '#3f8600' : '#cf1322' }}
-              />
+            <Col span={12}>
+              <Descriptions size="small" column={1} bordered>
+                <Descriptions.Item label="用户名">
+                  {currentData.userinfo?.name ?? '-'}
+                </Descriptions.Item>
+                <Descriptions.Item label="年龄">
+                  {currentData.userinfo?.age ?? '-'}
+                </Descriptions.Item>
+                <Descriptions.Item label="角色">
+                  {currentData.userinfo.role}
+                </Descriptions.Item>
+              </Descriptions>
             </Col>
-            <Col span={8}>
-              <Statistic
-                title="消息数量"
-                value={messageCount}
-                prefix={<BellOutlined />}
-                valueStyle={{ color: '#1890ff' }}
-              />
-            </Col>
-            <Col span={8}>
-              <Statistic
-                title="最后更新"
-                value={lastUpdate || '暂无'}
-                prefix={<SyncOutlined />}
-                valueStyle={{ color: '#722ed1' }}
-              />
+            <Col span={12}>
+              <div
+                style={{
+                  background: '#f7f8fa',
+                  border: '1px solid #f0f0f0',
+                  borderRadius: 4,
+                  padding: 8,
+                  height: 180,
+                  overflow: 'auto',
+                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                  fontSize: 12,
+                  lineHeight: 1.6,
+                }}
+              >
+                <pre style={{ margin: 0 }}>
+                  {JSON.stringify(currentData.userinfo || {}, null, 2)}
+                </pre>
+              </div>
             </Col>
           </Row>
-        </Col>
 
-        <Divider />
-        <Space wrap>
-          <Button
-            icon={<DatabaseOutlined />}
-            onClick={clearNamespace}
-            size="small"
-          >
-            清理当前命名空间
-          </Button>
-          <Button
-            icon={<DatabaseOutlined />}
-            onClick={writeLargeData}
-            size="small"
-          >
-            写入大数据（策略演示）
-          </Button>
-        </Space>
+          <Divider />
+          <Space wrap>
+            <Button type="primary" onClick={updateUsername}>
+              更新用户名
+            </Button>
+            <Button onClick={updateAge}>更新年龄</Button>
+            <Button onClick={updateUserRole}>更新角色</Button>
+          </Space>
+        </Card>
 
-        {/* 用户信息操作 */}
-        <Col span={12}>
-          <Card
-            title={
-              <Space>
-                <UserOutlined />
-                用户信息管理
-              </Space>
-            }
-            size="small"
-          >
-            <Space direction="vertical" style={{ width: '100%' }}>
-              <Button
-                icon={<SendOutlined />}
-                onClick={updateUserRole}
-                size="small"
-              >
-                随机更新角色
-              </Button>
-
-              <div>
-                <Text strong>当前用户: </Text>
-                <Tag color="blue">{currentData.userinfo?.name || '未设置'}</Tag>
-              </div>
-              <div>
-                <Text strong>年龄: </Text>
-                <Tag color="green">{currentData.userinfo?.age || '未设置'}</Tag>
-              </div>
-              <div>
-                <Text strong>角色: </Text>
-                <Tag color="purple">
-                  {currentData.userinfo?.role || '未设置'}
-                </Tag>
-              </div>
-
-              <Divider />
-
-              <Space wrap>
-                <Button
-                  type="primary"
-                  icon={<SendOutlined />}
-                  onClick={updateUserInfo}
-                  size="small"
-                >
-                  更新用户名
-                </Button>
-                <Button
-                  icon={<SendOutlined />}
-                  onClick={updateUserAge}
-                  size="small"
-                >
-                  更新年龄
-                </Button>
-              </Space>
+        {/* 应用配置管理 */}
+        <Card
+          style={{ marginTop: 16 }}
+          title={
+            <Space>
+              <SettingOutlined /> 应用配置管理
             </Space>
-          </Card>
-        </Col>
-
-        {/* 应用配置操作 */}
-        <Col span={12}>
-          <Card
-            title={
-              <Space>
-                <SettingOutlined />
-                应用配置管理
-              </Space>
-            }
-            size="small"
-          >
-            <Space wrap>
-              <Button
-                icon={<SettingOutlined />}
-                onClick={bumpVersion}
-                size="small"
+          }
+          size="small"
+        >
+          <Row gutter={16}>
+            <Col span={12}>
+              <Descriptions size="small" column={1} bordered>
+                <Descriptions.Item label="主题">
+                  {currentData.appConfig?.theme ?? '-'}
+                </Descriptions.Item>
+                <Descriptions.Item label="语言">
+                  {currentData.appConfig?.language ?? '-'}
+                </Descriptions.Item>
+                <Descriptions.Item label="版本">
+                  {currentData.appConfig?.version ?? '-'}
+                </Descriptions.Item>
+              </Descriptions>
+            </Col>
+            <Col span={12}>
+              <div
+                style={{
+                  background: '#f7f8fa',
+                  border: '1px solid #f0f0f0',
+                  borderRadius: 4,
+                  padding: 8,
+                  height: 180,
+                  overflow: 'auto',
+                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                  fontSize: 12,
+                  lineHeight: 1.6,
+                }}
               >
-                版本号+1
-              </Button>
-            </Space>
-
-            <Space direction="vertical" style={{ width: '100%' }}>
-              <div>
-                <Text strong>主题: </Text>
-                <Tag
-                  color={
-                    currentData.appConfig?.theme === 'dark' ? 'default' : 'gold'
-                  }
-                >
-                  {currentData.appConfig?.theme || '未设置'}
-                </Tag>
-              </div>
-              <div>
-                <Text strong>语言: </Text>
-                <Tag color="cyan">
-                  {currentData.appConfig?.language || '未设置'}
-                </Tag>
-              </div>
-              <div>
-                <Text strong>版本: </Text>
-                <Tag color="orange">
-                  {currentData.appConfig?.version || '未设置'}
-                </Tag>
-              </div>
-
-              <Divider />
-
-              <Space wrap>
-                <Button
-                  type="primary"
-                  icon={<SettingOutlined />}
-                  onClick={toggleTheme}
-                  size="small"
-                >
-                  切换主题
-                </Button>
-                <Button
-                  icon={<BellOutlined />}
-                  onClick={sendNotification}
-                  size="small"
-                >
-                  发送通知
-                </Button>
-              </Space>
-            </Space>
-          </Card>
-        </Col>
-
-        {/* 实时数据展示 */}
-        <Col span={24}>
-          <Card
-            title="实时数据监控"
-            size="small"
-            extra={
-              <Button
-                icon={<SyncOutlined />}
-                onClick={() => refreshData()}
-                size="small"
-              >
-                刷新
-              </Button>
-            }
-          >
-            <Row gutter={16}>
-              <Col span={12}>
-                <Text strong>用户信息:</Text>
-                <pre
-                  style={{
-                    background: '#f5f5f5',
-                    padding: '8px',
-                    borderRadius: '4px',
-                    fontSize: '12px',
-                    marginTop: '8px',
-                  }}
-                >
-                  {JSON.stringify(currentData.userinfo, null, 2)}
+                <pre style={{ margin: 0 }}>
+                  {JSON.stringify(currentData.appConfig || {}, null, 2)}
                 </pre>
-              </Col>
-              <Col span={12}>
-                <Text strong>应用配置:</Text>
-                <pre
-                  style={{
-                    background: '#f5f5f5',
-                    padding: '8px',
-                    borderRadius: '4px',
-                    fontSize: '12px',
-                    marginTop: '8px',
-                  }}
-                >
-                  {JSON.stringify(currentData.appConfig, null, 2)}
-                </pre>
-              </Col>
-            </Row>
-          </Card>
-        </Col>
+              </div>
+            </Col>
+          </Row>
 
-        {/* 使用说明 */}
-        <Col span={24}>
-          <Card title="使用说明" size="small">
-            <Space direction="vertical">
-              <Text>
-                • <strong>实时同步:</strong>{' '}
-                在这里修改的数据会立即同步到所有微前端应用
-              </Text>
-              <Text>
-                • <strong>跨应用通信:</strong>{' '}
-                打开Template应用的Store演示页面，观察数据同步
-              </Text>
-              <Text>
-                • <strong>持久化存储:</strong>{' '}
-                数据会自动保存到localStorage并加密
-              </Text>
-              <Text>
-                • <strong>事件通知:</strong> 数据变化时会收到实时通知
-              </Text>
-              <Text>
-                • <strong>共享模块:</strong>
-                <a
-                  href={process.env.MF_SHARED_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ marginLeft: '8px' }}
-                >
-                  查看 MF-Shared 演示 🚀
-                </a>
-              </Text>
+          <Divider />
+          <Space wrap>
+            <Button onClick={toggleTheme}>切换主题</Button>
+            <Button onClick={toggleLanguage}>切换语言</Button>
+            <Button onClick={bumpVersion}>版本 +1</Button>
+          </Space>
+        </Card>
+      </Col>
+
+      {/* 右侧：实时通知 */}
+      <Col xs={24}>
+        <Card
+          title={
+            <Space>
+              <BellOutlined /> 实时通知
             </Space>
-          </Card>
-        </Col>
-      </Row>
-    </div>
+          }
+          size="small"
+        >
+          <div
+            style={{
+              height: 400,
+              overflow: 'auto',
+              padding: 8,
+            }}
+          >
+            {notifications.length > 0 ? (
+              <Timeline style={{ paddingRight: '8px' }}>
+                {notifications.map((notif, index) => (
+                  <Timeline.Item
+                    key={index}
+                    dot={
+                      notif.type === 'userinfo' ? (
+                        <UserOutlined />
+                      ) : notif.type === 'config' ? (
+                        <SettingOutlined />
+                      ) : (
+                        <BellOutlined />
+                      )
+                    }
+                    color={
+                      notif.type === 'userinfo'
+                        ? 'blue'
+                        : notif.type === 'config'
+                          ? 'green'
+                          : 'orange'
+                    }
+                  >
+                    <div
+                      style={{
+                        fontSize: '12px',
+                        paddingBottom: '8px',
+                        lineHeight: '1.4',
+                        minHeight: '32px',
+                      }}
+                    >
+                      <div
+                        style={{
+                          marginBottom: '4px',
+                          fontWeight: '500',
+                          color: '#262626',
+                        }}
+                      >
+                        {notif.message}
+                      </div>
+                      <Text
+                        type="secondary"
+                        style={{ fontSize: '11px', display: 'block' }}
+                      >
+                        {notif.time}
+                      </Text>
+                    </div>
+                  </Timeline.Item>
+                ))}
+              </Timeline>
+            ) : (
+              <div style={{ padding: '20px', textAlign: 'center' }}>
+                <Text type="secondary">暂无通知</Text>
+              </div>
+            )}
+          </div>
+        </Card>
+      </Col>
+    </Row>
   );
 };
