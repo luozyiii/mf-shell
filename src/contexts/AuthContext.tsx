@@ -123,7 +123,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       } catch {
         // 解析存储的认证数据失败，使用默认值
         // 清除无效的存储数据
-        localStorage.removeItem('auth_token');
         localStorage.removeItem('user_data');
         localStorage.removeItem('permissions_data');
 

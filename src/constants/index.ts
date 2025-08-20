@@ -4,15 +4,6 @@ export const APP_CONFIG = {
   APP_NAME: '云平台微前端系统',
   APP_SHORT_NAME: 'MF',
 
-  // 本地存储键名
-  STORAGE_KEYS: {
-    AUTH_TOKEN: 'auth_token',
-    USER_DATA: 'user_data',
-    PERMISSIONS_DATA: 'permissions_data',
-    THEME_SETTINGS: 'theme_settings',
-    LAYOUT_SETTINGS: 'layout_settings',
-  },
-
   // 注意：微前端应用配置已迁移到 src/config/microsystems.ts
   // 请使用 microsystemManager 来获取微前端配置
 

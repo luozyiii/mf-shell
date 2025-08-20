@@ -207,7 +207,6 @@ FINANCE_ENABLED=false
 
 # 认证配置
 REACT_APP_LOGIN_URL=/login
-REACT_APP_TOKEN_KEY=auth_token
 
 # API 配置
 REACT_APP_API_BASE_URL=http://localhost:8080/api
@@ -237,7 +236,7 @@ export default createModuleFederationConfig({
 ### 认证流程
 
 1. **登录**: 用户输入凭据，获取 JWT Token
-2. **存储**: Token 存储在 localStorage 中
+2. **存储**: Token 存储在全局状态管理中
 3. **验证**: 每次请求自动携带 Token
 4. **刷新**: Token 过期自动刷新或重新登录
 5. **登出**: 清除 Token 和用户信息
@@ -368,8 +367,8 @@ cd mf-template && npm run dev
 **解决方案**:
 
 ```bash
-# 检查 localStorage
-console.log(localStorage.getItem('auth_token'));
+# 检查全局状态中的 token
+console.log(window.globalStore?.get('token'));
 
 # 检查 Token 有效期
 # 确保 Token 未过期
