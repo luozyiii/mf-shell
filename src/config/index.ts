@@ -52,8 +52,8 @@ const BASE_CONFIG = {
     template: {
       name: 'template',
       displayName: getEnvVar('TEMPLATE_NAME', '模板应用'),
-      url: getEnvVar('TEMPLATE_URL', `http://localhost:3003`),
-      port: parseInt(getEnvVar('TEMPLATE_PORT', '3003'), 10),
+      url: getEnvVar('TEMPLATE_URL', `http://localhost:3001`),
+      port: parseInt(getEnvVar('TEMPLATE_PORT', '3001'), 10),
       enabled: getEnvVar('TEMPLATE_ENABLED', 'true') === 'true',
       permissions: ['template:read'],
       icon: 'AppstoreOutlined',

@@ -117,7 +117,7 @@ export const remoteConfigs: Record<string, RemoteConfig> = {
   template: {
     name: 'template',
     url: 'template',
-    development: 'http://localhost:3003/remoteEntry.js',
+    development: 'http://localhost:3001/remoteEntry.js',
     production: 'https://luozyiii.github.io/mf-template/remoteEntry.js',
   }
 };
@@ -237,8 +237,8 @@ PUBLIC_PATH=
 
 # 模板应用配置
 TEMPLATE_NAME=模板应用
-TEMPLATE_URL=http://localhost:3003
-TEMPLATE_PORT=3003
+TEMPLATE_URL=http://localhost:3001
+TEMPLATE_PORT=3001
 TEMPLATE_ENABLED=true
 
 # MF-Shared 共享模块配置

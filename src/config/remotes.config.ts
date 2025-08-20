@@ -17,7 +17,7 @@ export const remoteConfigs: Record<string, RemoteConfig> = {
   template: {
     name: 'template',
     url: 'template',
-    development: `http://localhost:${process.env.TEMPLATE_PORT || '3003'}/remoteEntry.js`,
+    development: `http://localhost:${process.env.TEMPLATE_PORT || '3001'}/remoteEntry.js`,
     production: `${process.env.TEMPLATE_URL || 'https://luozyiii.github.io/mf-template'}/remoteEntry.js`,
   },
   // 可以添加更多远程模块
