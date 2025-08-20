@@ -2,6 +2,7 @@ import { Button, Result, Spin } from 'antd';
 import type React from 'react';
 import type { ReactNode } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
+import { getShellConfig } from '../config';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../hooks/usePermissions';
 import type { UserRole } from '../types/auth';
@@ -43,7 +44,9 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
   // 检查是否已登录
   if (!isAuthenticated) {
     const returnUrl = encodeURIComponent(location.pathname + location.search);
-    return <Navigate to={`/login?returnUrl=${returnUrl}`} replace />;
+    const { basename } = getShellConfig();
+    const loginPath = basename ? `${basename}/login` : '/login';
+    return <Navigate to={`${loginPath}?returnUrl=${returnUrl}`} replace />;
   }
 
   // 检查应用权限

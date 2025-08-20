@@ -9,6 +9,7 @@ interface User {
 
 // @ts-expect-error - MF runtime
 import { clearAppData } from 'mf-shared/store';
+import { getShellConfig } from '../config';
 import { getVal, setVal } from '../store/keys';
 
 // 认证相关工具类
@@ -123,7 +124,9 @@ export class AuthUtils {
    */
   static redirectToLogin(returnUrl?: string): void {
     const currentUrl = returnUrl || window.location.href;
-    window.location.href = `/login?returnUrl=${encodeURIComponent(currentUrl)}`;
+    const { basename } = getShellConfig();
+    const loginPath = basename ? `${basename}/login` : '/login';
+    window.location.href = `${loginPath}?returnUrl=${encodeURIComponent(currentUrl)}`;
   }
 
   /**
@@ -145,7 +148,9 @@ export class AuthUtils {
     }
 
     // 跳转到登录页面
-    window.location.href = '/login';
+    const { basename } = getShellConfig();
+    const loginPath = basename ? `${basename}/login` : '/login';
+    window.location.href = loginPath;
   }
 
   /**
