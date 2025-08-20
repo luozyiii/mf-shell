@@ -26,12 +26,20 @@ const isDev =
     ? process.env.NODE_ENV !== 'production'
     : false;
 
+// 获取 basename，确保开发环境始终为空
+const getBasename = (): string => {
+  if (isDev) {
+    return ''; // 开发环境始终不使用 basename
+  }
+  return getEnvVar('PUBLIC_PATH', '/mf-shell');
+};
+
 // 基础配置
 const BASE_CONFIG = {
   // 主应用配置
   shell: {
     port: parseInt(getEnvVar('SHELL_PORT', '3000'), 10),
-    basename: getEnvVar('PUBLIC_PATH', isDev ? '' : '/mf-shell'),
+    basename: getBasename(),
   },
 
   // 微前端应用配置
@@ -166,17 +174,19 @@ class ConfigManager {
 // 导出单例
 export const configManager = new ConfigManager();
 
-// 导出常用方法
-export const {
-  getEnabledMicroFrontends,
-  getMicroFrontend,
-  isEnabled,
-  generateRemotes,
-  getAccessibleMicroFrontends,
-  getMenuItems,
-  getShellConfig,
-  getAllConfig,
-} = configManager;
+// 导出常用方法 - 使用绑定的方法保持 this 上下文
+export const getEnabledMicroFrontends = () =>
+  configManager.getEnabledMicroFrontends();
+export const getMicroFrontend = (name: string) =>
+  configManager.getMicroFrontend(name);
+export const isEnabled = (name: string) => configManager.isEnabled(name);
+export const generateRemotes = () => configManager.generateRemotes();
+export const getAccessibleMicroFrontends = (userPermissions: string[]) =>
+  configManager.getAccessibleMicroFrontends(userPermissions);
+export const getMenuItems = (userPermissions?: string[]) =>
+  configManager.getMenuItems(userPermissions);
+export const getShellConfig = () => configManager.getShellConfig();
+export const getAllConfig = () => configManager.getAllConfig();
 
 // 导出类型（已在接口定义时导出）
 

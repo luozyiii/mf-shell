@@ -12,7 +12,7 @@ export const remoteConfigs: Record<string, RemoteConfig> = {
     name: 'mf-shared',
     url: 'mfShared',
     development: `http://localhost:${process.env.SHARED_PORT || '2999'}/remoteEntry.js`,
-    production: `${process.env.SHARED_URL || 'https://luozyiii.github.io/mf-shared'}/remoteEntry.js`,
+    production: `${process.env.MF_SHARED_URL || 'https://luozyiii.github.io/mf-shared'}/remoteEntry.js`,
   },
   template: {
     name: 'template',
