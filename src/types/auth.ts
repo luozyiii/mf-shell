@@ -50,7 +50,7 @@ export interface User {
   username: string;
   name: string;
   role: UserRole;
-  roles: UserRole[];
+  permissions: string[];
   avatar?: string;
   email?: string;
   lastLoginTime?: Date;

@@ -35,7 +35,6 @@ const mockUsers = [
     password: 'admin123',
     name: '管理员',
     role: UserRole.ADMIN,
-    roles: [UserRole.ADMIN],
     permissions: [AppPermission.TEMPLATE],
   },
   {
@@ -44,7 +43,6 @@ const mockUsers = [
     password: 'dev123',
     name: '开发者',
     role: UserRole.DEVELOPER,
-    roles: [UserRole.DEVELOPER],
     permissions: [AppPermission.TEMPLATE],
   },
   {
@@ -53,7 +51,6 @@ const mockUsers = [
     password: 'user123',
     name: '普通用户',
     role: UserRole.USER,
-    roles: [UserRole.USER],
     permissions: [AppPermission.DASHBOARD],
   },
 ];
@@ -78,7 +75,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             username: defaultUser.username,
             name: defaultUser.name,
             role: defaultUser.role,
-            roles: defaultUser.roles,
+            permissions: defaultUser.permissions,
           };
 
           const permissionsData: Permissions = {
@@ -163,7 +160,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             username: foundUser.username,
             name: foundUser.name,
             role: foundUser.role,
-            roles: foundUser.roles,
+            permissions: foundUser.permissions,
           };
 
           const permissionsData: Permissions = {
@@ -186,12 +183,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               medium: 'local',
               encrypted: true,
             });
-            configureStoreStrategy?.('roles', {
+            configureStoreStrategy?.('permissions', {
               medium: 'local',
               encrypted: false,
             });
             setStoreValue?.('user', userData as any);
-            setStoreValue?.('roles', permissionsData as any);
+            setStoreValue?.('permissions', permissionsData as any);
           } catch {}
 
           setUser(userData);
@@ -249,7 +246,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // 检查用户是否有特定角色
   const hasRole = useCallback(
     (role: UserRole): boolean => {
-      return user?.roles?.includes(role) || false;
+      return user?.permissions?.includes(role) || false;
     },
     [user]
   );

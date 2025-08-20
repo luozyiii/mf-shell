@@ -1,5 +1,5 @@
 // Short key scheme for mf-shell
-// env:app:scope with scopes { user, app, roles, token }
+// env:app:scope with scopes { user, app, permissions, token }
 // env: g (integrated/global)
 // app: sh (shell)
 
@@ -12,9 +12,9 @@ import {
   subscribeStore,
 } from 'mf-shared/store';
 
-type Scope = 'user' | 'app' | 'roles' | 'token';
+type Scope = 'user' | 'app' | 'permissions' | 'token';
 
-// 简化：直接使用 user/app/roles/token，不再使用 g:sh: 前缀
+// 简化：直接使用 user/app/permissions/token，不再使用 g:sh: 前缀
 export const shortPrefix = '';
 export const keyOf = (scope: Scope) => scope;
 
@@ -25,7 +25,7 @@ const oldKeyOf = (scope: Scope) => {
       return `${prefix}userinfo`;
     case 'app':
       return `${prefix}appconfig`;
-    case 'roles':
+    case 'permissions':
       return `${prefix}permissions`;
     case 'token':
       return `${prefix}token`;
@@ -37,7 +37,7 @@ export const ensureMigrated = () => {
   if (migrated) return;
   try {
     // 从旧键（mf-shell-*) 以及 g:sh:* 迁移到简单键
-    (['user', 'app', 'roles', 'token'] as Scope[]).forEach((s) => {
+    (['user', 'app', 'permissions', 'token'] as Scope[]).forEach((s) => {
       const newK = keyOf(s);
       const oldK = oldKeyOf(s);
       const gshK = `g:sh:${s}`;

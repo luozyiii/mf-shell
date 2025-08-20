@@ -123,7 +123,7 @@ export class AuthUtils {
         'mf-shell-permissions',
         'mf-shell-token',
       ];
-      const simpleKeys = ['user', 'app', 'roles', 'token'];
+      const simpleKeys = ['user', 'app', 'permissions', 'token'];
       containers.forEach((container) => {
         try {
           // 删除显式的简化键
@@ -257,7 +257,7 @@ export class AuthUtils {
    */
   static getPermissions(): Record<string, unknown> | null {
     try {
-      const fromStore = getStoreValue<Record<string, unknown>>('roles');
+      const fromStore = getStoreValue<Record<string, unknown>>('permissions');
       if (fromStore) return fromStore;
     } catch {}
 
@@ -283,7 +283,7 @@ export class AuthUtils {
     }
 
     try {
-      setStoreValue('roles', permissions as any);
+      setStoreValue('permissions', permissions as any);
       return SafeStorage.setItem(
         AuthUtils.PERMISSIONS_KEY,
         JSON.stringify(permissions)

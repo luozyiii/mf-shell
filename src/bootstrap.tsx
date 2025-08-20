@@ -28,7 +28,7 @@ async function initGlobalStore() {
             return undefined;
           }
         };
-        const toMigrate = ['user', 'app', 'roles', 'token'];
+        const toMigrate = ['user', 'app', 'permissions', 'token'];
         for (const s of toMigrate) {
           // 仅当新容器中该键为空时迁移
           const newRaw = localStorage.getItem(`mf-shell-store:${s}`);
@@ -48,7 +48,10 @@ async function initGlobalStore() {
     configureStoreStrategy('user', { medium: 'local', encrypted: true });
     configureStoreStrategy('token', { medium: 'local', encrypted: false });
     configureStoreStrategy('app', { medium: 'local', encrypted: false });
-    configureStoreStrategy('roles', { medium: 'local', encrypted: false });
+    configureStoreStrategy('permissions', {
+      medium: 'local',
+      encrypted: false,
+    });
 
     // 示例：初始化默认 app（不初始化用户信息/令牌）
     setStoreValue('app', {

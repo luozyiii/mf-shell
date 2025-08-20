@@ -21,9 +21,10 @@ export const usePermissions = () => {
   > | null>(null);
   useEffect(() => {
     try {
-      const initial = (getVal('roles') as Record<string, boolean>) || null;
+      const initial =
+        (getVal('permissions') as Record<string, boolean>) || null;
       setGsPermissions(initial);
-      const unsub = subscribeVal('roles', (_k: string, newVal: any) => {
+      const unsub = subscribeVal('permissions', (_k: string, newVal: any) => {
         setGsPermissions((newVal as Record<string, boolean>) || null);
       });
       return () => {
@@ -90,7 +91,7 @@ export const usePermissions = () => {
   const isAdmin = useMemo(() => {
     return (
       user?.role === UserRole.ADMIN ||
-      user?.roles?.includes(UserRole.ADMIN) ||
+      user?.permissions?.includes(UserRole.ADMIN) ||
       false
     );
   }, [user]);
@@ -101,8 +102,8 @@ export const usePermissions = () => {
     return (
       user.role === UserRole.DEVELOPER ||
       user.role === UserRole.ADMIN ||
-      user.roles?.includes(UserRole.DEVELOPER) ||
-      user.roles?.includes(UserRole.ADMIN) ||
+      user.permissions?.includes(UserRole.DEVELOPER) ||
+      user.permissions?.includes(UserRole.ADMIN) ||
       false
     );
   }, [user]);
@@ -127,7 +128,7 @@ export const usePermissions = () => {
       }
 
       const hasPermission =
-        user.roles?.includes(role) || user.role === role || false;
+        user.permissions?.includes(role) || user.role === role || false;
       return {
         hasPermission,
         reason: hasPermission ? undefined : `缺少 ${role} 角色`,
@@ -147,7 +148,7 @@ export const usePermissions = () => {
 
   // 检查是否有任意一个角色
   const hasAnyRole = useCallback(
-    (roles: UserRole[]): PermissionCheckResult => {
+    (permissions: UserRole[]): PermissionCheckResult => {
       if (!isAuthenticated) {
         return {
           hasPermission: false,
@@ -162,19 +163,19 @@ export const usePermissions = () => {
         };
       }
 
-      if (roles.length === 0) {
+      if (permissions.length === 0) {
         return {
           hasPermission: true,
           reason: '无角色要求',
         };
       }
 
-      const hasPermission = roles.some((role) => hasRoleSimple(role));
+      const hasPermission = permissions.some((role) => hasRoleSimple(role));
       return {
         hasPermission,
         reason: hasPermission
           ? undefined
-          : `需要以下任一角色: ${roles.join(', ')}`,
+          : `需要以下任一角色: ${permissions.join(', ')}`,
       };
     },
     [user, isAuthenticated, hasRoleSimple]
@@ -182,7 +183,7 @@ export const usePermissions = () => {
 
   // 检查是否有所有角色
   const hasAllRoles = useCallback(
-    (roles: UserRole[]): PermissionCheckResult => {
+    (permissions: UserRole[]): PermissionCheckResult => {
       if (!isAuthenticated) {
         return {
           hasPermission: false,
@@ -197,14 +198,14 @@ export const usePermissions = () => {
         };
       }
 
-      if (roles.length === 0) {
+      if (permissions.length === 0) {
         return {
           hasPermission: true,
           reason: '无角色要求',
         };
       }
 
-      const missingRoles = roles.filter((role) => !hasRoleSimple(role));
+      const missingRoles = permissions.filter((role) => !hasRoleSimple(role));
       const hasPermission = missingRoles.length === 0;
 
       return {
@@ -248,8 +249,7 @@ export const usePermissions = () => {
     if (!user || !effectivePermissions) {
       return {
         isAuthenticated: false,
-        roles: [],
-        permissions: {},
+        permissions: [],
         isAdmin: false,
         isDeveloper: false,
       };
@@ -257,8 +257,7 @@ export const usePermissions = () => {
 
     return {
       isAuthenticated: true,
-      roles: user.roles || [user.role].filter(Boolean),
-      permissions: effectivePermissions,
+      permissions: user.permissions || [user.role].filter(Boolean),
       isAdmin,
       isDeveloper,
       userId: user.id,
@@ -278,7 +277,7 @@ export const usePermissions = () => {
             id: user.id,
             username: user.username,
             role: user.role,
-            roles: user.roles,
+            permissions: user.permissions,
           }
         : null,
       permissions,

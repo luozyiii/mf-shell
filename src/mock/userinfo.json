@@ -5,7 +5,6 @@
     "password": "admin123",
     "name": "管理员",
     "role": "admin",
-    "roles": ["admin"],
     "permissions": ["template:read"],
     "appConfig": { "theme": "dark", "language": "zh-CN", "version": "1.0.0" }
   },
@@ -15,7 +14,6 @@
     "password": "dev123",
     "name": "开发者",
     "role": "developer",
-    "roles": ["developer"],
     "permissions": ["template:read"],
     "appConfig": { "theme": "light", "language": "zh-CN", "version": "1.0.0" }
   },
@@ -25,7 +23,6 @@
     "password": "user123",
     "name": "普通用户",
     "role": "user",
-    "roles": ["user"],
     "permissions": ["dashboard:read"],
     "appConfig": { "theme": "light", "language": "zh-CN", "version": "1.0.0" }
   }
