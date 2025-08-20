@@ -64,7 +64,7 @@ export const usePermissions = () => {
       }
 
       // 管理员拥有所有权限
-      if (user.role === UserRole.ADMIN) {
+      if (user?.role === UserRole.ADMIN) {
         return { hasPermission: true };
       }
 
@@ -128,7 +128,7 @@ export const usePermissions = () => {
       }
 
       const hasPermission =
-        user.permissions?.includes(role) || user.role === role || false;
+        user?.permissions?.includes(role) || user?.role === role || false;
       return {
         hasPermission,
         reason: hasPermission ? undefined : `缺少 ${role} 角色`,
@@ -257,7 +257,7 @@ export const usePermissions = () => {
 
     return {
       isAuthenticated: true,
-      permissions: user.permissions || [user.role].filter(Boolean),
+      permissions: user?.permissions || [user?.role].filter(Boolean),
       isAdmin,
       isDeveloper,
       userId: user.id,
@@ -276,7 +276,7 @@ export const usePermissions = () => {
         ? {
             id: user.id,
             username: user.username,
-            role: user.role,
+            role: user?.role,
             permissions: user.permissions,
           }
         : null,

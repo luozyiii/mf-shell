@@ -11,11 +11,11 @@ import {
   Routes,
   useLocation,
 } from 'react-router-dom';
+import { AsyncPerformanceMonitor } from './components/AsyncPerformanceMonitor';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import Layout from './components/Layout';
 import { LayoutSkeleton } from './components/LayoutSkeleton';
 import { LazyMicroFrontend } from './components/LazyMicroFrontend';
-import { PerformanceMonitor } from './components/PerformanceMonitor';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import { ScrollToTop } from './components/ScrollToTop';
 import { configManager } from './config';
@@ -158,8 +158,8 @@ const App: React.FC = () => {
         <ConfigProvider locale={antLocale} theme={{ algorithm }}>
           <AuthProvider>
             <AppContent />
-            {/* 性能监控开发工具 - 仅在开发环境显示 */}
-            <PerformanceMonitor />
+            {/* 性能监控开发工具 - 异步加载，仅在开发环境显示 */}
+            <AsyncPerformanceMonitor />
           </AuthProvider>
         </ConfigProvider>
       </HelmetProvider>

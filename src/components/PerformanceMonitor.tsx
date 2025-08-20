@@ -1,6 +1,16 @@
-import { Button, Card, Col, Collapse, Row, Statistic, Table } from 'antd';
+import { BarChartOutlined, ReloadOutlined } from '@ant-design/icons';
+import {
+  Badge,
+  Button,
+  Col,
+  Collapse,
+  Drawer,
+  Row,
+  Statistic,
+  Table,
+} from 'antd';
 import type React from 'react';
-import { memo, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useRef, useState } from 'react';
 import { componentCacheManager } from './LazyMicroFrontend';
 
 const { Panel } = Collapse;
@@ -25,55 +35,66 @@ export const PerformanceMonitor: React.FC = memo(() => {
     loadTimes: [],
     cacheStats: { size: 0, maxSize: 0, entries: [] },
   });
-  const [isVisible, setIsVisible] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const updateTimeoutRef = useRef<number>();
 
-  useEffect(() => {
-    const updateMetrics = () => {
-      // 获取性能指标
-      const performanceEntries = performance.getEntriesByType('measure');
-      const loadTimes = performanceEntries
-        .filter((entry) => entry.name.startsWith('load-'))
-        .map((entry) => ({
-          name: entry.name,
-          duration: entry.duration,
-          timestamp: entry.startTime,
-        }))
-        .slice(-10); // 只保留最近10条
+  // 防抖更新函数
+  const updateMetrics = useCallback(() => {
+    setIsUpdating(true);
+    // 获取性能指标
+    const performanceEntries = performance.getEntriesByType('measure');
+    const loadTimes = performanceEntries
+      .filter((entry) => entry.name.startsWith('load-'))
+      .map((entry) => ({
+        name: entry.name,
+        duration: entry.duration,
+        timestamp: entry.startTime,
+      }))
+      .slice(-10); // 只保留最近10条
 
-      // 获取缓存统计
-      const cacheStats = componentCacheManager.getStats();
+    // 获取缓存统计
+    const cacheStats = componentCacheManager.getStats();
 
-      // 获取内存使用情况（如果支持）
-      let memoryUsage:
-        | {
-            used: number;
-            total: number;
-            percentage: number;
-          }
-        | undefined;
-      if ('memory' in performance) {
-        const memory = (performance as any).memory;
-        memoryUsage = {
-          used: memory.usedJSHeapSize,
-          total: memory.totalJSHeapSize,
-          percentage: (memory.usedJSHeapSize / memory.totalJSHeapSize) * 100,
-        };
-      }
+    // 获取内存使用情况（如果支持）
+    let memoryUsage:
+      | {
+          used: number;
+          total: number;
+          percentage: number;
+        }
+      | undefined;
+    if ('memory' in performance) {
+      const memory = (performance as any).memory;
+      memoryUsage = {
+        used: memory.usedJSHeapSize,
+        total: memory.totalJSHeapSize,
+        percentage: (memory.usedJSHeapSize / memory.totalJSHeapSize) * 100,
+      };
+    }
 
-      setMetrics({
-        loadTimes,
-        cacheStats,
-        memoryUsage,
-      });
-    };
+    setMetrics({
+      loadTimes,
+      cacheStats,
+      memoryUsage,
+    });
 
-    updateMetrics();
-    const interval = setInterval(updateMetrics, 2000); // 每2秒更新一次
-
-    return () => clearInterval(interval);
+    setIsUpdating(false);
   }, []);
 
-  const clearCache = () => {
+  useEffect(() => {
+    updateMetrics();
+    const interval = setInterval(updateMetrics, 3000); // 每3秒更新一次，减少频率
+
+    return () => {
+      clearInterval(interval);
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current);
+      }
+    };
+  }, [updateMetrics]);
+
+  const clearCache = useCallback(() => {
     componentCacheManager.clear();
     performance.clearMeasures();
     performance.clearMarks();
@@ -82,7 +103,9 @@ export const PerformanceMonitor: React.FC = memo(() => {
       loadTimes: [],
       cacheStats: { size: 0, maxSize: 0, entries: [] },
     }));
-  };
+    // 立即更新一次
+    updateTimeoutRef.current = setTimeout(updateMetrics, 100);
+  }, [updateMetrics]);
 
   const loadTimeColumns = [
     {
@@ -130,8 +153,14 @@ export const PerformanceMonitor: React.FC = memo(() => {
     },
   ];
 
-  if (!isVisible) {
-    return (
+  // 只在开发环境显示
+  if (process.env.NODE_ENV !== 'development') {
+    return null;
+  }
+
+  return (
+    <>
+      {/* 固定悬浮的小图标 */}
       <div
         style={{
           position: 'fixed',
@@ -140,43 +169,40 @@ export const PerformanceMonitor: React.FC = memo(() => {
           zIndex: 1000,
         }}
       >
-        <Button type="primary" size="small" onClick={() => setIsVisible(true)}>
-          性能监控
-        </Button>
+        <Badge dot={isUpdating} color="green" offset={[-8, 8]}>
+          <Button
+            type="primary"
+            shape="circle"
+            size="large"
+            icon={<BarChartOutlined />}
+            onClick={() => setDrawerVisible(true)}
+            title="性能监控 (开发模式)"
+            style={{
+              boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+            }}
+          />
+        </Badge>
       </div>
-    );
-  }
 
-  return (
-    <div
-      style={{
-        position: 'fixed',
-        bottom: '20px',
-        right: '20px',
-        width: '600px',
-        maxHeight: '80vh',
-        overflow: 'auto',
-        zIndex: 1000,
-        backgroundColor: 'white',
-        border: '1px solid #d9d9d9',
-        borderRadius: '6px',
-        boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-      }}
-    >
-      <Card
+      {/* 右侧抽屉 */}
+      <Drawer
         title="微前端性能监控"
-        size="small"
+        placement="right"
+        width={600}
+        open={drawerVisible}
+        onClose={() => setDrawerVisible(false)}
         extra={
-          <div>
+          <div style={{ display: 'flex', gap: 8 }}>
             <Button
               size="small"
-              onClick={clearCache}
-              style={{ marginRight: 8 }}
+              icon={<ReloadOutlined spin={isUpdating} />}
+              onClick={updateMetrics}
+              title="手动刷新"
             >
-              清除缓存
+              刷新
             </Button>
-            <Button size="small" onClick={() => setIsVisible(false)}>
-              关闭
+            <Button size="small" onClick={clearCache} danger>
+              清除缓存
             </Button>
           </div>
         }
@@ -235,8 +261,8 @@ export const PerformanceMonitor: React.FC = memo(() => {
             />
           </Panel>
         </Collapse>
-      </Card>
-    </div>
+      </Drawer>
+    </>
   );
 });
 
