@@ -38,13 +38,24 @@ export const StoreDemo: React.FC = () => {
       const token = getVal('token');
       const permissions = getVal('permissions');
       setCurrentData({
-        userinfo: userinfo || {},
-        appConfig: appConfig || {},
+        userinfo: userinfo || { name: '未设置', age: 0, role: 'guest' },
+        appConfig: appConfig || {
+          theme: 'light',
+          language: 'zh-CN',
+          version: '1.0.0',
+        },
         token: token || '',
         permissions: permissions || {},
       });
     } catch (error) {
       console.error('Failed to refresh data:', error);
+      // 设置默认数据以防止错误
+      setCurrentData({
+        userinfo: { name: '未设置', age: 0, role: 'guest' },
+        appConfig: { theme: 'light', language: 'zh-CN', version: '1.0.0' },
+        token: '',
+        permissions: {},
+      });
     }
   }, []);
 
@@ -52,7 +63,7 @@ export const StoreDemo: React.FC = () => {
     (() => void) | undefined
   > => {
     try {
-      // @ts-ignore - Module Federation 动态导入，运行时存在
+      // @ts-expect-error - Module Federation 动态导入，运行时存在
       const module = await import('mf-shared/store');
       setStoreModule(module);
       setIsConnected(true);
@@ -146,10 +157,16 @@ export const StoreDemo: React.FC = () => {
     e?.preventDefault();
     e?.stopPropagation();
 
-    const curUser = (getVal('user') as any) || {};
-    let role = curUser.role;
+    const curUser = (getVal('user') as any) || {
+      name: '未设置',
+      age: 0,
+      role: 'guest',
+    };
+    let role = curUser.role || 'guest';
     if (role === 'admin') {
       role = 'developer';
+    } else if (role === 'developer') {
+      role = 'guest';
     } else {
       role = 'admin';
     }
@@ -248,7 +265,7 @@ export const StoreDemo: React.FC = () => {
                   {currentData.userinfo?.age ?? '-'}
                 </Descriptions.Item>
                 <Descriptions.Item label="角色">
-                  {currentData.userinfo.role}
+                  {currentData.userinfo?.role ?? '-'}
                 </Descriptions.Item>
               </Descriptions>
             </Col>
