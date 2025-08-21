@@ -7,13 +7,13 @@ const sharedDependencies = {
   react: {
     singleton: true,
     eager: true, // 主应用预加载，提升性能
-    requiredVersion: '^18.0.0',
+    requiredVersion: '^19.1.0',
     strictVersion: false, // 允许版本兼容
   },
   'react-dom': {
     singleton: true,
     eager: true,
-    requiredVersion: '^18.0.0',
+    requiredVersion: '^19.1.0',
     strictVersion: false,
   },
 
@@ -21,7 +21,7 @@ const sharedDependencies = {
   'react-router-dom': {
     singleton: true,
     eager: false, // 按需加载，减少初始包大小
-    requiredVersion: '^6.0.0',
+    requiredVersion: '^7.8.1',
     strictVersion: false,
   },
 
@@ -29,7 +29,7 @@ const sharedDependencies = {
   antd: {
     singleton: true,
     eager: false, // 按需加载，因为 antd 较大
-    requiredVersion: '^5.0.0',
+    requiredVersion: '^5.27.1',
     strictVersion: false,
   },
 
@@ -37,7 +37,7 @@ const sharedDependencies = {
   'react-helmet-async': {
     singleton: true,
     eager: false,
-    requiredVersion: '^1.0.0',
+    requiredVersion: '^2.0.5',
     strictVersion: false,
   },
 
