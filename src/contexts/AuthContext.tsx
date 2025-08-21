@@ -204,20 +204,44 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // 只验证凭据并返回token，不存储到主应用
   const loginAndGetToken = useCallback(
     async (credentials: LoginForm): Promise<string> => {
+      console.log(
+        'AuthContext.loginAndGetToken: Starting authentication for:',
+        credentials.username
+      );
+
       return new Promise((resolve, reject) => {
         window.setTimeout(() => {
-          const foundUser = mockUsers.find(
-            (u) =>
-              u.username === credentials.username &&
-              u.password === credentials.password
-          );
+          try {
+            const list: any[] = (users as any[])?.length
+              ? (users as any[])
+              : mockUsers;
+            const foundUser = list.find(
+              (u) =>
+                u.username === credentials.username &&
+                u.password === credentials.password
+            );
 
-          if (foundUser) {
-            // 生成模拟JWT token
-            const token = `mock_jwt_token_${foundUser.id}_${Date.now()}`;
-            resolve(token);
-          } else {
-            reject(new Error('用户名或密码错误'));
+            if (foundUser) {
+              // 生成模拟JWT token
+              const token = `mock_jwt_token_${foundUser.id}_${Date.now()}`;
+              console.log(
+                'AuthContext.loginAndGetToken: Token generated successfully:',
+                token
+              );
+              resolve(token);
+            } else {
+              console.warn(
+                'AuthContext.loginAndGetToken: Authentication failed for user:',
+                credentials.username
+              );
+              reject(new Error('用户名或密码错误'));
+            }
+          } catch (error) {
+            console.error(
+              'AuthContext.loginAndGetToken: Unexpected error:',
+              error
+            );
+            reject(new Error('登录过程中发生错误'));
           }
         }, 1000); // 模拟网络延迟
       });

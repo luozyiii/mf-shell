@@ -60,10 +60,20 @@ export const Login: React.FC = () => {
     try {
       if (returnUrl.startsWith('http')) {
         // 外部URL（子应用）：直接验证凭据并获取token，不在主应用存储
+        console.log('Login: Generating token for external URL:', returnUrl);
         const token = await loginAndGetToken(values);
-        const separator = returnUrl.includes('?') ? '&' : '?';
-        const urlWithToken = `${returnUrl}${separator}token=${encodeURIComponent(token)}`;
-        window.location.href = urlWithToken;
+        console.log('Login: Token generated:', token);
+
+        // 清理目标URL，移除可能存在的旧token参数
+        const targetUrl = new URL(returnUrl);
+        targetUrl.searchParams.delete('token');
+
+        // 添加新token
+        targetUrl.searchParams.set('token', token);
+
+        const finalUrl = targetUrl.toString();
+        console.log('Login: Redirecting to:', finalUrl);
+        window.location.href = finalUrl;
       } else {
         // 内部路由：正常登录并存储到主应用
         await login(values);
