@@ -16,7 +16,7 @@ declare module 'mf-shared/store' {
     keyOrPrefix: string,
     strategy: StorageStrategy
   ): void;
-  export function clearStoreByPrefix(prefix: string): void;
+
   const _default: any;
   export default _default;
 }
