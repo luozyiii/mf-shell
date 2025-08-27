@@ -1,0 +1,51 @@
+{
+  "app": {
+    "title": "クラウドプラットフォームマイクロフロントエンドシステム",
+    "welcome": "ようこそ",
+    "loading": "読み込み中..."
+  },
+  "navigation": {
+    "dashboard": "ダッシュボード",
+    "template": "テンプレートアプリ",
+    "settings": "設定",
+    "logout": "ログアウト"
+  },
+  "messages": {
+    "saveSuccess": "保存成功",
+    "networkError": "ネットワーク接続に失敗しました。ネットワーク設定を確認してください"
+  },
+  "language": {
+    "select": "言語を選択"
+  },
+  "dashboard": {
+    "title": "ダッシュボード",
+    "microFrontends": "マイクロフロントエンドアプリケーション",
+    "globalStore": "グローバルストアデモ",
+    "storeData": "グローバルストアデータ",
+    "autoRefresh": "5秒ごとに自動更新",
+    "storeDescription": "リアルタイムグローバルストアデータ • ユーザー状態、アプリ設定、権限情報などを含む"
+  },
+  "common": {
+    "enabled": "有効",
+    "disabled": "無効",
+    "refresh": "更新",
+    "close": "閉じる"
+  },
+  "store": {
+    "connectionStatus": "接続状態",
+    "connected": "接続済み",
+    "disconnected": "未接続",
+    "userInfo": "ユーザー情報",
+    "appConfig": "アプリ設定",
+    "username": "ユーザー名",
+    "age": "年齢",
+    "role": "ロール",
+    "theme": "テーマ",
+    "language": "言語",
+    "version": "バージョン",
+    "updateUsername": "ユーザー名を更新",
+    "toggleTheme": "テーマを切り替え",
+    "usernameUpdated": "ユーザー名が更新されました",
+    "themeChanged": "テーマが変更されました"
+  }
+}

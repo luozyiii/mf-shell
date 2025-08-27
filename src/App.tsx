@@ -20,7 +20,9 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 import { ScrollToTop } from './components/ScrollToTop';
 import { configManager } from './config';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { Dashboard } from './pages/Dashboard';
+import ShellI18nProvider from './i18n/I18nProvider';
+import { Dashboard } from './pages/dashboard/Dashboard';
+import I18nDemo from './pages/i18n-demo/I18nDemo';
 import { Login } from './pages/Login';
 import { NotFound } from './pages/NotFound';
 
@@ -87,6 +89,18 @@ const AppContent: React.FC = () => {
           }
         />
 
+        {/* 国际化演示页面 */}
+        <Route
+          path="/i18n-demo"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <I18nDemo />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+
         {/* 动态微前端路由 */}
         {configManager.getEnabledMicroFrontends().map((mf) => (
           <Route
@@ -121,6 +135,11 @@ const AppContent: React.FC = () => {
 };
 
 const App: React.FC = () => {
+  // 设置全局标识，帮助子应用识别微前端环境
+  useEffect(() => {
+    (window as any).__MF_SHELL_APP__ = true;
+  }, []);
+
   // 绑定 ConfigProvider 到简化键 app（theme / language）
   const [themeMode, setThemeMode] = useState<'light' | 'dark'>('light');
   const [localeName, setLocaleName] = useState<string>('zh-CN');
@@ -155,13 +174,15 @@ const App: React.FC = () => {
   return (
     <ErrorBoundary>
       <HelmetProvider>
-        <ConfigProvider locale={antLocale} theme={{ algorithm }}>
-          <AuthProvider>
-            <AppContent />
-            {/* 性能监控开发工具 - 异步加载，仅在开发环境显示 */}
-            <AsyncPerformanceMonitor />
-          </AuthProvider>
-        </ConfigProvider>
+        <ShellI18nProvider>
+          <ConfigProvider locale={antLocale} theme={{ algorithm }}>
+            <AuthProvider>
+              <AppContent />
+              {/* 性能监控开发工具 - 异步加载，仅在开发环境显示 */}
+              <AsyncPerformanceMonitor />
+            </AuthProvider>
+          </ConfigProvider>
+        </ShellI18nProvider>
       </HelmetProvider>
     </ErrorBoundary>
   );

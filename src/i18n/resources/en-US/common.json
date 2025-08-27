@@ -1,0 +1,51 @@
+{
+  "app": {
+    "title": "Cloud Platform Micro Frontend System",
+    "welcome": "Welcome to",
+    "loading": "Loading..."
+  },
+  "navigation": {
+    "dashboard": "Dashboard",
+    "template": "Template App",
+    "settings": "Settings",
+    "logout": "Logout"
+  },
+  "messages": {
+    "saveSuccess": "Save successful",
+    "networkError": "Network connection failed, please check network settings"
+  },
+  "language": {
+    "select": "Select Language"
+  },
+  "dashboard": {
+    "title": "Dashboard",
+    "microFrontends": "Micro Frontend Applications",
+    "globalStore": "Global Store Demo",
+    "storeData": "Global Store Data",
+    "autoRefresh": "Auto refresh every 5 seconds",
+    "storeDescription": "Real-time global store data • Including user state, app config, permission info, etc."
+  },
+  "common": {
+    "enabled": "Enabled",
+    "disabled": "Disabled",
+    "refresh": "Refresh",
+    "close": "Close"
+  },
+  "store": {
+    "connectionStatus": "Connection Status",
+    "connected": "Connected",
+    "disconnected": "Disconnected",
+    "userInfo": "User Information",
+    "appConfig": "App Configuration",
+    "username": "Username",
+    "age": "Age",
+    "role": "Role",
+    "theme": "Theme",
+    "language": "Language",
+    "version": "Version",
+    "updateUsername": "Update Username",
+    "toggleTheme": "Toggle Theme",
+    "usernameUpdated": "Username updated",
+    "themeChanged": "Theme changed to"
+  }
+}

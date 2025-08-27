@@ -1,0 +1,83 @@
+/* Dashboard容器 */
+.dashboard {
+  background: transparent;
+  padding: 16px;
+  animation: pageEnter 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes pageEnter {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 卡片标题样式 */
+.cardTitle {
+  display: flex;
+  align-items: center;
+  font-weight: 600;
+  color: #262626;
+}
+
+/* 系统应用卡片 */
+.systemCard {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e8e8e8;
+  margin-bottom: 24px;
+  animation: sectionEnter 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
+}
+
+@keyframes sectionEnter {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 微前端应用卡片 */
+.microFrontendCard {
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  height: 100%;
+}
+
+.microFrontendCard:hover {
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.cardCover {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80px;
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  font-size: 32px;
+  color: #1890ff;
+}
+
+/* 全局状态演示卡片 */
+.storeCard {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e8e8e8;
+  animation: sectionEnter 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+}
+
+/* 数据详情卡片 */
+.dataCard {
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
+  border: 1px solid #e8e8e8;
+  animation: sectionEnter 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s both;
+}

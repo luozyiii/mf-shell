@@ -22,6 +22,7 @@ import { configManager } from '../config';
 import { APP_CONFIG } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
 import { usePermissions } from '../hooks/usePermissions';
+import LanguageSwitcher from '../i18n/LanguageSwitcher';
 // @ts-expect-error - MF runtime
 import { getVal, subscribeVal } from '../store/keys';
 import { DateUtil } from '../utils';
@@ -217,6 +218,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         icon: <DashboardOutlined />,
         label: '仪表板',
       },
+      {
+        key: '/i18n-demo',
+        icon: <ControlOutlined />,
+        label: '国际化',
+      },
     ];
 
     // 使用优化后的权限系统动态生成菜单
@@ -326,6 +332,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       };
     }
 
+    // 国际化
+    if (pathname === '/i18n-demo') {
+      return {
+        title: '国际化',
+        showBack: false,
+        backPath: null,
+      };
+    }
+
     // 尝试从子应用路由配置中获取
     try {
       // 动态检查所有微前端系统的路由
@@ -393,7 +408,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           {currentPageInfo.title} - {APP_CONFIG.APP_NAME}
         </title>
       </Helmet>
-      <AntLayout style={{ minHeight: '100vh' }}>
+      <AntLayout style={{ minHeight: '100vh' }} data-shell-app="true">
         <Sider
           trigger={null}
           collapsible
@@ -457,6 +472,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </div>
 
             <div className={styles.headerRight}>
+              {/* 语言切换器 */}
+              <LanguageSwitcher size="middle" />
+
               {/* 欢迎信息 */}
               <div className={styles.welcomeText}>
                 {authLoading

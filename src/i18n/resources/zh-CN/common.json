@@ -1,0 +1,51 @@
+{
+  "app": {
+    "title": "云平台微前端系统",
+    "welcome": "欢迎使用",
+    "loading": "加载中..."
+  },
+  "navigation": {
+    "dashboard": "仪表板",
+    "template": "模板应用",
+    "settings": "设置",
+    "logout": "退出登录"
+  },
+  "messages": {
+    "saveSuccess": "保存成功",
+    "networkError": "网络连接失败，请检查网络设置"
+  },
+  "language": {
+    "select": "选择语言"
+  },
+  "dashboard": {
+    "title": "仪表板",
+    "microFrontends": "微前端应用",
+    "globalStore": "全局状态演示",
+    "storeData": "全局 Store 数据",
+    "autoRefresh": "每5秒自动刷新",
+    "storeDescription": "实时全局 Store 数据 • 包含用户状态、应用配置、权限信息等"
+  },
+  "common": {
+    "enabled": "启用",
+    "disabled": "禁用",
+    "refresh": "刷新",
+    "close": "关闭"
+  },
+  "store": {
+    "connectionStatus": "连接状态",
+    "connected": "已连接",
+    "disconnected": "未连接",
+    "userInfo": "用户信息",
+    "appConfig": "应用配置",
+    "username": "用户名",
+    "age": "年龄",
+    "role": "角色",
+    "theme": "主题",
+    "language": "语言",
+    "version": "版本",
+    "updateUsername": "更新用户名",
+    "toggleTheme": "切换主题",
+    "usernameUpdated": "用户名已更新",
+    "themeChanged": "主题已切换为"
+  }
+}
