@@ -1,4 +1,4 @@
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import shellI18nInstance, { saveLanguage } from '.';
 
 /**
@@ -6,9 +6,30 @@ import shellI18nInstance, { saveLanguage } from '.';
  * 负责协调所有微前端应用的语言切换
  */
 const useSwitchLanguage = () => {
+  // 初始化全局语言设置
+  const initializeGlobalLanguage = useCallback(async () => {
+    try {
+      const { getStoreValue, setStoreValue } = await import('mf-shared/store');
+      const currentAppConfig = getStoreValue('app') || {};
+      const currentLanguage = shellI18nInstance.language;
+
+      // 总是设置全局 store 的语言，确保与主应用一致
+      const updatedConfig = {
+        ...currentAppConfig,
+        language: currentLanguage,
+      };
+      setStoreValue('app', updatedConfig);
+    } catch (error) {
+      console.warn('Failed to initialize global language:', error);
+    }
+  }, []);
+
+  // 在组件挂载时初始化全局语言
+  useEffect(() => {
+    initializeGlobalLanguage();
+  }, [initializeGlobalLanguage]);
   // 切换主应用语言
   const switchShellLanguage = useCallback((languageCode: string) => {
-    console.log(`🌐 Shell app: Switching language to ${languageCode}`);
     shellI18nInstance.changeLanguage(languageCode);
     // 保存语言设置到 localStorage
     saveLanguage(languageCode);
@@ -34,8 +55,6 @@ const useSwitchLanguage = () => {
   // 切换所有应用的语言
   const switchAllLanguages = useCallback(
     async (languageCode: string) => {
-      console.log(`🌐 Switching all applications to language: ${languageCode}`);
-
       // 切换主应用语言
       switchShellLanguage(languageCode);
 
@@ -44,12 +63,18 @@ const useSwitchLanguage = () => {
 
       // 同步到全局存储，供其他应用使用
       try {
-        const { setStoreValue } = await import('mf-shared/store');
-        setStoreValue('app', {
-          theme: 'light', // 保持现有主题
+        const { getStoreValue, setStoreValue } = await import(
+          'mf-shared/store'
+        );
+
+        // 获取现有的应用配置，保持其他设置不变
+        const currentAppConfig = getStoreValue('app') || {};
+        const updatedConfig = {
+          ...currentAppConfig,
           language: languageCode,
-        });
-        console.log(`🌐 Language ${languageCode} synced to global store`);
+        };
+
+        setStoreValue('app', updatedConfig);
       } catch (error) {
         console.warn('Failed to sync language to global store:', error);
       }
