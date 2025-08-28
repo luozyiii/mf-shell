@@ -61,26 +61,6 @@ const BASE_CONFIG = {
       icon: 'AppstoreOutlined',
       description: '微前端模板应用',
     },
-    marketing: {
-      name: 'marketing',
-      displayName: getEnvVar('MARKETING_NAME', '营销系统'),
-      url: getEnvVar('MARKETING_URL', `http://localhost:3001`),
-      port: parseInt(getEnvVar('MARKETING_PORT', '3001'), 10),
-      enabled: getEnvVar('MARKETING_ENABLED', 'false') === 'true',
-      permissions: ['marketing:view'],
-      icon: 'RocketOutlined',
-      description: '营销管理系统',
-    },
-    finance: {
-      name: 'finance',
-      displayName: getEnvVar('FINANCE_NAME', '财务系统'),
-      url: getEnvVar('FINANCE_URL', `http://localhost:3002`),
-      port: parseInt(getEnvVar('FINANCE_PORT', '3002'), 10),
-      enabled: getEnvVar('FINANCE_ENABLED', 'false') === 'true',
-      permissions: ['finance:view'],
-      icon: 'DollarOutlined',
-      description: '财务管理系统',
-    },
   } as Record<string, MicroFrontendConfig>,
 };
 
