@@ -121,10 +121,7 @@ export const LayoutSkeleton: React.FC = () => {
               </div>
               <div className={styles.tableBody}>
                 {Array.from({ length: 5 }).map((_, index) => (
-                  <div
-                    key={`skeleton-row-${index}`}
-                    className={styles.tableRow}
-                  >
+                  <div key={`skeleton-row-${index}`} className={styles.tableRow}>
                     <div className={styles.tableCell}></div>
                     <div className={styles.tableCell}></div>
                     <div className={styles.tableCell}></div>

@@ -36,10 +36,7 @@ const getBasename = (): string => {
   return getEnvVar('PUBLIC_PATH', '/mf-shell');
 };
 
-const isDev =
-  typeof process !== 'undefined'
-    ? process.env.NODE_ENV !== 'production'
-    : false;
+const isDev = typeof process !== 'undefined' ? process.env.NODE_ENV !== 'production' : false;
 
 // 基础配置
 const BASE_CONFIG = {
@@ -87,9 +84,7 @@ class ConfigManager {
   generateRemotes(): Record<string, string> {
     const remotes: Record<string, string> = {};
     const isDev =
-      typeof process !== 'undefined' && process.env
-        ? process.env.NODE_ENV !== 'production'
-        : true; // 默认为开发模式
+      typeof process !== 'undefined' && process.env ? process.env.NODE_ENV !== 'production' : true; // 默认为开发模式
 
     // 使用 remotes.config.ts 中的配置
     Object.values(remoteConfigs).forEach((config) => {
@@ -120,22 +115,16 @@ class ConfigManager {
   getRemoteUrl(remoteName: string): string {
     const config = remoteConfigs[remoteName];
     if (!config) {
-      throw new Error(
-        `Remote module "${remoteName}" not found in configuration`
-      );
+      throw new Error(`Remote module "${remoteName}" not found in configuration`);
     }
 
     const isDev =
-      typeof process !== 'undefined' && process.env
-        ? process.env.NODE_ENV !== 'production'
-        : true; // 默认为开发模式
+      typeof process !== 'undefined' && process.env ? process.env.NODE_ENV !== 'production' : true; // 默认为开发模式
     return isDev ? config.development : config.production;
   }
 
   // 获取用户可访问的微前端
-  getAccessibleMicroFrontends(
-    userPermissions: string[]
-  ): MicroFrontendConfig[] {
+  getAccessibleMicroFrontends(userPermissions: string[]): MicroFrontendConfig[] {
     return this.getEnabledMicroFrontends().filter((mf) => {
       // 支持简单权限名和详细权限名
       return mf.permissions.some((permission) => {
@@ -200,14 +189,11 @@ class ConfigManager {
 export const configManager = new ConfigManager();
 
 // 导出常用方法 - 使用绑定的方法保持 this 上下文
-export const getEnabledMicroFrontends = () =>
-  configManager.getEnabledMicroFrontends();
-export const getMicroFrontend = (name: string) =>
-  configManager.getMicroFrontend(name);
+export const getEnabledMicroFrontends = () => configManager.getEnabledMicroFrontends();
+export const getMicroFrontend = (name: string) => configManager.getMicroFrontend(name);
 export const isEnabled = (name: string) => configManager.isEnabled(name);
 export const generateRemotes = () => configManager.generateRemotes();
-export const getRemoteUrl = (remoteName: string) =>
-  configManager.getRemoteUrl(remoteName);
+export const getRemoteUrl = (remoteName: string) => configManager.getRemoteUrl(remoteName);
 export const getAccessibleMicroFrontends = (userPermissions: string[]) =>
   configManager.getAccessibleMicroFrontends(userPermissions);
 export const getMenuItems = (userPermissions?: string[]) =>

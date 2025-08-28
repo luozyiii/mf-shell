@@ -3,11 +3,7 @@ export class ErrorHandler {
   /**
    * 安全执行函数，捕获错误并返回默认值
    */
-  static safeExecute<T>(
-    fn: () => T,
-    defaultValue: T,
-    errorMessage?: string
-  ): T {
+  static safeExecute<T>(fn: () => T, defaultValue: T, errorMessage?: string): T {
     try {
       return fn();
     } catch (error) {
@@ -57,11 +53,7 @@ export class ErrorHandler {
   /**
    * 安全设置存储值
    */
-  static safeSetStorage(
-    key: string,
-    value: any,
-    storage: Storage = localStorage
-  ): boolean {
+  static safeSetStorage(key: string, value: any, storage: Storage = localStorage): boolean {
     return ErrorHandler.safeExecute(
       () => {
         storage.setItem(key, JSON.stringify(value));
@@ -75,10 +67,7 @@ export class ErrorHandler {
   /**
    * 安全移除存储值
    */
-  static safeRemoveStorage(
-    key: string,
-    storage: Storage = localStorage
-  ): boolean {
+  static safeRemoveStorage(key: string, storage: Storage = localStorage): boolean {
     return ErrorHandler.safeExecute(
       () => {
         storage.removeItem(key);
@@ -99,10 +88,7 @@ export class ErrorHandler {
   /**
    * 安全调用异步函数（忽略错误）
    */
-  static async safeCallAsync(
-    fn: () => Promise<void>,
-    errorMessage?: string
-  ): Promise<void> {
+  static async safeCallAsync(fn: () => Promise<void>, errorMessage?: string): Promise<void> {
     await ErrorHandler.safeExecuteAsync(fn, undefined, errorMessage);
   }
 }

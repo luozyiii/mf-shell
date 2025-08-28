@@ -7,8 +7,9 @@ async function initGlobalStore() {
   try {
     // 动态导入 mf-shared 的存储模块
     // @ts-expect-error - Module Federation 动态导入，运行时存在
-    const { initGlobalStore, setStoreValue, configureStoreStrategy } =
-      await import('mf-shared/store');
+    const { initGlobalStore, setStoreValue, configureStoreStrategy } = await import(
+      'mf-shared/store'
+    );
 
     // 初始化全局存储（聚合）
     initGlobalStore({
@@ -78,10 +79,7 @@ async function initModuleFederation() {
     (window as any).__webpack_share_scopes__.default = {};
   }
 
-  console.log(
-    '🔧 Module Federation initialized:',
-    (window as any).__webpack_share_scopes__
-  );
+  console.log('🔧 Module Federation initialized:', (window as any).__webpack_share_scopes__);
 }
 
 // 启动应用

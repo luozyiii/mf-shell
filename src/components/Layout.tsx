@@ -97,24 +97,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
       for (const microFrontend of enabledMicroFrontends) {
         try {
-          const routeConfig = await RouteLoader.loadRouteConfig(
-            microFrontend.name
-          );
+          const routeConfig = await RouteLoader.loadRouteConfig(microFrontend.name);
           if (routeConfig) {
             setMicroFrontendRoutes((prev) => ({
               ...prev,
               [microFrontend.name]: routeConfig,
             }));
-            console.log(
-              `✅ Loaded route config for ${microFrontend.name}:`,
-              routeConfig
-            );
+            console.log(`✅ Loaded route config for ${microFrontend.name}:`, routeConfig);
           }
         } catch (error) {
-          console.warn(
-            `❌ Failed to load route config for ${microFrontend.name}:`,
-            error
-          );
+          console.warn(`❌ Failed to load route config for ${microFrontend.name}:`, error);
         }
       }
     };
@@ -226,10 +218,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       const enabledMicroFrontends = configManager.getEnabledMicroFrontends();
       for (const microFrontend of enabledMicroFrontends) {
         const route = `/${microFrontend.name}`;
-        if (
-          pathname.startsWith(route) &&
-          microFrontendRoutes[microFrontend.name]
-        ) {
+        if (pathname.startsWith(route) && microFrontendRoutes[microFrontend.name]) {
           const routes = microFrontendRoutes[microFrontend.name]?.routes || [];
           const routeConfig = routes.find(
             (r: { path: string; name?: string }) => r.path === pathname
@@ -344,9 +333,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                     className={styles.backButton || ''}
                   />
                 )}
-                <span className={styles.pageTitleText}>
-                  {currentPageInfo.title}
-                </span>
+                <span className={styles.pageTitleText}>{currentPageInfo.title}</span>
               </div>
             </div>
 
@@ -356,27 +343,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
               {/* 欢迎信息 */}
               <div className={styles.welcomeText}>
-                {authLoading
-                  ? '加载中...'
-                  : `欢迎回来！今天是 ${DateUtil.formatToChineseDate()}`}
+                {authLoading ? '加载中...' : `欢迎回来！今天是 ${DateUtil.formatToChineseDate()}`}
               </div>
 
               {/* 用户信息区域 */}
-              <Dropdown
-                menu={{ items: userMenuItems }}
-                placement="bottomRight"
-                trigger={['click']}
-              >
+              <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" trigger={['click']}>
                 <div className={styles.userInfo}>
-                  <Avatar
-                    size={32}
-                    icon={<UserOutlined />}
-                    className={styles.userAvatar || ''}
-                  />
+                  <Avatar size={32} icon={<UserOutlined />} className={styles.userAvatar || ''} />
                   <div className={styles.userDetails}>
-                    <div className={styles.userName}>
-                      {userName || user?.name}
-                    </div>
+                    <div className={styles.userName}>{userName || user?.name}</div>
                   </div>
                   <div className={styles.dropdownArrow}>▼</div>
                 </div>

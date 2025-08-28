@@ -1,15 +1,5 @@
 import { BarChartOutlined, ReloadOutlined } from '@ant-design/icons';
-import {
-  Badge,
-  Button,
-  Card,
-  Col,
-  Drawer,
-  Row,
-  Space,
-  Statistic,
-  Table,
-} from 'antd';
+import { Badge, Button, Card, Col, Drawer, Row, Space, Statistic, Table } from 'antd';
 import type React from 'react';
 import { memo, useCallback, useEffect, useState } from 'react';
 import { Environment } from '../utils/environment';
@@ -56,9 +46,7 @@ export const PerformanceMonitor: React.FC = memo(() => {
       memoryUsage = {
         used: memory.usedJSHeapSize,
         total: memory.totalJSHeapSize,
-        percentage: Number(
-          ((memory.usedJSHeapSize / memory.totalJSHeapSize) * 100).toFixed(1)
-        ),
+        percentage: Number(((memory.usedJSHeapSize / memory.totalJSHeapSize) * 100).toFixed(1)),
       };
     }
 
@@ -103,9 +91,7 @@ export const PerformanceMonitor: React.FC = memo(() => {
       dataIndex: 'timestamp',
       key: 'timestamp',
       render: (timestamp: number) =>
-        new Date(
-          Date.now() - performance.now() + timestamp
-        ).toLocaleTimeString(),
+        new Date(Date.now() - performance.now() + timestamp).toLocaleTimeString(),
     },
   ];
 
@@ -199,25 +185,17 @@ export const PerformanceMonitor: React.FC = memo(() => {
                   <Statistic
                     title="平均耗时"
                     value={
-                      metrics.loadTimes.reduce(
-                        (sum, item) => sum + item.duration,
-                        0
-                      ) / metrics.loadTimes.length
+                      metrics.loadTimes.reduce((sum, item) => sum + item.duration, 0) /
+                      metrics.loadTimes.length
                     }
                     suffix="ms"
                     precision={2}
                     valueStyle={{
                       color: (() => {
                         const avgTime =
-                          metrics.loadTimes.reduce(
-                            (sum, item) => sum + item.duration,
-                            0
-                          ) / metrics.loadTimes.length;
-                        return avgTime > 100
-                          ? '#ff4d4f'
-                          : avgTime > 50
-                            ? '#faad14'
-                            : '#52c41a';
+                          metrics.loadTimes.reduce((sum, item) => sum + item.duration, 0) /
+                          metrics.loadTimes.length;
+                        return avgTime > 100 ? '#ff4d4f' : avgTime > 50 ? '#faad14' : '#52c41a';
                       })(),
                       fontSize: '20px',
                     }}
@@ -244,13 +222,9 @@ export const PerformanceMonitor: React.FC = memo(() => {
                       alignItems: 'center',
                     }}
                   >
-                    <span style={{ color: '#666', fontSize: '12px' }}>
-                      💾 内存详情
-                    </span>
+                    <span style={{ color: '#666', fontSize: '12px' }}>💾 内存详情</span>
                     <span style={{ fontSize: '12px', color: '#999' }}>
-                      已使用{' '}
-                      {(metrics.memoryUsage.used / 1024 / 1024).toFixed(1)}MB /
-                      总计{' '}
+                      已使用 {(metrics.memoryUsage.used / 1024 / 1024).toFixed(1)}MB / 总计{' '}
                       {(metrics.memoryUsage.total / 1024 / 1024).toFixed(1)}MB
                     </span>
                   </div>
@@ -285,11 +259,7 @@ export const PerformanceMonitor: React.FC = memo(() => {
           </Card>
 
           {/* 组件加载时间表格 */}
-          <Card
-            size="small"
-            title="📋 组件加载记录"
-            style={{ borderRadius: 8 }}
-          >
+          <Card size="small" title="📋 组件加载记录" style={{ borderRadius: 8 }}>
             <Table
               dataSource={metrics.loadTimes}
               columns={loadTimeColumns}

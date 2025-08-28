@@ -1,13 +1,6 @@
 // 移除静态导入，改为动态导入以避免编译时模块解析问题
 import type React from 'react';
-import {
-  createContext,
-  type ReactNode,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from 'react';
+import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
 // @ts-expect-error - JSON modules
 import users from '../mock/userinfo.json';
@@ -35,11 +28,7 @@ const mockUsers = [
     password: 'admin123',
     name: '管理员',
     role: UserRole.ADMIN,
-    permissions: [
-      UserRole.ADMIN,
-      AppPermission.TEMPLATE,
-      AppPermission.DASHBOARD,
-    ],
+    permissions: [UserRole.ADMIN, AppPermission.TEMPLATE, AppPermission.DASHBOARD],
   },
   {
     id: '2',
@@ -83,9 +72,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           };
 
           const permissionsData: Permissions = {
-            [AppPermission.TEMPLATE]: defaultUser.permissions.includes(
-              AppPermission.TEMPLATE
-            ),
+            [AppPermission.TEMPLATE]: defaultUser.permissions.includes(AppPermission.TEMPLATE),
           };
 
           setUser(userData);
@@ -97,9 +84,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           AuthUtils.setPermissions(permissionsData as any);
 
           // 跳过认证时显示较短的加载时间
-          await new Promise((resolve) =>
-            window.setTimeout(resolve as () => void, 500)
-          );
+          await new Promise((resolve) => window.setTimeout(resolve as () => void, 500));
           return;
         }
 
@@ -115,14 +100,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           setPermissions(permissionsData as Permissions);
 
           // 已登录用户显示较短的骨架屏时间
-          await new Promise((resolve) =>
-            window.setTimeout(resolve as () => void, 800)
-          );
+          await new Promise((resolve) => window.setTimeout(resolve as () => void, 800));
         } else {
           // 未登录用户，显示较长的骨架屏时间
-          await new Promise((resolve) =>
-            window.setTimeout(resolve as () => void, 1200)
-          );
+          await new Promise((resolve) => window.setTimeout(resolve as () => void, 1200));
         }
       } catch {
         // 解析存储的认证数据失败，使用默认值
@@ -148,13 +129,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // 模拟API调用（读取本地 mock 文件）
     return new Promise((resolve, reject) => {
       window.setTimeout(() => {
-        const list: any[] = (users as any[])?.length
-          ? (users as any[])
-          : mockUsers;
+        const list: any[] = (users as any[])?.length ? (users as any[]) : mockUsers;
         const foundUser = list.find(
-          (u) =>
-            u.username === credentials.username &&
-            u.password === credentials.password
+          (u) => u.username === credentials.username && u.password === credentials.password
         );
 
         if (foundUser) {
@@ -167,9 +144,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           };
 
           const permissionsData: Permissions = {
-            [AppPermission.TEMPLATE]: !!foundUser.permissions?.includes(
-              AppPermission.TEMPLATE
-            ),
+            [AppPermission.TEMPLATE]: !!foundUser.permissions?.includes(AppPermission.TEMPLATE),
           };
 
           // 生成模拟JWT token
@@ -184,9 +159,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           (async () => {
             try {
               // @ts-expect-error - MF runtime
-              const { configureStoreStrategy, setStoreValue } = await import(
-                'mf-shared/store'
-              );
+              const { configureStoreStrategy, setStoreValue } = await import('mf-shared/store');
               configureStoreStrategy?.('user', {
                 medium: 'local',
                 encrypted: true,
@@ -213,52 +186,36 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   }, []);
 
   // 只验证凭据并返回token，不存储到主应用
-  const loginAndGetToken = useCallback(
-    async (credentials: LoginForm): Promise<string> => {
-      console.log(
-        'AuthContext.loginAndGetToken: Starting authentication for:',
-        credentials.username
-      );
+  const loginAndGetToken = useCallback(async (credentials: LoginForm): Promise<string> => {
+    console.log('AuthContext.loginAndGetToken: Starting authentication for:', credentials.username);
 
-      return new Promise((resolve, reject) => {
-        window.setTimeout(() => {
-          try {
-            const list: any[] = (users as any[])?.length
-              ? (users as any[])
-              : mockUsers;
-            const foundUser = list.find(
-              (u) =>
-                u.username === credentials.username &&
-                u.password === credentials.password
-            );
+    return new Promise((resolve, reject) => {
+      window.setTimeout(() => {
+        try {
+          const list: any[] = (users as any[])?.length ? (users as any[]) : mockUsers;
+          const foundUser = list.find(
+            (u) => u.username === credentials.username && u.password === credentials.password
+          );
 
-            if (foundUser) {
-              // 生成模拟JWT token
-              const token = `mock_jwt_token_${foundUser.id}_${Date.now()}`;
-              console.log(
-                'AuthContext.loginAndGetToken: Token generated successfully:',
-                token
-              );
-              resolve(token);
-            } else {
-              console.warn(
-                'AuthContext.loginAndGetToken: Authentication failed for user:',
-                credentials.username
-              );
-              reject(new Error('用户名或密码错误'));
-            }
-          } catch (error) {
-            console.error(
-              'AuthContext.loginAndGetToken: Unexpected error:',
-              error
+          if (foundUser) {
+            // 生成模拟JWT token
+            const token = `mock_jwt_token_${foundUser.id}_${Date.now()}`;
+            console.log('AuthContext.loginAndGetToken: Token generated successfully:', token);
+            resolve(token);
+          } else {
+            console.warn(
+              'AuthContext.loginAndGetToken: Authentication failed for user:',
+              credentials.username
             );
-            reject(new Error('登录过程中发生错误'));
+            reject(new Error('用户名或密码错误'));
           }
-        }, 1000); // 模拟网络延迟
-      });
-    },
-    []
-  );
+        } catch (error) {
+          console.error('AuthContext.loginAndGetToken: Unexpected error:', error);
+          reject(new Error('登录过程中发生错误'));
+        }
+      }, 1000); // 模拟网络延迟
+    });
+  }, []);
 
   const logout = useCallback((): void => {
     // 使用AuthUtils统一清理（包括clearAppData），传入 navigate 函数

@@ -86,8 +86,7 @@ export class ErrorBoundary extends Component<Props, State> {
   private toggleErrorDetails = (): void => {
     const details = document.getElementById('error-details');
     if (details) {
-      details.style.display =
-        details.style.display === 'none' ? 'block' : 'none';
+      details.style.display = details.style.display === 'none' ? 'block' : 'none';
     }
   };
 
@@ -116,9 +115,7 @@ export class ErrorBoundary extends Component<Props, State> {
             title="页面出现错误"
             subTitle={
               <div>
-                <Paragraph>
-                  抱歉，页面遇到了一些问题。您可以尝试刷新页面或返回首页。
-                </Paragraph>
+                <Paragraph>抱歉，页面遇到了一些问题。您可以尝试刷新页面或返回首页。</Paragraph>
                 {errorId && (
                   <Paragraph>
                     <Text type="secondary">错误ID: {errorId}</Text>
@@ -150,11 +147,7 @@ export class ErrorBoundary extends Component<Props, State> {
               >
                 刷新页面
               </Button>,
-              <Button
-                key="home"
-                icon={<HomeOutlined />}
-                onClick={this.handleGoHome}
-              >
+              <Button key="home" icon={<HomeOutlined />} onClick={this.handleGoHome}>
                 返回首页
               </Button>,
               process.env.NODE_ENV === 'development' && errorInfo && (

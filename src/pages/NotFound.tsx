@@ -45,19 +45,10 @@ export const NotFound: React.FC = () => {
         title="404"
         subTitle="抱歉，您访问的页面不存在。"
         extra={[
-          <Button
-            type="primary"
-            icon={<HomeOutlined />}
-            onClick={handleGoHome}
-            key="home"
-          >
+          <Button type="primary" icon={<HomeOutlined />} onClick={handleGoHome} key="home">
             返回首页
           </Button>,
-          <Button
-            icon={<ArrowLeftOutlined />}
-            onClick={handleGoBack}
-            key="back"
-          >
+          <Button icon={<ArrowLeftOutlined />} onClick={handleGoBack} key="back">
             返回上页
           </Button>,
         ]}

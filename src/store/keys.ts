@@ -15,10 +15,7 @@ export const setVal = (scope: Scope, value: any) => {
   setStoreValue(keyOf(scope), value);
 };
 
-export const subscribeVal = (
-  scope: Scope,
-  cb: (key: string, val: any) => void
-) => {
+export const subscribeVal = (scope: Scope, cb: (key: string, val: any) => void) => {
   return subscribeStore?.(keyOf(scope), cb);
 };
 

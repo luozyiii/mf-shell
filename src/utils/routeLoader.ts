@@ -26,17 +26,12 @@ export interface RouteItem {
  */
 export class RouteLoader {
   private static routeCache = new Map<string, AppRouteConfig>();
-  private static loadingPromises = new Map<
-    string,
-    Promise<AppRouteConfig | null>
-  >();
+  private static loadingPromises = new Map<string, Promise<AppRouteConfig | null>>();
 
   /**
    * 动态加载子应用的路由配置
    */
-  static async loadRouteConfig(
-    appName: string
-  ): Promise<AppRouteConfig | null> {
+  static async loadRouteConfig(appName: string): Promise<AppRouteConfig | null> {
     // 检查缓存
     if (RouteLoader.routeCache.has(appName)) {
       const cachedConfig = RouteLoader.routeCache.get(appName);
@@ -71,9 +66,7 @@ export class RouteLoader {
   /**
    * 实际执行路由配置加载
    */
-  private static async doLoadRouteConfig(
-    appName: string
-  ): Promise<AppRouteConfig | null> {
+  private static async doLoadRouteConfig(appName: string): Promise<AppRouteConfig | null> {
     try {
       console.log(`🔄 Loading route config for ${appName}...`);
 
@@ -101,10 +94,7 @@ export class RouteLoader {
         return null;
       }
 
-      console.log(
-        `✅ Successfully loaded route config for ${appName}:`,
-        config
-      );
+      console.log(`✅ Successfully loaded route config for ${appName}:`, config);
       return config;
     } catch (error) {
       console.warn(`❌ Failed to load route config for ${appName}:`, error);

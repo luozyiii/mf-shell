@@ -18,9 +18,7 @@ export const ScrollToTop: React.FC<ScrollToTopProps> = ({
 
   useEffect(() => {
     // 检查是否需要排除当前路径
-    const shouldExclude = excludePatterns.some((pattern) =>
-      location.pathname.includes(pattern)
-    );
+    const shouldExclude = excludePatterns.some((pattern) => location.pathname.includes(pattern));
 
     if (shouldExclude) {
       return;

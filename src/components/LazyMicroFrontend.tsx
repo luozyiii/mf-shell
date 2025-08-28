@@ -46,10 +46,7 @@ const getComponentNameFromPath = (pathname: string): string => {
 };
 
 // 简化的组件缓存
-const componentCache = new Map<
-  string,
-  React.LazyExoticComponent<React.ComponentType<any>>
->();
+const componentCache = new Map<string, React.LazyExoticComponent<React.ComponentType<any>>>();
 
 const clearComponentCache = () => {
   componentCache.clear();
@@ -69,10 +66,7 @@ const dynamicImportMap: Record<string, Record<string, () => Promise<any>>> = {
 };
 
 // 修复的动态组件加载器
-const createDynamicComponent = async (
-  appName: string,
-  componentName: string
-) => {
+const createDynamicComponent = async (appName: string, componentName: string) => {
   const timerName = `load-${appName}-${componentName}`;
   performanceMonitor.startTimer(timerName);
 
@@ -91,9 +85,7 @@ const createDynamicComponent = async (
     }
 
     if (typeof Component !== 'function') {
-      throw new Error(
-        `Invalid component type: expected function, got ${typeof Component}`
-      );
+      throw new Error(`Invalid component type: expected function, got ${typeof Component}`);
     }
 
     performanceMonitor.endTimer(timerName);
@@ -122,10 +114,7 @@ const DynamicMicroFrontendContainer: React.FC<{
   appName: string;
   pathname: string;
 }> = memo(({ appName, pathname }) => {
-  const componentName = useMemo(
-    () => getComponentNameFromPath(pathname),
-    [pathname]
-  );
+  const componentName = useMemo(() => getComponentNameFromPath(pathname), [pathname]);
 
   // 创建动态组件 - 使用简化缓存
   const DynamicComponent = useMemo(() => {
@@ -138,9 +127,7 @@ const DynamicMicroFrontendContainer: React.FC<{
     }
 
     // 创建新的懒加载组件
-    const LazyComponent = lazy(() =>
-      createDynamicComponent(appName, componentName)
-    );
+    const LazyComponent = lazy(() => createDynamicComponent(appName, componentName));
 
     // 存入缓存
     componentCache.set(cacheKey, LazyComponent);
@@ -169,9 +156,7 @@ const createLazyMicroFrontend = (appName: string, pathname: string) => {
 
   const LazyComponent = lazy(async () => {
     return {
-      default: memo(() => (
-        <DynamicMicroFrontendContainer appName={appName} pathname={pathname} />
-      )),
+      default: memo(() => <DynamicMicroFrontendContainer appName={appName} pathname={pathname} />),
     };
   });
 
@@ -186,35 +171,30 @@ interface LazyMicroFrontendProps {
 }
 
 // 主要的 LazyMicroFrontend 组件 - 使用 memo 优化
-export const LazyMicroFrontend: React.FC<LazyMicroFrontendProps> = memo(
-  ({ appName, pathname }) => {
-    // 使用稳定的 key
-    const componentKey = useMemo(
-      () => `${appName}-${pathname}`,
-      [appName, pathname]
-    );
+export const LazyMicroFrontend: React.FC<LazyMicroFrontendProps> = memo(({ appName, pathname }) => {
+  // 使用稳定的 key
+  const componentKey = useMemo(() => `${appName}-${pathname}`, [appName, pathname]);
 
-    // 重试回调
-    const handleRetry = useCallback(() => {
-      // 清除相关缓存，强制重新加载
-      clearComponentCache();
-      // 强制重新渲染
-      window.location.reload();
-    }, []);
+  // 重试回调
+  const handleRetry = useCallback(() => {
+    // 清除相关缓存，强制重新加载
+    clearComponentCache();
+    // 强制重新渲染
+    window.location.reload();
+  }, []);
 
-    const LazyComponent = useMemo(() => {
-      return createLazyMicroFrontend(appName, pathname);
-    }, [appName, pathname]);
+  const LazyComponent = useMemo(() => {
+    return createLazyMicroFrontend(appName, pathname);
+  }, [appName, pathname]);
 
-    return (
-      <ErrorBoundary onRetry={handleRetry}>
-        <Suspense fallback={<LoadingFallback />}>
-          <LazyComponent key={componentKey} />
-        </Suspense>
-      </ErrorBoundary>
-    );
-  }
-);
+  return (
+    <ErrorBoundary onRetry={handleRetry}>
+      <Suspense fallback={<LoadingFallback />}>
+        <LazyComponent key={componentKey} />
+      </Suspense>
+    </ErrorBoundary>
+  );
+});
 
 LazyMicroFrontend.displayName = 'LazyMicroFrontend';
 

@@ -4,13 +4,7 @@ import zhCN from 'antd/locale/zh_CN';
 import type React from 'react';
 import { useEffect, useState } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
-import {
-  Navigate,
-  Route,
-  BrowserRouter as Router,
-  Routes,
-  useLocation,
-} from 'react-router-dom';
+import { Navigate, Route, BrowserRouter as Router, Routes, useLocation } from 'react-router-dom';
 import { AsyncPerformanceMonitor } from './components/AsyncPerformanceMonitor';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { LayoutSkeleton } from './components/LayoutSkeleton';
@@ -33,17 +27,12 @@ const MicroFrontendWrapper: React.FC<{
 }> = ({ appName, displayName }) => {
   const location = useLocation();
   return (
-    <LazyMicroFrontend
-      appName={appName}
-      pathname={location.pathname}
-      displayName={displayName}
-    />
+    <LazyMicroFrontend appName={appName} pathname={location.pathname} displayName={displayName} />
   );
 };
 
 // GitHub Pages 路由基础路径
-const basename: string =
-  process.env.NODE_ENV === 'production' ? '/mf-shell' : '';
+const basename: string = process.env.NODE_ENV === 'production' ? '/mf-shell' : '';
 
 const AppContent: React.FC = () => {
   const { isAuthenticated, isLoading, isInitializing } = useAuth();
@@ -102,10 +91,7 @@ const AppContent: React.FC = () => {
             path={`/${mf.name}/*`}
             element={
               <ProtectedLayout>
-                <MicroFrontendWrapper
-                  appName={mf.name}
-                  displayName={mf.displayName}
-                />
+                <MicroFrontendWrapper appName={mf.name} displayName={mf.displayName} />
               </ProtectedLayout>
             }
           />
@@ -140,9 +126,7 @@ const App: React.FC = () => {
     (async () => {
       try {
         // @ts-expect-error
-        const { getStoreValue, subscribeStore } = await import(
-          'mf-shared/store'
-        );
+        const { getStoreValue, subscribeStore } = await import('mf-shared/store');
         const app = (getStoreValue('app') as any) || {};
         if (app?.theme) setThemeMode(app.theme);
         if (app?.language) setLocaleName(app.language);
@@ -160,8 +144,7 @@ const App: React.FC = () => {
   }, []);
 
   const antLocale = localeName === 'en-US' ? enUS : zhCN;
-  const algorithm =
-    themeMode === 'dark' ? AntTheme.darkAlgorithm : AntTheme.defaultAlgorithm;
+  const algorithm = themeMode === 'dark' ? AntTheme.darkAlgorithm : AntTheme.defaultAlgorithm;
 
   return (
     <ErrorBoundary>

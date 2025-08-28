@@ -10,11 +10,7 @@ export class AuthUtils {
    * 获取token
    */
   static getToken(): string | null {
-    return ErrorHandler.safeExecute(
-      () => getVal('token') || null,
-      null,
-      'Failed to get token'
-    );
+    return ErrorHandler.safeExecute(() => getVal('token') || null, null, 'Failed to get token');
   }
 
   /**
@@ -36,42 +32,28 @@ export class AuthUtils {
    * 获取用户数据
    */
   static getUserData(): User | null {
-    return ErrorHandler.safeExecute(
-      () => getVal('user'),
-      null,
-      'Failed to get user data'
-    );
+    return ErrorHandler.safeExecute(() => getVal('user'), null, 'Failed to get user data');
   }
 
   /**
    * 设置用户数据
    */
   static setUserData(userData: User): void {
-    ErrorHandler.safeCall(
-      () => setVal('user', userData),
-      'Failed to set user data'
-    );
+    ErrorHandler.safeCall(() => setVal('user', userData), 'Failed to set user data');
   }
 
   /**
    * 获取权限数据
    */
   static getPermissions(): any {
-    return ErrorHandler.safeExecute(
-      () => getVal('permissions'),
-      null,
-      'Failed to get permissions'
-    );
+    return ErrorHandler.safeExecute(() => getVal('permissions'), null, 'Failed to get permissions');
   }
 
   /**
    * 设置权限数据
    */
   static setPermissions(permissions: any): void {
-    ErrorHandler.safeCall(
-      () => setVal('permissions', permissions),
-      'Failed to set permissions'
-    );
+    ErrorHandler.safeCall(() => setVal('permissions', permissions), 'Failed to set permissions');
   }
 
   /**
@@ -81,8 +63,7 @@ export class AuthUtils {
   static logout(): void {
     ErrorHandler.safeCall(() => {
       // 获取当前应用的存储键名
-      const storageKey =
-        (window as any)?.globalStore?.options?.storageKey || 'mf-shell-store';
+      const storageKey = (window as any)?.globalStore?.options?.storageKey || 'mf-shell-store';
 
       // 使用新的 clearAppData 方法清理所有应用数据
       clearAppData(storageKey);

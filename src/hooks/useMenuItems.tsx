@@ -79,8 +79,7 @@ export const useMenuItems = ({
       userPermissions.push('template:read');
     }
 
-    const accessibleMicroFrontends =
-      configManager.getAccessibleMicroFrontends(userPermissions);
+    const accessibleMicroFrontends = configManager.getAccessibleMicroFrontends(userPermissions);
 
     accessibleMicroFrontends.forEach((microFrontend) => {
       // 检查是否有路由配置
@@ -92,12 +91,10 @@ export const useMenuItems = ({
           key: microFrontend.name,
           icon: getIconComponent(microFrontend.icon),
           label: microFrontend.displayName,
-          children: routeConfig.routes.map(
-            (route: { path: string; name: string }) => ({
-              key: route.path,
-              label: route.name,
-            })
-          ),
+          children: routeConfig.routes.map((route: { path: string; name: string }) => ({
+            key: route.path,
+            label: route.name,
+          })),
         };
         items.push(menuItem);
       } else {
@@ -112,11 +109,5 @@ export const useMenuItems = ({
     });
 
     return items;
-  }, [
-    authLoading,
-    microFrontendRoutes,
-    isAdmin,
-    isDeveloper,
-    getUserPermissionSummary,
-  ]);
+  }, [authLoading, microFrontendRoutes, isAdmin, isDeveloper, getUserPermissionSummary]);
 };

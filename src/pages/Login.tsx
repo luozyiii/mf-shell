@@ -81,14 +81,7 @@ export const Login: React.FC = () => {
           <Text type="secondary">请登录您的账户</Text>
         </div>
 
-        {error && (
-          <Alert
-            message={error}
-            type="error"
-            showIcon
-            style={{ marginBottom: 16 }}
-          />
-        )}
+        {error && <Alert message={error} type="error" showIcon style={{ marginBottom: 16 }} />}
 
         {returnUrl.startsWith('http') && (
           <Alert
@@ -99,33 +92,17 @@ export const Login: React.FC = () => {
           />
         )}
 
-        <Form
-          name="login"
-          onFinish={handleSubmit}
-          autoComplete="off"
-          size="large"
-        >
-          <Form.Item
-            name="username"
-            rules={[{ required: true, message: '请输入用户名!' }]}
-          >
+        <Form name="login" onFinish={handleSubmit} autoComplete="off" size="large">
+          <Form.Item name="username" rules={[{ required: true, message: '请输入用户名!' }]}>
             <Input prefix={<UserOutlined />} placeholder="用户名" />
           </Form.Item>
 
-          <Form.Item
-            name="password"
-            rules={[{ required: true, message: '请输入密码!' }]}
-          >
+          <Form.Item name="password" rules={[{ required: true, message: '请输入密码!' }]}>
             <Input.Password prefix={<LockOutlined />} placeholder="密码" />
           </Form.Item>
 
           <Form.Item>
-            <Button
-              type="primary"
-              htmlType="submit"
-              loading={loading}
-              style={{ width: '100%' }}
-            >
+            <Button type="primary" htmlType="submit" loading={loading} style={{ width: '100%' }}>
               登录
             </Button>
           </Form.Item>

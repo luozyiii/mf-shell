@@ -40,15 +40,10 @@ const useSwitchLanguage = () => {
     try {
       // 动态导入模板应用的语言切换函数（不是 Hook）
       // @ts-expect-error - Module Federation 动态导入，运行时存在
-      const { switchLanguage } = await import(
-        'template/i18n/useSwitchLanguage'
-      );
+      const { switchLanguage } = await import('template/i18n/useSwitchLanguage');
       await switchLanguage(languageCode); // 直接调用函数而不是 Hook
     } catch (error) {
-      console.warn(
-        'Template app language switch function not available:',
-        error
-      );
+      console.warn('Template app language switch function not available:', error);
     }
   }, []);
 
@@ -63,9 +58,7 @@ const useSwitchLanguage = () => {
 
       // 同步到全局存储，供其他应用使用
       try {
-        const { getStoreValue, setStoreValue } = await import(
-          'mf-shared/store'
-        );
+        const { getStoreValue, setStoreValue } = await import('mf-shared/store');
 
         // 获取现有的应用配置，保持其他设置不变
         const currentAppConfig = getStoreValue('app') || {};

@@ -1,15 +1,5 @@
 import { SettingOutlined, UserOutlined } from '@ant-design/icons';
-import {
-  Button,
-  Card,
-  Col,
-  Descriptions,
-  Divider,
-  message,
-  Row,
-  Space,
-  Typography,
-} from 'antd';
+import { Button, Card, Col, Descriptions, Divider, message, Row, Space, Typography } from 'antd';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';

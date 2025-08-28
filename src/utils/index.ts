@@ -58,11 +58,7 @@ export class UrlUtil {
   /**
    * 安全构建 URL
    */
-  static buildUrl(
-    base: string,
-    path: string,
-    params?: Record<string, string | number>
-  ): string {
+  static buildUrl(base: string, path: string, params?: Record<string, string | number>): string {
     return ErrorHandler.safeExecute(
       () => {
         const url = new URL(path, base);
@@ -90,17 +86,11 @@ export class PerformanceUtil {
    */
   static startTimer(name: string, usePerformanceMark = false): void {
     const startTime =
-      typeof window !== 'undefined' && window.performance
-        ? window.performance.now()
-        : Date.now();
+      typeof window !== 'undefined' && window.performance ? window.performance.now() : Date.now();
 
     PerformanceUtil.timers.set(name, startTime);
 
-    if (
-      usePerformanceMark &&
-      typeof window !== 'undefined' &&
-      window.performance
-    ) {
+    if (usePerformanceMark && typeof window !== 'undefined' && window.performance) {
       ErrorHandler.safeCall(() => {
         window.performance.mark(`${name}-start`);
       });
@@ -118,16 +108,10 @@ export class PerformanceUtil {
     }
 
     const currentTime =
-      typeof window !== 'undefined' && window.performance
-        ? window.performance.now()
-        : Date.now();
+      typeof window !== 'undefined' && window.performance ? window.performance.now() : Date.now();
     const duration = currentTime - startTime;
 
-    if (
-      usePerformanceMark &&
-      typeof window !== 'undefined' &&
-      window.performance
-    ) {
+    if (usePerformanceMark && typeof window !== 'undefined' && window.performance) {
       ErrorHandler.safeCall(() => {
         window.performance.mark(`${name}-end`);
         window.performance.measure(name, `${name}-start`, `${name}-end`);

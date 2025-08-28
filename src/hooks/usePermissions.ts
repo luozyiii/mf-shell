@@ -34,14 +34,10 @@ export const usePermissions = () => {
   }, [isAuthenticated, user]);
 
   // 从 globalStore 读取权限（优先）
-  const [gsPermissions, setGsPermissions] = useState<Record<
-    string,
-    boolean
-  > | null>(null);
+  const [gsPermissions, setGsPermissions] = useState<Record<string, boolean> | null>(null);
   useEffect(() => {
     try {
-      const initial =
-        (getVal('permissions') as Record<string, boolean>) || null;
+      const initial = (getVal('permissions') as Record<string, boolean>) || null;
       setGsPermissions(initial);
       const unsub = subscribeVal('permissions', (_k: string, newVal: any) => {
         setGsPermissions((newVal as Record<string, boolean>) || null);
@@ -98,11 +94,7 @@ export const usePermissions = () => {
 
   // 检查是否有管理员权限
   const isAdmin = useMemo(() => {
-    return (
-      user?.role === UserRole.ADMIN ||
-      user?.permissions?.includes(UserRole.ADMIN) ||
-      false
-    );
+    return user?.role === UserRole.ADMIN || user?.permissions?.includes(UserRole.ADMIN) || false;
   }, [user]);
 
   // 检查是否有开发者权限
@@ -126,8 +118,7 @@ export const usePermissions = () => {
         return { ...authCheck, requiredRole: role };
       }
 
-      const hasPermission =
-        user?.permissions?.includes(role) || user?.role === role || false;
+      const hasPermission = user?.permissions?.includes(role) || user?.role === role || false;
       return {
         hasPermission,
         reason: hasPermission ? undefined : `缺少 ${role} 角色`,
@@ -164,9 +155,7 @@ export const usePermissions = () => {
       const hasPermission = permissions.some((role) => hasRoleSimple(role));
       return {
         hasPermission,
-        reason: hasPermission
-          ? undefined
-          : `需要以下任一角色: ${permissions.join(', ')}`,
+        reason: hasPermission ? undefined : `需要以下任一角色: ${permissions.join(', ')}`,
       };
     },
     [hasRoleSimple, validateAuthState]
@@ -193,9 +182,7 @@ export const usePermissions = () => {
 
       return {
         hasPermission,
-        reason: hasPermission
-          ? undefined
-          : `缺少以下角色: ${missingRoles.join(', ')}`,
+        reason: hasPermission ? undefined : `缺少以下角色: ${missingRoles.join(', ')}`,
       };
     },
     [hasRoleSimple, validateAuthState]
@@ -203,10 +190,7 @@ export const usePermissions = () => {
 
   // 检查复合权限（角色 + 应用权限）
   const hasComplexPermission = useCallback(
-    (
-      requiredRoles: UserRole[],
-      requiredApps: AppPermission[]
-    ): PermissionCheckResult => {
+    (requiredRoles: UserRole[], requiredApps: AppPermission[]): PermissionCheckResult => {
       // 检查角色权限
       const roleCheck = hasAnyRole(requiredRoles);
       if (!roleCheck.hasPermission) {

@@ -1,8 +1,4 @@
-import {
-  AppstoreOutlined,
-  DatabaseOutlined,
-  EyeOutlined,
-} from '@ant-design/icons';
+import { AppstoreOutlined, DatabaseOutlined, EyeOutlined } from '@ant-design/icons';
 import { Badge, Card, Col, Row, Space, Typography } from 'antd';
 import type React from 'react';
 import { useCallback, useEffect, useState } from 'react';
@@ -35,8 +31,7 @@ export const Dashboard: React.FC = () => {
   // 所有登录用户都可以访问模板系统（用于演示）
   userPermissions.push('template:read');
 
-  const accessibleMicroFrontends =
-    configManager.getAccessibleMicroFrontends(userPermissions);
+  const accessibleMicroFrontends = configManager.getAccessibleMicroFrontends(userPermissions);
 
   // 获取全局 store 数据
   const refreshStoreData = useCallback(async () => {
@@ -82,9 +77,7 @@ export const Dashboard: React.FC = () => {
           <Card
             title={
               <span className={styles.cardTitle}>
-                <AppstoreOutlined
-                  style={{ marginRight: '8px', color: '#1890ff' }}
-                />
+                <AppstoreOutlined style={{ marginRight: '8px', color: '#1890ff' }} />
                 {t('dashboard.microFrontends')}
               </span>
             }
@@ -105,11 +98,7 @@ export const Dashboard: React.FC = () => {
                     <div style={{ marginTop: '12px' }}>
                       <Badge
                         status={microFrontend.enabled ? 'success' : 'default'}
-                        text={
-                          microFrontend.enabled
-                            ? t('common.enabled')
-                            : t('common.disabled')
-                        }
+                        text={microFrontend.enabled ? t('common.enabled') : t('common.disabled')}
                       />
                     </div>
                   </Card>
@@ -123,9 +112,7 @@ export const Dashboard: React.FC = () => {
           <Card
             title={
               <span className={styles.cardTitle}>
-                <DatabaseOutlined
-                  style={{ marginRight: '8px', color: '#52c41a' }}
-                />
+                <DatabaseOutlined style={{ marginRight: '8px', color: '#52c41a' }} />
                 {t('dashboard.globalStore')}
               </span>
             }
