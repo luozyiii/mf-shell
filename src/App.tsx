@@ -24,6 +24,7 @@ import { Dashboard } from './pages/dashboard/Dashboard';
 import I18nDemo from './pages/i18n-demo/I18nDemo';
 import { Login } from './pages/Login';
 import { NotFound } from './pages/NotFound';
+import './App.css';
 
 // 微前端包装组件，用于获取当前路径
 const MicroFrontendWrapper: React.FC<{
@@ -39,8 +40,6 @@ const MicroFrontendWrapper: React.FC<{
     />
   );
 };
-
-import './App.css';
 
 // GitHub Pages 路由基础路径
 const basename: string =

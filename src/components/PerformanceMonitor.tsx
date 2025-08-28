@@ -2,27 +2,22 @@ import { BarChartOutlined, ReloadOutlined } from '@ant-design/icons';
 import {
   Badge,
   Button,
+  Card,
   Col,
-  Collapse,
   Drawer,
   Row,
+  Space,
   Statistic,
   Table,
 } from 'antd';
 import type React from 'react';
-import { memo, useCallback, useEffect, useRef, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { Environment } from '../utils/environment';
 import { clearComponentCache } from './LazyMicroFrontend';
 
-const { Panel } = Collapse;
-
 interface PerformanceMetrics {
   loadTimes: Array<{ name: string; duration: number; timestamp: number }>;
-  cacheStats: {
-    size: number;
-    maxSize: number;
-    entries: Array<{ key: string; accessCount: number; age: number }>;
-  };
+  cacheSize: number;
   memoryUsage?: {
     used: number;
     total: number;
@@ -30,131 +25,87 @@ interface PerformanceMetrics {
   };
 }
 
-// 性能监控组件 - 仅在开发环境显示
+// 平衡的性能监控组件 - 仅在开发环境显示
 export const PerformanceMonitor: React.FC = memo(() => {
   const [metrics, setMetrics] = useState<PerformanceMetrics>({
     loadTimes: [],
-    cacheStats: { size: 0, maxSize: 0, entries: [] },
+    cacheSize: 0,
   });
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
-  const updateTimeoutRef = useRef<number>();
 
-  // 防抖更新函数
+  // 更新性能指标
   const updateMetrics = useCallback(() => {
     setIsUpdating(true);
-    // 获取性能指标
+
+    // 获取组件加载时间
     const performanceEntries = performance.getEntriesByType('measure');
     const loadTimes = performanceEntries
       .filter((entry) => entry.name.startsWith('load-'))
       .map((entry) => ({
-        name: entry.name,
-        duration: entry.duration,
+        name: entry.name.replace('load-', ''),
+        duration: Number(entry.duration.toFixed(2)),
         timestamp: entry.startTime,
       }))
-      .slice(-10); // 只保留最近10条
-
-    // 简化的缓存统计
-    const cacheStats = {
-      size: 0, // 简化后不再提供详细统计
-      maxSize: 0,
-      entries: [],
-    };
+      .slice(-8); // 保留最近8条
 
     // 获取内存使用情况（如果支持）
-    let memoryUsage:
-      | {
-          used: number;
-          total: number;
-          percentage: number;
-        }
-      | undefined;
+    let memoryUsage: PerformanceMetrics['memoryUsage'];
     if ('memory' in performance) {
       const memory = (performance as any).memory;
       memoryUsage = {
         used: memory.usedJSHeapSize,
         total: memory.totalJSHeapSize,
-        percentage: (memory.usedJSHeapSize / memory.totalJSHeapSize) * 100,
+        percentage: Number(
+          ((memory.usedJSHeapSize / memory.totalJSHeapSize) * 100).toFixed(1)
+        ),
       };
     }
 
     setMetrics({
       loadTimes,
-      cacheStats,
+      cacheSize: 0, // 简化后的缓存大小
       memoryUsage,
     });
 
     setIsUpdating(false);
   }, []);
 
+  // 定期更新数据
   useEffect(() => {
     updateMetrics();
-    const interval = setInterval(updateMetrics, 3000); // 每3秒更新一次，减少频率
-
-    return () => {
-      clearInterval(interval);
-      if (updateTimeoutRef.current) {
-        clearTimeout(updateTimeoutRef.current);
-      }
-    };
+    const interval = setInterval(updateMetrics, 5000); // 每5秒更新一次
+    return () => clearInterval(interval);
   }, [updateMetrics]);
 
-  const clearCache = useCallback(() => {
+  const clearCache = () => {
     clearComponentCache();
     performance.clearMeasures();
     performance.clearMarks();
-    setMetrics((prev) => ({
-      ...prev,
-      loadTimes: [],
-      cacheStats: { size: 0, maxSize: 0, entries: [] },
-    }));
-    // 立即更新一次
-    updateTimeoutRef.current = setTimeout(updateMetrics, 100);
-  }, [updateMetrics]);
+    updateMetrics(); // 清理后立即更新
+  };
 
+  // 表格列配置
   const loadTimeColumns = [
     {
       title: '组件',
       dataIndex: 'name',
       key: 'name',
-      render: (name: string) => name.replace('load-', ''),
     },
     {
       title: '加载时间 (ms)',
       dataIndex: 'duration',
       key: 'duration',
-      render: (duration: number) => duration.toFixed(2),
       sorter: (a: any, b: any) => a.duration - b.duration,
     },
     {
-      title: '时间戳',
+      title: '时间',
       dataIndex: 'timestamp',
       key: 'timestamp',
       render: (timestamp: number) =>
         new Date(
           Date.now() - performance.now() + timestamp
         ).toLocaleTimeString(),
-    },
-  ];
-
-  const cacheColumns = [
-    {
-      title: '缓存键',
-      dataIndex: 'key',
-      key: 'key',
-    },
-    {
-      title: '访问次数',
-      dataIndex: 'accessCount',
-      key: 'accessCount',
-      sorter: (a: any, b: any) => a.accessCount - b.accessCount,
-    },
-    {
-      title: '存活时间 (ms)',
-      dataIndex: 'age',
-      key: 'age',
-      render: (age: number) => age.toFixed(0),
-      sorter: (a: any, b: any) => a.age - b.age,
     },
   ];
 
@@ -189,83 +140,167 @@ export const PerformanceMonitor: React.FC = memo(() => {
         </Badge>
       </div>
 
-      {/* 右侧抽屉 */}
+      {/* 性能监控抽屉 */}
       <Drawer
         title="微前端性能监控"
         placement="right"
-        width={600}
+        width={700}
         open={drawerVisible}
         onClose={() => setDrawerVisible(false)}
         extra={
-          <div style={{ display: 'flex', gap: 8 }}>
+          <Space>
             <Button
               size="small"
               icon={<ReloadOutlined spin={isUpdating} />}
               onClick={updateMetrics}
-              title="手动刷新"
+              title="刷新数据"
             >
               刷新
             </Button>
             <Button size="small" onClick={clearCache} danger>
               清除缓存
             </Button>
-          </div>
+          </Space>
         }
       >
-        <Row gutter={16} style={{ marginBottom: 16 }}>
-          <Col span={8}>
-            <Statistic
-              title="缓存命中率"
-              value={
-                metrics.cacheStats.size > 0
-                  ? (
-                      metrics.cacheStats.entries.reduce(
-                        (sum, entry) => sum + entry.accessCount,
+        {/* 统计卡片 */}
+        <Space direction="vertical" style={{ width: '100%' }} size="middle">
+          <Card size="small" title="📊 系统概览" style={{ borderRadius: 8 }}>
+            <Row gutter={[16, 16]}>
+              <Col span={8}>
+                <Statistic
+                  title="组件加载"
+                  value={metrics.loadTimes.length}
+                  suffix="次"
+                  valueStyle={{ color: '#1890ff', fontSize: '20px' }}
+                />
+              </Col>
+              {metrics.memoryUsage && (
+                <Col span={8}>
+                  <Statistic
+                    title="内存使用"
+                    value={metrics.memoryUsage.percentage}
+                    suffix="%"
+                    precision={1}
+                    valueStyle={{
+                      color:
+                        metrics.memoryUsage.percentage > 80
+                          ? '#ff4d4f'
+                          : metrics.memoryUsage.percentage > 60
+                            ? '#faad14'
+                            : '#52c41a',
+                      fontSize: '20px',
+                    }}
+                  />
+                </Col>
+              )}
+              {metrics.loadTimes.length > 0 && (
+                <Col span={8}>
+                  <Statistic
+                    title="平均耗时"
+                    value={
+                      metrics.loadTimes.reduce(
+                        (sum, item) => sum + item.duration,
                         0
-                      ) / metrics.cacheStats.size
-                    ).toFixed(1)
-                  : 0
-              }
-              suffix="%"
-            />
-          </Col>
-          <Col span={8}>
-            <Statistic
-              title="缓存使用"
-              value={`${metrics.cacheStats.size}/${metrics.cacheStats.maxSize}`}
-            />
-          </Col>
-          <Col span={8}>
-            {metrics.memoryUsage && (
-              <Statistic
-                title="内存使用"
-                value={metrics.memoryUsage.percentage.toFixed(1)}
-                suffix="%"
-              />
-            )}
-          </Col>
-        </Row>
+                      ) / metrics.loadTimes.length
+                    }
+                    suffix="ms"
+                    precision={2}
+                    valueStyle={{
+                      color: (() => {
+                        const avgTime =
+                          metrics.loadTimes.reduce(
+                            (sum, item) => sum + item.duration,
+                            0
+                          ) / metrics.loadTimes.length;
+                        return avgTime > 100
+                          ? '#ff4d4f'
+                          : avgTime > 50
+                            ? '#faad14'
+                            : '#52c41a';
+                      })(),
+                      fontSize: '20px',
+                    }}
+                  />
+                </Col>
+              )}
+            </Row>
 
-        <Collapse size="small">
-          <Panel header="组件加载时间" key="loadTimes">
+            {/* 内存详情行 */}
+            {metrics.memoryUsage && (
+              <Row
+                style={{
+                  marginTop: 16,
+                  padding: '12px',
+                  backgroundColor: '#fafafa',
+                  borderRadius: 6,
+                }}
+              >
+                <Col span={24}>
+                  <div
+                    style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <span style={{ color: '#666', fontSize: '12px' }}>
+                      💾 内存详情
+                    </span>
+                    <span style={{ fontSize: '12px', color: '#999' }}>
+                      已使用{' '}
+                      {(metrics.memoryUsage.used / 1024 / 1024).toFixed(1)}MB /
+                      总计{' '}
+                      {(metrics.memoryUsage.total / 1024 / 1024).toFixed(1)}MB
+                    </span>
+                  </div>
+                  <div style={{ marginTop: 8 }}>
+                    <div
+                      style={{
+                        width: '100%',
+                        height: 6,
+                        backgroundColor: '#e8e8e8',
+                        borderRadius: 3,
+                        overflow: 'hidden',
+                      }}
+                    >
+                      <div
+                        style={{
+                          width: `${metrics.memoryUsage.percentage}%`,
+                          height: '100%',
+                          backgroundColor:
+                            metrics.memoryUsage.percentage > 80
+                              ? '#ff4d4f'
+                              : metrics.memoryUsage.percentage > 60
+                                ? '#faad14'
+                                : '#52c41a',
+                          transition: 'width 0.3s ease',
+                        }}
+                      />
+                    </div>
+                  </div>
+                </Col>
+              </Row>
+            )}
+          </Card>
+
+          {/* 组件加载时间表格 */}
+          <Card
+            size="small"
+            title="📋 组件加载记录"
+            style={{ borderRadius: 8 }}
+          >
             <Table
               dataSource={metrics.loadTimes}
               columns={loadTimeColumns}
               size="small"
               pagination={false}
-              rowKey="name"
+              rowKey={(record) => `${record.name}-${record.timestamp}`}
+              locale={{ emptyText: '暂无加载记录' }}
+              style={{ maxHeight: 300, overflow: 'auto' }}
             />
-          </Panel>
-          <Panel header="组件缓存详情" key="cache">
-            <Table
-              dataSource={metrics.cacheStats.entries}
-              columns={cacheColumns}
-              size="small"
-              pagination={false}
-              rowKey="key"
-            />
-          </Panel>
-        </Collapse>
+          </Card>
+        </Space>
       </Drawer>
     </>
   );

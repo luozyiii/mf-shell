@@ -221,13 +221,7 @@ LazyMicroFrontend.displayName = 'LazyMicroFrontend';
 // 导出缓存工具用于调试
 export { clearComponentCache };
 
-// 开发环境下添加全局调试工具
+// 开发环境下的简化调试工具
 if (Environment.isDevelopment() && Environment.isBrowser()) {
-  // 添加到全局对象，方便调试
-  (window as any).__MF_CACHE_SIZE__ = () => componentCache.size;
   (window as any).__MF_CLEAR_CACHE__ = clearComponentCache;
-
-  console.log('🚀 微前端调试工具已加载:');
-  console.log('  - window.__MF_CACHE_SIZE__() - 查看缓存数量');
-  console.log('  - window.__MF_CLEAR_CACHE__() - 清除所有缓存');
 }

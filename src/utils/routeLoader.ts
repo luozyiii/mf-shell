@@ -84,13 +84,6 @@ export class RouteLoader {
           // @ts-expect-error - 模块联邦动态导入
           routeModule = await import('template/routes');
           break;
-        // TODO: 添加其他微前端应用的路由配置
-        // case 'marketing':
-        //   routeModule = await import('marketing/routes');
-        //   break;
-        // case 'finance':
-        //   routeModule = await import('finance/routes');
-        //   break;
         default:
           console.warn(`❌ Unknown app: ${appName}`);
           return null;
