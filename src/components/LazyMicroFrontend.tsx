@@ -1,7 +1,7 @@
 import { Spin } from 'antd';
 import type React from 'react';
 import { lazy, memo, Suspense, useCallback, useMemo } from 'react';
-import { PerformanceUtil } from '../utils';
+import { Environment, PerformanceUtil } from '../utils';
 import { ErrorBoundary } from './ErrorBoundary';
 
 // 使用统一的性能监控工具（支持浏览器性能标记）
@@ -26,153 +26,49 @@ const LoadingFallback: React.FC = memo(() => (
 
 LoadingFallback.displayName = 'LoadingFallback';
 
-// 根据路径获取组件名称 - 使用缓存优化
-const pathToComponentCache = new Map<string, string>();
-
+// 路径到组件名映射 - 根据实际的路由配置
 const getComponentNameFromPath = (pathname: string): string => {
-  // 使用缓存避免重复计算
-  if (pathToComponentCache.has(pathname)) {
-    const cachedName = pathToComponentCache.get(pathname);
-    if (cachedName) {
-      return cachedName;
-    }
-  }
-
-  // 从路径中提取组件名，例如：
-  // /template/dashboard -> Dashboard
-  // /template/feature1 -> Feature1
-  // /template/settings -> Settings
   const segments = pathname.split('/');
   const lastSegment = segments[segments.length - 1];
 
   if (!lastSegment) {
-    pathToComponentCache.set(pathname, 'Dashboard');
     return 'Dashboard'; // 默认组件
   }
 
-  // 转换为组件名格式
-  let componentName: string;
-  switch (lastSegment.toLowerCase()) {
-    case 'dashboard':
-      componentName = 'Dashboard';
-      break;
-    case 'feature1':
-      componentName = 'Feature1';
-      break;
-    case 'feature2':
-      componentName = 'Feature2';
-      break;
-    case 'settings':
-      componentName = 'Settings';
-      break;
-    case 'store-demo':
-      componentName = 'StoreDemo';
-      break;
-    default:
-      componentName = 'Dashboard'; // 默认组件
-  }
+  // 根据实际的路由配置映射
+  const pathToComponentMap: Record<string, string> = {
+    dashboard: 'Dashboard',
+    'store-demo': 'StoreDemo',
+    'i18n-demo': 'I18nDemo',
+  };
 
-  pathToComponentCache.set(pathname, componentName);
-  return componentName;
+  return pathToComponentMap[lastSegment] || 'Dashboard';
 };
 
-// 多层缓存系统
-interface CacheEntry {
-  component: React.LazyExoticComponent<React.ComponentType<any>>;
-  timestamp: number;
-  accessCount: number;
-}
+// 简化的组件缓存
+const componentCache = new Map<
+  string,
+  React.LazyExoticComponent<React.ComponentType<any>>
+>();
 
-class ComponentCacheManager {
-  private cache = new Map<string, CacheEntry>();
-  private readonly maxCacheSize = 50; // 最大缓存数量
-  private readonly cacheExpiry = 30 * 60 * 1000; // 30分钟过期
+const clearComponentCache = () => {
+  componentCache.clear();
+};
 
-  get(key: string): React.LazyExoticComponent<React.ComponentType<any>> | null {
-    const entry = this.cache.get(key);
-    if (!entry) return null;
-
-    // 检查是否过期
-    if (Date.now() - entry.timestamp > this.cacheExpiry) {
-      this.cache.delete(key);
-      return null;
-    }
-
-    // 更新访问计数
-    entry.accessCount++;
-    return entry.component;
-  }
-
-  set(
-    key: string,
-    component: React.LazyExoticComponent<React.ComponentType<any>>
-  ): void {
-    // 如果缓存已满，清理最少使用的条目
-    if (this.cache.size >= this.maxCacheSize) {
-      this.evictLeastUsed();
-    }
-
-    this.cache.set(key, {
-      component,
-      timestamp: Date.now(),
-      accessCount: 1,
-    });
-  }
-
-  private evictLeastUsed(): void {
-    let leastUsedKey = '';
-    let minAccessCount = Infinity;
-
-    for (const [key, entry] of this.cache.entries()) {
-      if (entry.accessCount < minAccessCount) {
-        minAccessCount = entry.accessCount;
-        leastUsedKey = key;
-      }
-    }
-
-    if (leastUsedKey) {
-      this.cache.delete(leastUsedKey);
-    }
-  }
-
-  clear(): void {
-    this.cache.clear();
-  }
-
-  getStats() {
-    return {
-      size: this.cache.size,
-      maxSize: this.maxCacheSize,
-      entries: Array.from(this.cache.entries()).map(([key, entry]) => ({
-        key,
-        accessCount: entry.accessCount,
-        age: Date.now() - entry.timestamp,
-      })),
-    };
-  }
-}
-
-// 全局缓存管理器
-const componentCacheManager = new ComponentCacheManager();
-
-// 动态导入函数 - 支持更多应用类型
+// 动态导入映射 - 根据实际暴露的组件配置
 const dynamicImportMap: Record<string, Record<string, () => Promise<any>>> = {
   template: {
     // @ts-expect-error - Module Federation 动态导入，运行时存在
     Dashboard: () => import('template/Dashboard'),
     // @ts-expect-error - Module Federation 动态导入，运行时存在
-    Feature1: () => import('template/Feature1'),
-    // @ts-expect-error - Module Federation 动态导入，运行时存在
-    Feature2: () => import('template/Feature2'),
-    // @ts-expect-error - Module Federation 动态导入，运行时存在
-    Settings: () => import('template/Settings'),
-    // @ts-expect-error - Module Federation 动态导入，运行时存在
     StoreDemo: () => import('template/StoreDemo'),
+    // @ts-expect-error - Module Federation 动态导入，运行时存在
+    I18nDemo: () => import('template/I18nDemo'),
   },
   // 可以在这里添加更多应用的导入配置
 };
 
-// 优化的动态组件加载器
+// 修复的动态组件加载器
 const createDynamicComponent = async (
   appName: string,
   componentName: string
@@ -221,7 +117,7 @@ const createDynamicComponent = async (
   }
 };
 
-// 优化的动态微前端组件容器 - 使用 memo 减少重新渲染
+// 简化的动态微前端组件容器
 const DynamicMicroFrontendContainer: React.FC<{
   appName: string;
   pathname: string;
@@ -231,18 +127,12 @@ const DynamicMicroFrontendContainer: React.FC<{
     [pathname]
   );
 
-  // 使用稳定的 key，避免不必要的重新挂载
-  const componentKey = useMemo(
-    () => `${appName}-${componentName}`,
-    [appName, componentName]
-  );
-
-  // 创建动态组件 - 使用缓存
+  // 创建动态组件 - 使用简化缓存
   const DynamicComponent = useMemo(() => {
     const cacheKey = `${appName}-${componentName}`;
 
     // 先尝试从缓存获取
-    const cachedComponent = componentCacheManager.get(cacheKey);
+    const cachedComponent = componentCache.get(cacheKey);
     if (cachedComponent) {
       return cachedComponent;
     }
@@ -253,34 +143,31 @@ const DynamicMicroFrontendContainer: React.FC<{
     );
 
     // 存入缓存
-    componentCacheManager.set(cacheKey, LazyComponent);
+    componentCache.set(cacheKey, LazyComponent);
 
     return LazyComponent;
   }, [appName, componentName]);
 
   return (
-    <div key={componentKey}>
-      <Suspense fallback={<LoadingFallback />}>
-        <DynamicComponent />
-      </Suspense>
-    </div>
+    <Suspense fallback={<LoadingFallback />}>
+      <DynamicComponent />
+    </Suspense>
   );
 });
 
 DynamicMicroFrontendContainer.displayName = 'DynamicMicroFrontendContainer';
 
-// 优化的懒加载微前端组件创建器
+// 简化的懒加载微前端组件创建器
 const createLazyMicroFrontend = (appName: string, pathname: string) => {
   const cacheKey = `wrapper-${appName}-${pathname}`;
 
-  // 使用新的缓存管理器
-  const cachedComponent = componentCacheManager.get(cacheKey);
+  // 使用简化缓存
+  const cachedComponent = componentCache.get(cacheKey);
   if (cachedComponent) {
     return cachedComponent;
   }
 
   const LazyComponent = lazy(async () => {
-    // 返回优化的动态容器
     return {
       default: memo(() => (
         <DynamicMicroFrontendContainer appName={appName} pathname={pathname} />
@@ -288,7 +175,7 @@ const createLazyMicroFrontend = (appName: string, pathname: string) => {
     };
   });
 
-  componentCacheManager.set(cacheKey, LazyComponent);
+  componentCache.set(cacheKey, LazyComponent);
   return LazyComponent;
 };
 
@@ -310,7 +197,7 @@ export const LazyMicroFrontend: React.FC<LazyMicroFrontendProps> = memo(
     // 重试回调
     const handleRetry = useCallback(() => {
       // 清除相关缓存，强制重新加载
-      componentCacheManager.clear();
+      clearComponentCache();
       // 强制重新渲染
       window.location.reload();
     }, []);
@@ -331,18 +218,16 @@ export const LazyMicroFrontend: React.FC<LazyMicroFrontendProps> = memo(
 
 LazyMicroFrontend.displayName = 'LazyMicroFrontend';
 
-// 导出缓存管理器用于调试
-export { componentCacheManager };
+// 导出缓存工具用于调试
+export { clearComponentCache };
 
 // 开发环境下添加全局调试工具
-if (process.env.NODE_ENV === 'development' && typeof window !== 'undefined') {
+if (Environment.isDevelopment() && Environment.isBrowser()) {
   // 添加到全局对象，方便调试
-  (window as any).__MF_CACHE_STATS__ = () => componentCacheManager.getStats();
-  (window as any).__MF_CLEAR_CACHE__ = () => componentCacheManager.clear();
-  (window as any).__MF_PATH_CACHE__ = pathToComponentCache;
+  (window as any).__MF_CACHE_SIZE__ = () => componentCache.size;
+  (window as any).__MF_CLEAR_CACHE__ = clearComponentCache;
 
   console.log('🚀 微前端调试工具已加载:');
-  console.log('  - window.__MF_CACHE_STATS__() - 查看缓存统计');
+  console.log('  - window.__MF_CACHE_SIZE__() - 查看缓存数量');
   console.log('  - window.__MF_CLEAR_CACHE__() - 清除所有缓存');
-  console.log('  - window.__MF_PATH_CACHE__ - 查看路径缓存');
 }

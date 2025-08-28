@@ -11,7 +11,8 @@ import {
 } from 'antd';
 import type React from 'react';
 import { memo, useCallback, useEffect, useRef, useState } from 'react';
-import { componentCacheManager } from './LazyMicroFrontend';
+import { Environment } from '../utils/environment';
+import { clearComponentCache } from './LazyMicroFrontend';
 
 const { Panel } = Collapse;
 
@@ -53,8 +54,12 @@ export const PerformanceMonitor: React.FC = memo(() => {
       }))
       .slice(-10); // 只保留最近10条
 
-    // 获取缓存统计
-    const cacheStats = componentCacheManager.getStats();
+    // 简化的缓存统计
+    const cacheStats = {
+      size: 0, // 简化后不再提供详细统计
+      maxSize: 0,
+      entries: [],
+    };
 
     // 获取内存使用情况（如果支持）
     let memoryUsage:
@@ -95,7 +100,7 @@ export const PerformanceMonitor: React.FC = memo(() => {
   }, [updateMetrics]);
 
   const clearCache = useCallback(() => {
-    componentCacheManager.clear();
+    clearComponentCache();
     performance.clearMeasures();
     performance.clearMarks();
     setMetrics((prev) => ({
@@ -154,7 +159,7 @@ export const PerformanceMonitor: React.FC = memo(() => {
   ];
 
   // 只在开发环境显示
-  if (process.env.NODE_ENV !== 'development') {
+  if (!Environment.isDevelopment()) {
     return null;
   }
 

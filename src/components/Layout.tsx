@@ -1,27 +1,20 @@
 import {
-  AppstoreOutlined,
-  ControlOutlined,
-  DashboardOutlined,
-  DollarOutlined,
-  InboxOutlined,
   LeftOutlined,
   LogoutOutlined,
   MenuFoldOutlined,
   MenuUnfoldOutlined,
-  RocketOutlined,
   SettingOutlined,
-  ShoppingOutlined,
   UserOutlined,
 } from '@ant-design/icons';
 import { Layout as AntLayout, Avatar, Button, Dropdown, Menu } from 'antd';
 import type React from 'react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { configManager } from '../config';
 import { APP_CONFIG } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
-import { usePermissions } from '../hooks/usePermissions';
+import { useMenuItems } from '../hooks/useMenuItems';
 import LanguageSwitcher from '../i18n/LanguageSwitcher';
 // @ts-expect-error - MF runtime
 import { getVal, subscribeVal } from '../store/keys';
@@ -36,27 +29,7 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-// 清理：移除未使用的接口
-
-// 图标映射函数
-const getIconComponent = (iconName?: string): React.ReactNode => {
-  if (!iconName) return <AppstoreOutlined />;
-  const iconMap: Record<string, React.ReactNode> = {
-    DashboardOutlined: <DashboardOutlined />,
-    ShoppingOutlined: <ShoppingOutlined />,
-    RocketOutlined: <RocketOutlined />,
-    DollarOutlined: <DollarOutlined />,
-    AppstoreOutlined: <AppstoreOutlined />,
-    InboxOutlined: <InboxOutlined />,
-    UserOutlined: <UserOutlined />,
-    SettingOutlined: <SettingOutlined />,
-    ControlOutlined: <ControlOutlined />,
-  };
-
-  return iconMap[iconName] || <AppstoreOutlined />;
-};
-
-// 路由配置完全由子应用提供，不再使用默认配置
+// 简化的布局组件
 
 // 菜单骨架屏组件
 const MenuSkeleton = ({ styles }: { styles: any }) => (
@@ -110,7 +83,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, []);
 
   const { user, logout, isLoading: authLoading } = useAuth();
-  const { isAdmin, isDeveloper, getUserPermissionSummary } = usePermissions();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -191,104 +163,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     navigate('/login');
   };
 
-  // 构建菜单项 - 使用useMemo避免不必要的重新计算
-  const menuItems = useMemo(() => {
-    // 如果还在加载权限，返回基础菜单
-    if (authLoading) {
-      return [
-        {
-          key: '/dashboard',
-          icon: <DashboardOutlined />,
-          label: '仪表板',
-        },
-      ];
-    }
-
-    const items: Array<{
-      key: string;
-      icon?: React.ReactNode;
-      label: string;
-      children?: Array<{
-        key: string;
-        label: string;
-      }>;
-    }> = [
-      {
-        key: '/dashboard',
-        icon: <DashboardOutlined />,
-        label: '仪表板',
-      },
-      {
-        key: '/i18n-demo',
-        icon: <ControlOutlined />,
-        label: '国际化',
-      },
-    ];
-
-    // 使用优化后的权限系统动态生成菜单
-    const permissionSummary = getUserPermissionSummary;
-
-    // 构建用户权限列表
-    const userPermissions: string[] = [];
-
-    // 管理员权限
-    if (isAdmin) {
-      userPermissions.push('admin:read', 'admin:write');
-    }
-
-    // 开发者权限
-    if (isDeveloper) {
-      userPermissions.push('developer:read');
-    }
-
-    // 所有已认证用户都可以访问模板系统（用于演示）
-    if (permissionSummary.isAuthenticated) {
-      userPermissions.push('template:read');
-    }
-
-    const accessibleMicroFrontends =
-      configManager.getAccessibleMicroFrontends(userPermissions);
-
-    accessibleMicroFrontends.forEach((microFrontend) => {
-      // 检查是否有路由配置
-      const routeConfig =
-        microFrontendRoutes[
-          microFrontend.name as keyof typeof microFrontendRoutes
-        ];
-
-      if (routeConfig) {
-        // 有详细路由配置，显示子菜单
-        const menuItem = {
-          key: microFrontend.name,
-          icon: getIconComponent(microFrontend.icon),
-          label: microFrontend.displayName,
-          children: routeConfig.routes.map(
-            (route: { path: string; name: string }) => ({
-              key: route.path,
-              label: route.name,
-            })
-          ),
-        };
-        items.push(menuItem);
-      } else {
-        // 没有详细路由配置，显示单一菜单项
-        const menuItem = {
-          key: `/${microFrontend.name}`,
-          icon: getIconComponent(microFrontend.icon),
-          label: microFrontend.displayName,
-        };
-        items.push(menuItem);
-      }
-    });
-
-    return items;
-  }, [
+  // 使用简化的菜单构建 hook
+  const menuItems = useMenuItems({
     authLoading,
     microFrontendRoutes,
-    isAdmin,
-    isDeveloper,
-    getUserPermissionSummary,
-  ]);
+  });
 
   const userMenuItems = [
     {
@@ -430,7 +309,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 selectedKeys={[location.pathname]}
                 openKeys={openKeys}
                 onOpenChange={setOpenKeys}
-                items={menuItems}
+                items={menuItems as any}
                 onClick={handleMenuClick}
                 className={`${styles.menu} ${authLoading ? styles.menuLoading : ''}`}
               />
