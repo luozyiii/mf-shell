@@ -1,4 +1,6 @@
 // 简化的微前端配置系统
+import { remoteConfigs } from './remotes.config';
+
 export const STORE_PREFIX = 'mf-shell-';
 
 export interface MicroFrontendConfig {
@@ -104,12 +106,50 @@ class ConfigManager {
   // 生成 Module Federation remotes 配置
   generateRemotes(): Record<string, string> {
     const remotes: Record<string, string> = {};
+    const isDev =
+      typeof process !== 'undefined' && process.env
+        ? process.env.NODE_ENV !== 'production'
+        : true; // 默认为开发模式
 
-    this.getEnabledMicroFrontends().forEach((mf) => {
-      remotes[mf.name] = `${mf.name}@${mf.url}/remoteEntry.js`;
+    // 使用 remotes.config.ts 中的配置
+    Object.values(remoteConfigs).forEach((config) => {
+      const url = isDev ? config.development : config.production;
+      remotes[config.name] = `${config.url}@${url}`;
     });
 
-    return remotes;
+    // mf-shared 是必需的共享模块，始终包含
+    const enabledRemotes: Record<string, string> = {};
+
+    // 首先添加 mf-shared（必需）
+    if (remotes['mf-shared']) {
+      enabledRemotes['mf-shared'] = remotes['mf-shared'];
+    }
+
+    // 然后添加已启用的微前端应用
+    const enabledMicroFrontends = this.getEnabledMicroFrontends();
+    enabledMicroFrontends.forEach((mf) => {
+      if (remotes[mf.name] && mf.name !== 'mf-shared') {
+        enabledRemotes[mf.name] = remotes[mf.name];
+      }
+    });
+
+    return enabledRemotes;
+  }
+
+  // 获取远程模块URL（用于动态加载）
+  getRemoteUrl(remoteName: string): string {
+    const config = remoteConfigs[remoteName];
+    if (!config) {
+      throw new Error(
+        `Remote module "${remoteName}" not found in configuration`
+      );
+    }
+
+    const isDev =
+      typeof process !== 'undefined' && process.env
+        ? process.env.NODE_ENV !== 'production'
+        : true; // 默认为开发模式
+    return isDev ? config.development : config.production;
   }
 
   // 获取用户可访问的微前端
@@ -186,6 +226,8 @@ export const getMicroFrontend = (name: string) =>
   configManager.getMicroFrontend(name);
 export const isEnabled = (name: string) => configManager.isEnabled(name);
 export const generateRemotes = () => configManager.generateRemotes();
+export const getRemoteUrl = (remoteName: string) =>
+  configManager.getRemoteUrl(remoteName);
 export const getAccessibleMicroFrontends = (userPermissions: string[]) =>
   configManager.getAccessibleMicroFrontends(userPermissions);
 export const getMenuItems = (userPermissions?: string[]) =>

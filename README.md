@@ -75,9 +75,12 @@ src/
 
 ## ⚙️ 微前端配置
 
-### 远程模块配置
+### 微前端配置
 
-在 `src/config/remotes.config.ts` 中配置远程微前端应用：
+微前端配置统一在 `src/config/index.ts` 中管理：
+
+- **业务配置**: 应用名称、权限、菜单等在 `ConfigManager` 类中配置
+- **远程模块配置**: Module Federation 的技术配置在 `remotes.config.ts` 中定义，由 `ConfigManager` 统一调用
 
 ```typescript
 export const remoteConfigs: Record<string, RemoteConfig> = {

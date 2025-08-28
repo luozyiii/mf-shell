@@ -14,6 +14,25 @@ interface PermissionCheckResult {
 export const usePermissions = () => {
   const { user, permissions, isAuthenticated } = useAuth();
 
+  // 基础认证状态检查逻辑
+  const validateAuthState = useCallback((): PermissionCheckResult | null => {
+    if (!isAuthenticated) {
+      return {
+        hasPermission: false,
+        reason: '用户未登录',
+      };
+    }
+
+    if (!user) {
+      return {
+        hasPermission: false,
+        reason: '用户信息不存在',
+      };
+    }
+
+    return null; // 认证状态正常
+  }, [isAuthenticated, user]);
+
   // 从 globalStore 读取权限（优先）
   const [gsPermissions, setGsPermissions] = useState<Record<
     string,
@@ -38,20 +57,10 @@ export const usePermissions = () => {
   // 检查是否有特定应用权限（增强版）
   const hasAppAccess = useCallback(
     (app: AppPermission): PermissionCheckResult => {
-      if (!isAuthenticated) {
-        return {
-          hasPermission: false,
-          reason: '用户未登录',
-          requiredPermission: app,
-        };
-      }
-
-      if (!user) {
-        return {
-          hasPermission: false,
-          reason: '用户信息不存在',
-          requiredPermission: app,
-        };
+      // 使用公共的认证状态检查
+      const authCheck = validateAuthState();
+      if (authCheck) {
+        return { ...authCheck, requiredPermission: app };
       }
 
       const effectivePermissions = gsPermissions || permissions;
@@ -76,7 +85,7 @@ export const usePermissions = () => {
         requiredPermission: app,
       };
     },
-    [user, permissions, isAuthenticated, gsPermissions]
+    [user, permissions, gsPermissions, validateAuthState]
   );
 
   // 简化的权限检查（向后兼容）
@@ -111,20 +120,10 @@ export const usePermissions = () => {
   // 检查是否有特定角色（增强版）
   const hasRole = useCallback(
     (role: UserRole): PermissionCheckResult => {
-      if (!isAuthenticated) {
-        return {
-          hasPermission: false,
-          reason: '用户未登录',
-          requiredRole: role,
-        };
-      }
-
-      if (!user) {
-        return {
-          hasPermission: false,
-          reason: '用户信息不存在',
-          requiredRole: role,
-        };
+      // 使用公共的认证状态检查
+      const authCheck = validateAuthState();
+      if (authCheck) {
+        return { ...authCheck, requiredRole: role };
       }
 
       const hasPermission =
@@ -135,7 +134,7 @@ export const usePermissions = () => {
         requiredRole: role,
       };
     },
-    [user, isAuthenticated]
+    [user, validateAuthState]
   );
 
   // 简化的角色检查（向后兼容）
@@ -149,18 +148,10 @@ export const usePermissions = () => {
   // 检查是否有任意一个角色
   const hasAnyRole = useCallback(
     (permissions: UserRole[]): PermissionCheckResult => {
-      if (!isAuthenticated) {
-        return {
-          hasPermission: false,
-          reason: '用户未登录',
-        };
-      }
-
-      if (!user) {
-        return {
-          hasPermission: false,
-          reason: '用户信息不存在',
-        };
+      // 使用公共的认证状态检查
+      const authCheck = validateAuthState();
+      if (authCheck) {
+        return authCheck;
       }
 
       if (permissions.length === 0) {
@@ -178,24 +169,16 @@ export const usePermissions = () => {
           : `需要以下任一角色: ${permissions.join(', ')}`,
       };
     },
-    [user, isAuthenticated, hasRoleSimple]
+    [hasRoleSimple, validateAuthState]
   );
 
   // 检查是否有所有角色
   const hasAllRoles = useCallback(
     (permissions: UserRole[]): PermissionCheckResult => {
-      if (!isAuthenticated) {
-        return {
-          hasPermission: false,
-          reason: '用户未登录',
-        };
-      }
-
-      if (!user) {
-        return {
-          hasPermission: false,
-          reason: '用户信息不存在',
-        };
+      // 使用公共的认证状态检查
+      const authCheck = validateAuthState();
+      if (authCheck) {
+        return authCheck;
       }
 
       if (permissions.length === 0) {
@@ -215,7 +198,7 @@ export const usePermissions = () => {
           : `缺少以下角色: ${missingRoles.join(', ')}`,
       };
     },
-    [user, isAuthenticated, hasRoleSimple]
+    [hasRoleSimple, validateAuthState]
   );
 
   // 检查复合权限（角色 + 应用权限）

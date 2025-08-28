@@ -1,5 +1,4 @@
-// @ts-expect-error - MF runtime
-import { configureStoreStrategy, setStoreValue } from 'mf-shared/store';
+// 移除静态导入，改为动态导入以避免编译时模块解析问题
 import type React from 'react';
 import {
   createContext,
@@ -36,7 +35,11 @@ const mockUsers = [
     password: 'admin123',
     name: '管理员',
     role: UserRole.ADMIN,
-    permissions: [AppPermission.TEMPLATE],
+    permissions: [
+      UserRole.ADMIN,
+      AppPermission.TEMPLATE,
+      AppPermission.DASHBOARD,
+    ],
   },
   {
     id: '2',
@@ -44,7 +47,7 @@ const mockUsers = [
     password: 'dev123',
     name: '开发者',
     role: UserRole.DEVELOPER,
-    permissions: [AppPermission.TEMPLATE],
+    permissions: [UserRole.DEVELOPER, AppPermission.TEMPLATE],
   },
   {
     id: '3',
@@ -52,7 +55,7 @@ const mockUsers = [
     password: 'user123',
     name: '普通用户',
     role: UserRole.USER,
-    permissions: [AppPermission.DASHBOARD],
+    permissions: [UserRole.USER, AppPermission.DASHBOARD],
   },
 ];
 
@@ -178,18 +181,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           AuthUtils.setPermissions(permissionsData as Record<string, unknown>);
 
           // 同步写入 globalStore（简化键）
-          try {
-            configureStoreStrategy?.('user', {
-              medium: 'local',
-              encrypted: true,
-            });
-            configureStoreStrategy?.('permissions', {
-              medium: 'local',
-              encrypted: false,
-            });
-            setStoreValue?.('user', userData as any);
-            setStoreValue?.('permissions', permissionsData as any);
-          } catch {}
+          (async () => {
+            try {
+              // @ts-expect-error - MF runtime
+              const { configureStoreStrategy, setStoreValue } = await import(
+                'mf-shared/store'
+              );
+              configureStoreStrategy?.('user', {
+                medium: 'local',
+                encrypted: true,
+              });
+              configureStoreStrategy?.('permissions', {
+                medium: 'local',
+                encrypted: false,
+              });
+              setStoreValue?.('user', userData as any);
+              setStoreValue?.('permissions', permissionsData as any);
+            } catch (error) {
+              console.warn('Failed to sync data to global store:', error);
+            }
+          })();
 
           setUser(userData);
           setPermissions(permissionsData);

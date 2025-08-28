@@ -7,6 +7,7 @@ const { Paragraph, Text } = Typography;
 interface Props {
   children: ReactNode;
   fallback?: ReactNode;
+  onRetry?: () => void;
 }
 
 interface State {
@@ -51,6 +52,16 @@ export class ErrorBoundary extends Component<Props, State> {
     // 这里可以添加错误上报逻辑
     // reportError(errorDetails);
   }
+
+  private handleRetry = (): void => {
+    this.setState({
+      hasError: false,
+      error: undefined,
+      errorInfo: undefined,
+      errorId: undefined,
+    });
+    this.props.onRetry?.();
+  };
 
   private handleReload = (): void => {
     this.setState({
@@ -121,9 +132,19 @@ export class ErrorBoundary extends Component<Props, State> {
               </div>
             }
             extra={[
+              this.props.onRetry && (
+                <Button
+                  key="retry"
+                  type="primary"
+                  icon={<ReloadOutlined />}
+                  onClick={this.handleRetry}
+                >
+                  重试
+                </Button>
+              ),
               <Button
                 key="reload"
-                type="primary"
+                type={this.props.onRetry ? 'default' : 'primary'}
                 icon={<ReloadOutlined />}
                 onClick={this.handleReload}
               >

@@ -13,10 +13,9 @@ import {
 } from 'react-router-dom';
 import { AsyncPerformanceMonitor } from './components/AsyncPerformanceMonitor';
 import { ErrorBoundary } from './components/ErrorBoundary';
-import Layout from './components/Layout';
 import { LayoutSkeleton } from './components/LayoutSkeleton';
 import { LazyMicroFrontend } from './components/LazyMicroFrontend';
-import { ProtectedRoute } from './components/ProtectedRoute';
+import ProtectedLayout from './components/ProtectedLayout';
 import { ScrollToTop } from './components/ScrollToTop';
 import { configManager } from './config';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
@@ -81,11 +80,9 @@ const AppContent: React.FC = () => {
         <Route
           path="/dashboard"
           element={
-            <ProtectedRoute>
-              <Layout>
-                <Dashboard />
-              </Layout>
-            </ProtectedRoute>
+            <ProtectedLayout>
+              <Dashboard />
+            </ProtectedLayout>
           }
         />
 
@@ -93,11 +90,9 @@ const AppContent: React.FC = () => {
         <Route
           path="/i18n-demo"
           element={
-            <ProtectedRoute>
-              <Layout>
-                <I18nDemo />
-              </Layout>
-            </ProtectedRoute>
+            <ProtectedLayout>
+              <I18nDemo />
+            </ProtectedLayout>
           }
         />
 
@@ -107,14 +102,12 @@ const AppContent: React.FC = () => {
             key={mf.name}
             path={`/${mf.name}/*`}
             element={
-              <ProtectedRoute>
-                <Layout>
-                  <MicroFrontendWrapper
-                    appName={mf.name}
-                    displayName={mf.displayName}
-                  />
-                </Layout>
-              </ProtectedRoute>
+              <ProtectedLayout>
+                <MicroFrontendWrapper
+                  appName={mf.name}
+                  displayName={mf.displayName}
+                />
+              </ProtectedLayout>
             }
           />
         ))}
@@ -124,9 +117,9 @@ const AppContent: React.FC = () => {
         <Route
           path="*"
           element={
-            <Layout>
+            <ProtectedLayout>
               <NotFound />
-            </Layout>
+            </ProtectedLayout>
           }
         />
       </Routes>

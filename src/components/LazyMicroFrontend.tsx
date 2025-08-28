@@ -1,19 +1,13 @@
 import { Spin } from 'antd';
-import React, { lazy, memo, Suspense, useCallback, useMemo } from 'react';
+import type React from 'react';
+import { lazy, memo, Suspense, useCallback, useMemo } from 'react';
+import { PerformanceUtil } from '../utils';
+import { ErrorBoundary } from './ErrorBoundary';
 
-// 性能监控工具
+// 使用统一的性能监控工具（支持浏览器性能标记）
 const performanceMonitor = {
-  startTimer: (name: string) => {
-    if (typeof window !== 'undefined' && window.performance) {
-      window.performance.mark(`${name}-start`);
-    }
-  },
-  endTimer: (name: string) => {
-    if (typeof window !== 'undefined' && window.performance) {
-      window.performance.mark(`${name}-end`);
-      window.performance.measure(name, `${name}-start`, `${name}-end`);
-    }
-  },
+  startTimer: (name: string) => PerformanceUtil.startTimer(name, true),
+  endTimer: (name: string) => PerformanceUtil.endTimer(name, true),
 };
 
 // 简单的加载组件 - 使用 memo 优化
@@ -31,68 +25,6 @@ const LoadingFallback: React.FC = memo(() => (
 ));
 
 LoadingFallback.displayName = 'LoadingFallback';
-
-// 错误边界组件 - 添加重试机制
-class ErrorBoundary extends React.Component<
-  { children: React.ReactNode; onRetry?: () => void },
-  { hasError: boolean; error?: Error; retryCount: number }
-> {
-  constructor(props: { children: React.ReactNode; onRetry?: () => void }) {
-    super(props);
-    this.state = { hasError: false, retryCount: 0 };
-  }
-
-  static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error };
-  }
-
-  componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('微前端加载错误:', error, errorInfo);
-    // 可以在这里添加错误上报逻辑
-  }
-
-  handleRetry = () => {
-    this.setState((prevState) => ({
-      hasError: false,
-      error: undefined,
-      retryCount: prevState.retryCount + 1,
-    }));
-    this.props.onRetry?.();
-  };
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{ padding: '20px', textAlign: 'center' }}>
-          <h3>应用加载失败</h3>
-          <p>请检查网络连接或稍后重试</p>
-          <div style={{ marginTop: '16px' }}>
-            <button
-              type="button"
-              onClick={this.handleRetry}
-              style={{ marginRight: '8px' }}
-            >
-              重试 ({this.state.retryCount}/3)
-            </button>
-            <button type="button" onClick={() => window.location.reload()}>
-              刷新页面
-            </button>
-          </div>
-          {this.state.error && (
-            <details style={{ marginTop: '16px', textAlign: 'left' }}>
-              <summary>错误详情</summary>
-              <pre style={{ fontSize: '12px', color: '#666' }}>
-                {this.state.error.message}
-              </pre>
-            </details>
-          )}
-        </div>
-      );
-    }
-
-    return this.props.children;
-  }
-}
 
 // 根据路径获取组件名称 - 使用缓存优化
 const pathToComponentCache = new Map<string, string>();

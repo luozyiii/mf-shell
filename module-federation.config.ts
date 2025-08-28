@@ -1,5 +1,5 @@
 import { createModuleFederationConfig } from '@module-federation/rsbuild-plugin';
-import { generateRemotes } from './src/config/remotes.config';
+import { generateRemotes } from './src/config';
 
 // 优化的共享依赖配置
 const sharedDependencies = {

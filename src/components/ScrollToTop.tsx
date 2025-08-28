@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
+import { ScrollUtil } from '../utils';
 
 interface ScrollToTopProps {
   /**
@@ -95,76 +96,12 @@ export const ScrollToTop: React.FC<ScrollToTopProps> = ({
       return;
     }
 
-    const performScroll = () => {
-      // 优先滚动主内容区域
-      const contentElement = document.querySelector(
-        '.ant-layout-content'
-      ) as HTMLElement;
-      const mainElement = document.querySelector('main') as HTMLElement;
-      const bodyElement = document.body;
-      const htmlElement = document.documentElement;
-
-      // 滚动目标优先级：内容区域 > main > body > html
-      const scrollTargets = [
-        contentElement,
-        mainElement,
-        bodyElement,
-        htmlElement,
-      ].filter(Boolean);
-
-      scrollTargets.forEach((target) => {
-        if (target) {
-          try {
-            if (
-              smooth &&
-              'scrollTo' in target &&
-              typeof target.scrollTo === 'function'
-            ) {
-              // 平滑滚动
-              target.scrollTo({
-                top: 0,
-                left: 0,
-                behavior: 'smooth',
-              });
-            } else {
-              // 即时滚动
-              target.scrollTop = 0;
-              if ('scrollLeft' in target) {
-                target.scrollLeft = 0;
-              }
-            }
-          } catch (error) {
-            // 降级处理
-            console.warn('ScrollToTop: 滚动失败，使用降级方案', error);
-            target.scrollTop = 0;
-          }
-        }
-      });
-
-      // 额外处理：确保窗口也滚动到顶部
-      try {
-        if (smooth && window.scrollTo) {
-          window.scrollTo({
-            top: 0,
-            left: 0,
-            behavior: 'smooth',
-          });
-        } else {
-          window.scrollTo(0, 0);
-        }
-      } catch {
-        // 降级处理
-        window.scrollTo(0, 0);
-      }
-    };
-
     if (delay > 0) {
       // 延迟滚动，等待页面内容加载完成
-      const timer = setTimeout(performScroll, delay);
-      return () => clearTimeout(timer);
+      return ScrollUtil.delayedScrollToTop(delay, smooth);
     } else {
       // 立即滚动
-      performScroll();
+      ScrollUtil.performScrollToTop(smooth);
     }
   }, [location.pathname, smooth, delay, autoScroll, excludePatterns]);
 
@@ -180,50 +117,10 @@ export const scrollToTop = (
 ) => {
   const { smooth = true, delay = 0 } = options;
 
-  const doScroll = () => {
-    const contentElement = document.querySelector(
-      '.ant-layout-content'
-    ) as HTMLElement;
-    const targets = [
-      contentElement,
-      document.body,
-      document.documentElement,
-    ].filter(Boolean);
-
-    targets.forEach((target) => {
-      if (target) {
-        try {
-          if (smooth && 'scrollTo' in target) {
-            target.scrollTo({
-              top: 0,
-              left: 0,
-              behavior: 'smooth',
-            });
-          } else {
-            target.scrollTop = 0;
-          }
-        } catch {
-          target.scrollTop = 0;
-        }
-      }
-    });
-
-    // 窗口滚动
-    try {
-      if (smooth) {
-        window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
-      } else {
-        window.scrollTo(0, 0);
-      }
-    } catch {
-      window.scrollTo(0, 0);
-    }
-  };
-
   if (delay > 0) {
-    setTimeout(doScroll, delay);
+    ScrollUtil.delayedScrollToTop(delay, smooth);
   } else {
-    doScroll();
+    ScrollUtil.performScrollToTop(smooth);
   }
 };
 

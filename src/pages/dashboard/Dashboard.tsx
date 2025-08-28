@@ -25,8 +25,13 @@ export const Dashboard: React.FC = () => {
   // 获取用户可访问的微前端系统
   // 将现有的权限系统映射到新的配置系统
   const userPermissions: string[] = [];
-  if (user?.permissions.includes(UserRole.ADMIN))
+
+  // 安全检查用户权限
+  const userPerms = user?.permissions || [];
+  if (userPerms.includes(UserRole.ADMIN) || user?.role === UserRole.ADMIN) {
     userPermissions.push('admin:read');
+  }
+
   // 所有登录用户都可以访问模板系统（用于演示）
   userPermissions.push('template:read');
 

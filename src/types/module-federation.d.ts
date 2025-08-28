@@ -51,27 +51,30 @@ declare module 'template/routes' {
   export default routes;
 }
 
+// mf-shared/store 模块类型声明
 declare module 'mf-shared/store' {
-  export type StorageStrategy = {
-    medium: 'memory' | 'local' | 'session';
-    encrypted?: boolean;
-  };
-  export function initGlobalStore(options?: any): void;
-  export function setStoreValue(key: string, value: any, callback?: any): void;
+  export function initGlobalStore(options?: {
+    enablePersistence?: boolean;
+    enableEncryption?: boolean;
+    storageKey?: string;
+  }): void;
+
   export function getStoreValue<T = any>(key: string): T | undefined;
+  export function setStoreValue(key: string, value: any): void;
   export function subscribeStore(
     key: string,
-    callback: (key: string, newVal: any, oldVal?: any) => void
+    callback: (key: string, newValue: any, oldValue?: any) => void
   ): () => void;
-  export function unsubscribeStore(key: string, callback: any): void;
-  export function clearStore(): void;
+
   export function configureStoreStrategy(
     keyOrPrefix: string,
-    strategy: StorageStrategy
+    strategy: {
+      medium: 'memory' | 'local' | 'session';
+      encrypted?: boolean;
+    }
   ): void;
 
-  const _default: any;
-  export default _default;
+  export function clearAppData(appStorageKey: string): void;
 }
 
 // 扩展 Window 接口，添加调试工具
@@ -80,8 +83,6 @@ declare global {
     __MF_CACHE_STATS__?: () => any;
     __MF_CLEAR_CACHE__?: () => void;
     __MF_PATH_CACHE__?: Map<string, string>;
+    globalStore?: any;
   }
 }
-
-// 允许 TS 认识动态 import('mf-shared/store')
-declare const __MF_SHARED_STORE__: any;
