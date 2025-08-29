@@ -128,15 +128,70 @@ export class PerformanceUtil {
  */
 export class ScrollUtil {
   /**
-   * 滚动到顶部
+   * 滚动到顶部 - 支持多个滚动目标
    */
   static scrollToTop(smooth = true): void {
     ErrorHandler.safeCall(() => {
       if (typeof window !== 'undefined') {
-        window.scrollTo({
-          top: 0,
-          left: 0,
-          behavior: smooth ? 'smooth' : 'auto',
+        // 滚动目标列表，按优先级排序
+        const scrollTargets = [
+          // 主应用的内容区域
+          document.querySelector('.ant-layout-content'),
+          // 标识的滚动容器
+          document.querySelector('[data-scroll-container="main"]'),
+          document.querySelector('[data-scroll-container]'),
+          // 备选滚动目标
+          document.querySelector('main'),
+          document.body,
+          document.documentElement,
+          window,
+        ].filter(Boolean);
+
+        console.log('ScrollUtil: 找到滚动目标', scrollTargets.length, '个');
+
+        scrollTargets.forEach((target, index) => {
+          if (target) {
+            try {
+              const targetName =
+                target === window
+                  ? 'window'
+                  : target === document.body
+                    ? 'body'
+                    : target === document.documentElement
+                      ? 'documentElement'
+                      : (target as Element).className || (target as Element).tagName;
+
+              console.log(`ScrollUtil: 滚动目标 ${index + 1}:`, targetName);
+
+              if (target === window) {
+                // 处理 window 对象
+                window.scrollTo({
+                  top: 0,
+                  left: 0,
+                  behavior: smooth ? 'smooth' : 'auto',
+                });
+              } else if ('scrollTo' in target && typeof target.scrollTo === 'function') {
+                // 平滑滚动
+                (target as Element).scrollTo({
+                  top: 0,
+                  left: 0,
+                  behavior: smooth ? 'smooth' : 'auto',
+                });
+              } else {
+                // 即时滚动
+                (target as HTMLElement).scrollTop = 0;
+                if ('scrollLeft' in target) {
+                  (target as HTMLElement).scrollLeft = 0;
+                }
+              }
+            } catch (error) {
+              // 降级处理
+              console.warn('ScrollUtil: 滚动失败，使用降级方案', error);
+              if (target !== window && 'scrollTop' in target) {
+                (target as HTMLElement).scrollTop = 0;
+              }
+            }
+          }
         });
       }
     }, 'ScrollUtil.scrollToTop failed');

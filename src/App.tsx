@@ -1,4 +1,4 @@
-import { theme as AntTheme, ConfigProvider } from 'antd';
+import { App as AntApp, theme as AntTheme, ConfigProvider } from 'antd';
 import enUS from 'antd/locale/en_US';
 import zhCN from 'antd/locale/zh_CN';
 import type React from 'react';
@@ -151,11 +151,13 @@ const App: React.FC = () => {
       <HelmetProvider>
         <ShellI18nProvider>
           <ConfigProvider locale={antLocale} theme={{ algorithm }}>
-            <AuthProvider>
-              <AppContent />
-              {/* 性能监控开发工具 - 异步加载，仅在开发环境显示 */}
-              <AsyncPerformanceMonitor />
-            </AuthProvider>
+            <AntApp>
+              <AuthProvider>
+                <AppContent />
+                {/* 性能监控开发工具 - 异步加载，仅在开发环境显示 */}
+                <AsyncPerformanceMonitor />
+              </AuthProvider>
+            </AntApp>
           </ConfigProvider>
         </ShellI18nProvider>
       </HelmetProvider>

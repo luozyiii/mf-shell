@@ -6,7 +6,7 @@ import {
   SettingOutlined,
   UserOutlined,
 } from '@ant-design/icons';
-import { Layout as AntLayout, Avatar, Button, Dropdown, Menu } from 'antd';
+import { Layout as AntLayout, App, Avatar, Button, Dropdown, Menu } from 'antd';
 import type React from 'react';
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
@@ -85,6 +85,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const { user, logout, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { message } = App.useApp();
 
   // 动态加载微前端路由配置
   useEffect(() => {
@@ -138,6 +139,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, [location.pathname, collapsed]);
 
   // 路由变化时的内容过渡效果
+  // biome-ignore lint/correctness/useExhaustiveDependencies: 需要在路由变化时触发内容过渡动画
   useEffect(() => {
     setContentLoading(true);
     setContentKey((prev) => prev + 1);
@@ -148,11 +150,90 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }, 150);
 
     return () => window.clearTimeout(timer);
+  }, [location.pathname]);
+
+  // 监听微前端发送的滚动消息
+  useEffect(() => {
+    const handleMessage = (event: MessageEvent) => {
+      if (event.data?.type === 'MICRO_FRONTEND_SCROLL_TO_TOP') {
+        console.log('Layout: 收到微前端滚动消息', event.data);
+
+        // 使用更完善的滚动逻辑，参考 mf-template 的实现
+        const scrollTargets = [
+          // 主应用的内容区域
+          document.querySelector('.ant-layout-content'),
+          // 标识的滚动容器
+          document.querySelector('[data-scroll-container="main"]'),
+          document.querySelector('[data-scroll-container]'),
+          // 备选滚动目标
+          document.querySelector('main'),
+          document.body,
+          document.documentElement,
+        ].filter(Boolean) as HTMLElement[];
+
+        console.log('Layout: 找到滚动目标', scrollTargets.length, '个');
+
+        const smooth = event.data.smooth !== false; // 默认为 true
+
+        scrollTargets.forEach((target, index) => {
+          if (target) {
+            try {
+              const targetName =
+                target === document.body
+                  ? 'body'
+                  : target === document.documentElement
+                    ? 'documentElement'
+                    : target.className || target.tagName;
+
+              console.log(`Layout: 滚动目标 ${index + 1}:`, targetName);
+
+              if (smooth && 'scrollTo' in target && typeof target.scrollTo === 'function') {
+                // 平滑滚动
+                target.scrollTo({
+                  top: 0,
+                  left: 0,
+                  behavior: 'smooth',
+                });
+              } else {
+                // 即时滚动
+                target.scrollTop = 0;
+                if ('scrollLeft' in target) {
+                  target.scrollLeft = 0;
+                }
+              }
+            } catch (error) {
+              // 降级处理
+              console.warn('主应用滚动失败，使用降级方案:', error);
+              target.scrollTop = 0;
+            }
+          }
+        });
+      }
+    };
+
+    window.addEventListener('message', handleMessage);
+    return () => window.removeEventListener('message', handleMessage);
   }, []);
 
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const handleUserMenuClick = ({ key }: { key: string }) => {
+    switch (key) {
+      case 'profile':
+        message.info('正在开发中...');
+        break;
+      case 'settings':
+        message.info('正在开发中...');
+        break;
+      case 'logout':
+        handleLogout();
+        break;
+      default:
+        break;
+    }
   };
 
   // 使用简化的菜单构建 hook
@@ -179,7 +260,6 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       key: 'logout',
       icon: <LogoutOutlined />,
       label: '退出登录',
-      onClick: handleLogout,
     },
   ];
 
@@ -347,7 +427,11 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </div>
 
               {/* 用户信息区域 */}
-              <Dropdown menu={{ items: userMenuItems }} placement="bottomRight" trigger={['click']}>
+              <Dropdown
+                menu={{ items: userMenuItems, onClick: handleUserMenuClick }}
+                placement="bottomRight"
+                trigger={['click']}
+              >
                 <div className={styles.userInfo}>
                   <Avatar size={32} icon={<UserOutlined />} className={styles.userAvatar || ''} />
                   <div className={styles.userDetails}>

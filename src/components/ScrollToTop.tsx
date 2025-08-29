@@ -21,8 +21,11 @@ export const ScrollToTop: React.FC<ScrollToTopProps> = ({
     const shouldExclude = excludePatterns.some((pattern) => location.pathname.includes(pattern));
 
     if (shouldExclude) {
+      console.log('ScrollToTop: 路径被排除', location.pathname);
       return;
     }
+
+    console.log('ScrollToTop: 路由变化，开始滚动', location.pathname);
 
     if (delay > 0) {
       return ScrollUtil.delayedScrollToTop(delay, smooth);
