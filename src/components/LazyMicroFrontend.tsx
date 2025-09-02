@@ -55,11 +55,8 @@ const clearComponentCache = () => {
 // 动态导入映射 - 根据实际暴露的组件配置
 const dynamicImportMap: Record<string, Record<string, () => Promise<any>>> = {
   template: {
-    // @ts-expect-error - Module Federation 动态导入，运行时存在
     Dashboard: () => import('template/Dashboard'),
-    // @ts-expect-error - Module Federation 动态导入，运行时存在
     StoreDemo: () => import('template/StoreDemo'),
-    // @ts-expect-error - Module Federation 动态导入，运行时存在
     I18nDemo: () => import('template/I18nDemo'),
   },
   // 可以在这里添加更多应用的导入配置

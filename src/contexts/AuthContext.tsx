@@ -2,7 +2,6 @@
 import type React from 'react';
 import { createContext, type ReactNode, useCallback, useContext, useEffect, useState } from 'react';
 
-// @ts-expect-error - JSON modules
 import users from '../mock/userinfo.json';
 import {
   AppPermission,
@@ -158,7 +157,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           // 同步写入 globalStore（简化键）
           (async () => {
             try {
-              // @ts-expect-error - MF runtime
               const { configureStoreStrategy, setStoreValue } = await import('mf-shared/store');
               configureStoreStrategy?.('user', {
                 medium: 'local',

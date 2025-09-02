@@ -1,21 +1,48 @@
 {
   "app": {
-    "title": "云平台微前端系统",
     "welcome": "欢迎使用",
     "loading": "加载中..."
   },
   "navigation": {
     "dashboard": "仪表板",
     "template": "模板应用",
+    "i18nDemo": "国际化演示",
     "settings": "设置",
     "logout": "退出登录"
   },
+  "microFrontend": {
+    "template": {
+      "Dashboard": "概览",
+      "Store Demo": "Store 演示"
+    }
+  },
   "messages": {
     "saveSuccess": "保存成功",
-    "networkError": "网络连接失败，请检查网络设置"
+    "networkError": "网络连接失败，请检查网络设置",
+    "developing": "正在开发中..."
   },
   "language": {
     "select": "选择语言"
+  },
+  "layout": {
+    "menu": {
+      "expand": "展开菜单",
+      "collapse": "折叠菜单"
+    },
+    "header": {
+      "back": "返回",
+      "welcome": "欢迎回来！今天是",
+      "loading": "加载中..."
+    },
+    "userMenu": {
+      "profile": "个人资料",
+      "settings": "设置",
+      "logout": "退出登录"
+    }
+  },
+  "pages": {
+    "dashboard": "仪表板",
+    "page": "页面"
   },
   "dashboard": {
     "title": "仪表板",
@@ -46,6 +73,45 @@
     "updateUsername": "更新用户名",
     "toggleTheme": "切换主题",
     "usernameUpdated": "用户名已更新",
-    "themeChanged": "主题已切换为"
+    "themeChanged": "主题已切换为",
+    "notSet": "未设置",
+    "defaultRole": "访客"
+  },
+  "i18nDemo": {
+    "title": "国际化功能演示",
+    "currentLanguage": "当前语言",
+    "translationDemo": "翻译演示",
+    "navigationDemo": "导航翻译",
+    "appTitle": "应用标题",
+    "welcomeMessage": "欢迎信息",
+    "loadingStatus": "加载状态",
+    "successMessage": "成功消息",
+    "networkError": "网络错误",
+    "dashboard": "仪表板",
+    "templateApp": "模板应用",
+    "settings": "设置",
+    "logout": "退出",
+    "quickSwitchDemo": "快速语言切换演示",
+    "componentDescription": "这个组件展示了国际化功能。切换语言后，所有文本会立即更新。在微前端环境中，语言切换会同步到所有子应用。"
+  },
+  "i18nDemoPage": {
+    "title": "国际化功能演示",
+    "description": "这个页面展示了主应用和子应用的多语言功能。使用头部的语言切换器，观察两个应用的文本如何同步更新。",
+    "mainAppDemo": "主应用国际化演示",
+    "templateAppDemo": "模板应用国际化演示"
+  },
+  "login": {
+    "subtitle": "请登录您的账户",
+    "redirectNotice": "登录成功后将跳转到：",
+    "username": "用户名",
+    "password": "密码",
+    "loginButton": "登录",
+    "testAccounts": "测试账户：",
+    "adminAccount": "管理员: admin / admin123",
+    "developerAccount": "开发人员: developer / dev123",
+    "validation": {
+      "usernameRequired": "请输入用户名!",
+      "passwordRequired": "请输入密码!"
+    }
   }
 }

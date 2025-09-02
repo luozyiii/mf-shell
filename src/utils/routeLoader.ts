@@ -74,7 +74,6 @@ export class RouteLoader {
 
       switch (appName) {
         case 'template':
-          // @ts-expect-error - 模块联邦动态导入
           routeModule = await import('template/routes');
           break;
         default:

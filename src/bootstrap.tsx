@@ -6,7 +6,6 @@ import App from './App';
 async function initGlobalStore() {
   try {
     // 动态导入 mf-shared 的存储模块
-    // @ts-expect-error - Module Federation 动态导入，运行时存在
     const { initGlobalStore, setStoreValue, configureStoreStrategy } = await import(
       'mf-shared/store'
     );

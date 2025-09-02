@@ -1,6 +1,7 @@
 import { ControlOutlined, DashboardOutlined } from '@ant-design/icons';
 import type React from 'react';
-import { useMemo } from 'react';
+import { useCallback, useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { configManager } from '../config';
 import type { AppRouteConfig } from '../utils/routeLoader';
 import { usePermissions } from './usePermissions';
@@ -35,6 +36,23 @@ export const useMenuItems = ({
   microFrontendRoutes,
 }: UseMenuItemsProps): MenuItemType[] => {
   const { isAdmin, isDeveloper, getUserPermissionSummary } = usePermissions();
+  const { t } = useTranslation();
+
+  // 获取微前端路由名称的国际化翻译
+  const getMicroFrontendRouteLabel = useCallback(
+    (appName: string, routeName: string): string => {
+      const translationKey = `microFrontend.${appName}.${routeName}`;
+      const translated = t(translationKey);
+
+      // 如果翻译键不存在，t() 会返回键本身，这时使用原始名称
+      if (translated === translationKey) {
+        return routeName;
+      }
+
+      return translated;
+    },
+    [t]
+  );
 
   return useMemo(() => {
     // 如果还在加载权限，返回基础菜单
@@ -43,7 +61,7 @@ export const useMenuItems = ({
         {
           key: '/dashboard',
           icon: <DashboardOutlined />,
-          label: '仪表板',
+          label: t('pages.dashboard'),
         },
       ];
     }
@@ -52,12 +70,12 @@ export const useMenuItems = ({
       {
         key: '/dashboard',
         icon: <DashboardOutlined />,
-        label: '仪表板',
+        label: t('pages.dashboard'),
       },
       {
         key: '/i18n-demo',
         icon: <ControlOutlined />,
-        label: '国际化',
+        label: t('navigation.i18nDemo'),
       },
     ];
 
@@ -93,7 +111,7 @@ export const useMenuItems = ({
           label: microFrontend.displayName,
           children: routeConfig.routes.map((route: { path: string; name: string }) => ({
             key: route.path,
-            label: route.name,
+            label: getMicroFrontendRouteLabel(microFrontend.name, route.name),
           })),
         };
         items.push(menuItem);
@@ -109,5 +127,13 @@ export const useMenuItems = ({
     });
 
     return items;
-  }, [authLoading, microFrontendRoutes, isAdmin, isDeveloper, getUserPermissionSummary]);
+  }, [
+    authLoading,
+    microFrontendRoutes,
+    isAdmin,
+    isDeveloper,
+    getUserPermissionSummary,
+    t,
+    getMicroFrontendRouteLabel,
+  ]);
 };

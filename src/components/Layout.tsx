@@ -10,15 +10,14 @@ import { Layout as AntLayout, App, Avatar, Button, Dropdown, Menu } from 'antd';
 import type React from 'react';
 import { useEffect, useState } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { configManager } from '../config';
 import { APP_CONFIG } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
 import { useMenuItems } from '../hooks/useMenuItems';
 import LanguageSwitcher from '../i18n/LanguageSwitcher';
-// @ts-expect-error - MF runtime
 import { getVal, subscribeVal } from '../store/keys';
-import { DateUtil } from '../utils';
 import { type AppRouteConfig, RouteLoader } from '../utils/routeLoader';
 
 import styles from './Layout.module.css';
@@ -54,6 +53,33 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [openKeys, setOpenKeys] = useState<string[]>([]);
   const [contentLoading, setContentLoading] = useState(false);
   const [contentKey, setContentKey] = useState(0);
+  const { t, i18n } = useTranslation();
+
+  // 本地化日期格式化函数
+  const formatLocalizedDate = () => {
+    const date = new Date();
+    const locale =
+      i18n.language === 'zh-CN' ? 'zh-CN' : i18n.language === 'ja-JP' ? 'ja-JP' : 'en-US';
+
+    return date.toLocaleDateString(locale, {
+      month: 'long',
+      day: 'numeric',
+      weekday: 'long',
+    });
+  };
+
+  // 获取微前端路由名称的国际化翻译
+  const getMicroFrontendRouteLabel = (appName: string, routeName: string): string => {
+    const translationKey = `microFrontend.${appName}.${routeName}`;
+    const translated = t(translationKey);
+
+    // 如果翻译键不存在，t() 会返回键本身，这时使用原始名称
+    if (translated === translationKey) {
+      return routeName;
+    }
+
+    return translated;
+  };
   // 动态生成微前端路由状态类型
   const [microFrontendRoutes, setMicroFrontendRoutes] = useState<
     Record<string, AppRouteConfig | null>
@@ -114,6 +140,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     loadRouteConfigs();
   }, []);
+
+  // 监听语言变化，触发菜单重新渲染
+  // 注意：我们不需要重新加载路由配置，只需要让 useMenuItems 重新计算即可
+  // 因为 useMenuItems 已经依赖 t() 函数，语言变化时会自动重新计算
 
   // 根据当前路由自动设置展开的菜单
   useEffect(() => {
@@ -223,10 +253,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const handleUserMenuClick = ({ key }: { key: string }) => {
     switch (key) {
       case 'profile':
-        message.info('正在开发中...');
+        message.info(t('messages.developing'));
         break;
       case 'settings':
-        message.info('正在开发中...');
+        message.info(t('messages.developing'));
         break;
       case 'logout':
         handleLogout();
@@ -246,12 +276,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     {
       key: 'profile',
       icon: <UserOutlined />,
-      label: '个人资料',
+      label: t('layout.userMenu.profile'),
     },
     {
       key: 'settings',
       icon: <SettingOutlined />,
-      label: '设置',
+      label: t('layout.userMenu.settings'),
     },
     {
       type: 'divider' as const,
@@ -259,7 +289,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     {
       key: 'logout',
       icon: <LogoutOutlined />,
-      label: '退出登录',
+      label: t('layout.userMenu.logout'),
     },
   ];
 
@@ -277,16 +307,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     // 主仪表板
     if (pathname === '/dashboard') {
       return {
-        title: '仪表板',
+        title: t('pages.dashboard'),
         showBack: false,
         backPath: null,
       };
     }
 
-    // 国际化
+    // 国际化演示
     if (pathname === '/i18n-demo') {
       return {
-        title: '国际化',
+        title: t('navigation.i18nDemo'),
         showBack: false,
         backPath: null,
       };
@@ -305,7 +335,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           );
           if (routeConfig) {
             return {
-              title: routeConfig.name,
+              title: getMicroFrontendRouteLabel(microFrontend.name, routeConfig.name),
               showBack: routeConfig.showBack || false,
               backPath: routeConfig.backPath || null,
             };
@@ -331,7 +361,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
     // 默认配置
     return {
-      title: '页面',
+      title: t('pages.page'),
       showBack: false,
       backPath: null,
     };
@@ -392,7 +422,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={() => setCollapsed(!collapsed)}
               className={styles.collapseButton || ''}
-              title={collapsed ? '展开菜单' : '折叠菜单'}
+              title={collapsed ? t('layout.menu.expand') : t('layout.menu.collapse')}
             />
           </div>
         </Sider>
@@ -423,7 +453,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
               {/* 欢迎信息 */}
               <div className={styles.welcomeText}>
-                {authLoading ? '加载中...' : `欢迎回来！今天是 ${DateUtil.formatToChineseDate()}`}
+                {authLoading
+                  ? t('layout.header.loading')
+                  : `${t('layout.header.welcome')} ${formatLocalizedDate()}`}
               </div>
 
               {/* 用户信息区域 */}

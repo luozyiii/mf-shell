@@ -1,21 +1,48 @@
 {
   "app": {
-    "title": "Cloud Platform Micro Frontend System",
     "welcome": "Welcome to",
     "loading": "Loading..."
   },
   "navigation": {
     "dashboard": "Dashboard",
     "template": "Template App",
+    "i18nDemo": "I18n Demo",
     "settings": "Settings",
     "logout": "Logout"
   },
+  "microFrontend": {
+    "template": {
+      "Dashboard": "Overview",
+      "Store Demo": "Store Demo"
+    }
+  },
   "messages": {
     "saveSuccess": "Save successful",
-    "networkError": "Network connection failed, please check network settings"
+    "networkError": "Network connection failed, please check network settings",
+    "developing": "Under development..."
   },
   "language": {
     "select": "Select Language"
+  },
+  "layout": {
+    "menu": {
+      "expand": "Expand Menu",
+      "collapse": "Collapse Menu"
+    },
+    "header": {
+      "back": "Back",
+      "welcome": "Welcome back! Today is",
+      "loading": "Loading..."
+    },
+    "userMenu": {
+      "profile": "Profile",
+      "settings": "Settings",
+      "logout": "Logout"
+    }
+  },
+  "pages": {
+    "dashboard": "Dashboard",
+    "page": "Page"
   },
   "dashboard": {
     "title": "Dashboard",
@@ -46,6 +73,45 @@
     "updateUsername": "Update Username",
     "toggleTheme": "Toggle Theme",
     "usernameUpdated": "Username updated",
-    "themeChanged": "Theme changed to"
+    "themeChanged": "Theme changed to",
+    "notSet": "Not Set",
+    "defaultRole": "guest"
+  },
+  "i18nDemo": {
+    "title": "Internationalization Demo",
+    "currentLanguage": "Current Language",
+    "translationDemo": "Translation Demo",
+    "navigationDemo": "Navigation Translation",
+    "appTitle": "App Title",
+    "welcomeMessage": "Welcome Message",
+    "loadingStatus": "Loading Status",
+    "successMessage": "Success Message",
+    "networkError": "Network Error",
+    "dashboard": "Dashboard",
+    "templateApp": "Template App",
+    "settings": "Settings",
+    "logout": "Logout",
+    "quickSwitchDemo": "Quick Language Switch Demo",
+    "componentDescription": "This component demonstrates internationalization features. After switching languages, all text will be updated immediately. In a micro frontend environment, language switching will be synchronized to all sub-applications."
+  },
+  "i18nDemoPage": {
+    "title": "Internationalization Feature Demo",
+    "description": "This page demonstrates the multilingual functionality of the main application and sub-applications. Use the language switcher in the header to observe how the text in both applications updates synchronously.",
+    "mainAppDemo": "Main App I18n Demo",
+    "templateAppDemo": "Template App I18n Demo"
+  },
+  "login": {
+    "subtitle": "Please log in to your account",
+    "redirectNotice": "After successful login, you will be redirected to:",
+    "username": "Username",
+    "password": "Password",
+    "loginButton": "Login",
+    "testAccounts": "Test Accounts:",
+    "adminAccount": "Admin: admin / admin123",
+    "developerAccount": "Developer: developer / dev123",
+    "validation": {
+      "usernameRequired": "Please enter your username!",
+      "passwordRequired": "Please enter your password!"
+    }
   }
 }

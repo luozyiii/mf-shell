@@ -125,7 +125,6 @@ const App: React.FC = () => {
     let unsub: (() => void) | undefined;
     (async () => {
       try {
-        // @ts-expect-error
         const { getStoreValue, subscribeStore } = await import('mf-shared/store');
         const app = (getStoreValue('app') as any) || {};
         if (app?.theme) setThemeMode(app.theme);

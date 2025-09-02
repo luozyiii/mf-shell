@@ -39,6 +39,12 @@ declare module 'template/StoreDemo' {
   export default StoreDemo;
 }
 
+declare module 'template/I18nDemo' {
+  import type React from 'react';
+  const I18nDemo: React.ComponentType;
+  export default I18nDemo;
+}
+
 declare module 'template/routes' {
   export interface RouteConfig {
     path: string;

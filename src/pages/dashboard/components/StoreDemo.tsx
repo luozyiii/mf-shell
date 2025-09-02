@@ -17,7 +17,7 @@ const StoreDemo: React.FC = () => {
       const userinfo = getVal('user');
       const appConfig = getVal('app');
       setCurrentData({
-        userinfo: userinfo || { name: '未设置', age: 0, role: 'guest' },
+        userinfo: userinfo || { name: t('store.notSet'), age: 0, role: t('store.defaultRole') },
         appConfig: appConfig || {
           theme: 'light',
           language: 'zh-CN',
@@ -27,11 +27,11 @@ const StoreDemo: React.FC = () => {
     } catch (error) {
       console.error('Failed to refresh data:', error);
       setCurrentData({
-        userinfo: { name: '未设置', age: 0, role: 'guest' },
+        userinfo: { name: t('store.notSet'), age: 0, role: t('store.defaultRole') },
         appConfig: { theme: 'light', language: 'zh-CN', version: '1.0.0' },
       });
     }
-  }, []);
+  }, [t]);
 
   const loadStoreModule = useCallback(async () => {
     try {

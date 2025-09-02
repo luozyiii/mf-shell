@@ -2,7 +2,9 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Alert, Button, Card, Form, Input, Space, Typography } from 'antd';
 import type React from 'react';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { APP_CONFIG } from '../constants';
 import { useAuth } from '../contexts/AuthContext';
 import type { LoginForm } from '../types/auth';
 import { getValidatedReturnUrl } from '../utils/pathUtils';
@@ -15,6 +17,7 @@ export const Login: React.FC = () => {
   const { login, loginAndGetToken, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
 
   // 获取回调地址：优先使用URL参数，其次使用state，最后默认到dashboard
   // 注意：从404页面跳转过来的用户应该回到首页而不是原404路径
@@ -76,16 +79,16 @@ export const Login: React.FC = () => {
       <Card style={{ width: 400, boxShadow: '0 4px 12px rgba(0,0,0,0.15)' }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
           <Title level={2} style={{ color: '#1890ff', marginBottom: 8 }}>
-            云平台微前端系统
+            {APP_CONFIG.APP_NAME}
           </Title>
-          <Text type="secondary">请登录您的账户</Text>
+          <Text type="secondary">{t('login.subtitle')}</Text>
         </div>
 
         {error && <Alert message={error} type="error" showIcon style={{ marginBottom: 16 }} />}
 
         {returnUrl.startsWith('http') && (
           <Alert
-            message={`登录成功后将跳转到：${returnUrl}`}
+            message={`${t('login.redirectNotice')}${returnUrl}`}
             type="info"
             showIcon
             style={{ marginBottom: 16 }}
@@ -93,17 +96,23 @@ export const Login: React.FC = () => {
         )}
 
         <Form name="login" onFinish={handleSubmit} autoComplete="off" size="large">
-          <Form.Item name="username" rules={[{ required: true, message: '请输入用户名!' }]}>
-            <Input prefix={<UserOutlined />} placeholder="用户名" />
+          <Form.Item
+            name="username"
+            rules={[{ required: true, message: t('login.validation.usernameRequired') }]}
+          >
+            <Input prefix={<UserOutlined />} placeholder={t('login.username')} />
           </Form.Item>
 
-          <Form.Item name="password" rules={[{ required: true, message: '请输入密码!' }]}>
-            <Input.Password prefix={<LockOutlined />} placeholder="密码" />
+          <Form.Item
+            name="password"
+            rules={[{ required: true, message: t('login.validation.passwordRequired') }]}
+          >
+            <Input.Password prefix={<LockOutlined />} placeholder={t('login.password')} />
           </Form.Item>
 
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={loading} style={{ width: '100%' }}>
-              登录
+              {t('login.loginButton')}
             </Button>
           </Form.Item>
         </Form>
@@ -117,11 +126,11 @@ export const Login: React.FC = () => {
           }}
         >
           <Text strong style={{ display: 'block', marginBottom: 8 }}>
-            测试账户：
+            {t('login.testAccounts')}
           </Text>
           <Space direction="vertical" size="small">
-            <Text>管理员: admin / admin123</Text>
-            <Text>开发人员: developer / dev123</Text>
+            <Text>{t('login.adminAccount')}</Text>
+            <Text>{t('login.developerAccount')}</Text>
           </Space>
         </div>
       </Card>

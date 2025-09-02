@@ -1,6 +1,5 @@
 // Store key management for mf-shell
 
-// @ts-expect-error - MF runtime
 import { getStoreValue, setStoreValue, subscribeStore } from 'mf-shared/store';
 
 export type Scope = 'user' | 'app' | 'permissions' | 'token';

@@ -1,21 +1,48 @@
 {
   "app": {
-    "title": "クラウドプラットフォームマイクロフロントエンドシステム",
     "welcome": "ようこそ",
     "loading": "読み込み中..."
   },
   "navigation": {
     "dashboard": "ダッシュボード",
     "template": "テンプレートアプリ",
+    "i18nDemo": "国際化デモ",
     "settings": "設定",
     "logout": "ログアウト"
   },
+  "microFrontend": {
+    "template": {
+      "Dashboard": "概要",
+      "Store Demo": "ストアデモ"
+    }
+  },
   "messages": {
     "saveSuccess": "保存成功",
-    "networkError": "ネットワーク接続に失敗しました。ネットワーク設定を確認してください"
+    "networkError": "ネットワーク接続に失敗しました。ネットワーク設定を確認してください",
+    "developing": "開発中..."
   },
   "language": {
     "select": "言語を選択"
+  },
+  "layout": {
+    "menu": {
+      "expand": "メニューを展開",
+      "collapse": "メニューを折りたたむ"
+    },
+    "header": {
+      "back": "戻る",
+      "welcome": "おかえりなさい！今日は",
+      "loading": "読み込み中..."
+    },
+    "userMenu": {
+      "profile": "プロフィール",
+      "settings": "設定",
+      "logout": "ログアウト"
+    }
+  },
+  "pages": {
+    "dashboard": "ダッシュボード",
+    "page": "ページ"
   },
   "dashboard": {
     "title": "ダッシュボード",
@@ -46,6 +73,45 @@
     "updateUsername": "ユーザー名を更新",
     "toggleTheme": "テーマを切り替え",
     "usernameUpdated": "ユーザー名が更新されました",
-    "themeChanged": "テーマが変更されました"
+    "themeChanged": "テーマが変更されました",
+    "notSet": "未設定",
+    "defaultRole": "ゲスト"
+  },
+  "i18nDemo": {
+    "title": "国際化機能デモ",
+    "currentLanguage": "現在の言語",
+    "translationDemo": "翻訳デモ",
+    "navigationDemo": "ナビゲーション翻訳",
+    "appTitle": "アプリタイトル",
+    "welcomeMessage": "ウェルカムメッセージ",
+    "loadingStatus": "読み込み状態",
+    "successMessage": "成功メッセージ",
+    "networkError": "ネットワークエラー",
+    "dashboard": "ダッシュボード",
+    "templateApp": "テンプレートアプリ",
+    "settings": "設定",
+    "logout": "ログアウト",
+    "quickSwitchDemo": "クイック言語切り替えデモ",
+    "componentDescription": "このコンポーネントは国際化機能を実演します。言語を切り替えると、すべてのテキストが即座に更新されます。マイクロフロントエンド環境では、言語切り替えがすべてのサブアプリケーションに同期されます。"
+  },
+  "i18nDemoPage": {
+    "title": "国際化機能デモ",
+    "description": "このページでは、メインアプリケーションとサブアプリケーションの多言語機能を実演します。ヘッダーの言語切り替えを使用して、両方のアプリケーションのテキストが同期して更新される様子を観察してください。",
+    "mainAppDemo": "メインアプリ国際化デモ",
+    "templateAppDemo": "テンプレートアプリ国際化デモ"
+  },
+  "login": {
+    "subtitle": "アカウントにログインしてください",
+    "redirectNotice": "ログイン成功後、以下にリダイレクトされます：",
+    "username": "ユーザー名",
+    "password": "パスワード",
+    "loginButton": "ログイン",
+    "testAccounts": "テストアカウント：",
+    "adminAccount": "管理者: admin / admin123",
+    "developerAccount": "開発者: developer / dev123",
+    "validation": {
+      "usernameRequired": "ユーザー名を入力してください！",
+      "passwordRequired": "パスワードを入力してください！"
+    }
   }
 }

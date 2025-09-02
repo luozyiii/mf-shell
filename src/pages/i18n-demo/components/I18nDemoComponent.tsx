@@ -19,37 +19,55 @@ const I18nDemoComponent: React.FC = () => {
   };
 
   return (
-    <Card title="国际化功能演示" style={{ margin: '16px 0' }}>
+    <Card title={t('i18nDemo.title')} style={{ margin: '16px 0' }}>
       <Space direction="vertical" style={{ width: '100%' }}>
         <div>
-          <Text strong>当前语言: </Text>
+          <Text strong>{t('i18nDemo.currentLanguage')}: </Text>
           <Text code>{getCurrentLanguage()}</Text>
         </div>
 
         <Divider />
 
-        <Title level={4}>翻译演示</Title>
+        <Title level={4}>{t('i18nDemo.translationDemo')}</Title>
         <Space direction="vertical">
-          <Text>应用标题: {t('app.title')}</Text>
-          <Text>欢迎信息: {t('app.welcome')}</Text>
-          <Text>加载状态: {t('app.loading')}</Text>
-          <Text>成功消息: {t('messages.saveSuccess')}</Text>
-          <Text>网络错误: {t('messages.networkError')}</Text>
+          <Text>
+            {t('i18nDemo.appTitle')}: {t('app.title')}
+          </Text>
+          <Text>
+            {t('i18nDemo.welcomeMessage')}: {t('app.welcome')}
+          </Text>
+          <Text>
+            {t('i18nDemo.loadingStatus')}: {t('app.loading')}
+          </Text>
+          <Text>
+            {t('i18nDemo.successMessage')}: {t('messages.saveSuccess')}
+          </Text>
+          <Text>
+            {t('i18nDemo.networkError')}: {t('messages.networkError')}
+          </Text>
         </Space>
 
         <Divider />
 
-        <Title level={4}>导航翻译</Title>
+        <Title level={4}>{t('i18nDemo.navigationDemo')}</Title>
         <Space wrap>
-          <Text>仪表板: {t('navigation.dashboard')}</Text>
-          <Text>模板应用: {t('navigation.template')}</Text>
-          <Text>设置: {t('navigation.settings')}</Text>
-          <Text>退出: {t('navigation.logout')}</Text>
+          <Text>
+            {t('i18nDemo.dashboard')}: {t('navigation.dashboard')}
+          </Text>
+          <Text>
+            {t('i18nDemo.templateApp')}: {t('navigation.template')}
+          </Text>
+          <Text>
+            {t('i18nDemo.settings')}: {t('navigation.settings')}
+          </Text>
+          <Text>
+            {t('i18nDemo.logout')}: {t('navigation.logout')}
+          </Text>
         </Space>
 
         <Divider />
 
-        <Title level={4}>快速语言切换演示</Title>
+        <Title level={4}>{t('i18nDemo.quickSwitchDemo')}</Title>
         <Space wrap>
           {supportedLanguages.slice(0, 6).map((lang) => (
             <Button
@@ -66,8 +84,7 @@ const I18nDemoComponent: React.FC = () => {
         <Divider />
 
         <Paragraph type="secondary" style={{ fontSize: '12px' }}>
-          这个组件展示了国际化功能。切换语言后，所有文本会立即更新。
-          在微前端环境中，语言切换会同步到所有子应用。
+          {t('i18nDemo.componentDescription')}
         </Paragraph>
       </Space>
     </Card>

@@ -132,17 +132,17 @@
 }
 
 .collapseButton:hover {
-  color: rgba(255, 255, 255, 1) !important;
+  color: rgba(255, 255, 255, 1);
   transform: translateY(-1px);
 }
 
 .collapseButton:focus {
-  color: rgba(255, 255, 255, 1) !important;
+  color: rgba(255, 255, 255, 1);
   transform: translateY(-1px);
 }
 
 .collapseButton:active {
-  color: rgba(255, 255, 255, 1) !important;
+  color: rgba(255, 255, 255, 1);
   transform: translateY(-1px);
 }
 

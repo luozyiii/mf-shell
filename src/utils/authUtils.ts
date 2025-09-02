@@ -1,4 +1,3 @@
-// @ts-expect-error - MF runtime
 import { clearAppData } from 'mf-shared/store';
 import { getVal, setVal } from '../store/keys';
 import type { User } from '../types/auth';
