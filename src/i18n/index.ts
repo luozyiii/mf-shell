@@ -50,7 +50,7 @@ const shellI18nInstance = i18n.createInstance();
 shellI18nInstance.use(initReactI18next).init({
   resources,
   lng: getSavedLanguage(), // 使用保存的语言或默认语言
-  fallbackLng: 'en-US', // 回退语言
+  fallbackLng: 'zh-CN', // 回退语言
 
   interpolation: {
     escapeValue: false, // React 已经处理了 XSS
